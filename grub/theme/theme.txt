@@ -1,0 +1,92 @@
+# zenix — a Sonoma-flavoured GRUB theme.
+#
+# Palette matches hypr/hyprlock.conf, waybar/waybar-style.css and the SDDM
+# greeter, so the machine looks like one system from boot to desktop.
+#
+# Font names must match the NAME baked into the .pf2 files exactly; grub-mkfont
+# composes them as "<family> <style> <size>". See build.sh.
+
+title-text: ""
+
+desktop-image: "background.png"
+desktop-image-scale-method: "crop"
+desktop-color: "#0a0a0c"
+
+terminal-font: "Inter Regular 16"
+terminal-left: "8%"
+terminal-top: "10%"
+terminal-width: "84%"
+terminal-height: "78%"
+terminal-border: "0"
+
+message-font: "Inter Regular 16"
+message-color: "#f5f5f7"
+message-bg-color: "#0a0a0c"
+
+# ---- hostname, small and quiet, the way the Mac boot picker labels things ----
+
++ label {
+    left     = 0
+    top      = 21%
+    width    = 100%
+    align    = "center"
+    text     = "zenix"
+    color    = "#8e8e93"
+    font     = "Inter Regular 13"
+}
+
+# ---- the entries ----
+
++ boot_menu {
+    left   = 50%-260
+    top    = 28%
+    width  = 520
+    height = 38%
+
+    item_font           = "Inter Regular 20"
+    item_color          = "#98989d"
+    selected_item_color = "#ffffff"
+
+    item_height  = 44
+    item_spacing = 6
+    # insets the label inside the selection pill
+    item_padding = 24
+
+    # no OS icons: the Mac picker shows one glyph per disk, not per entry, and
+    # a mixed icon set would read as noise here
+    icon_width      = 0
+    icon_height     = 0
+    item_icon_space = 0
+
+    selected_item_pixmap_style = "select_*.png"
+
+    scrollbar       = true
+    scrollbar_width = 3
+    scrollbar_thumb = "select_*.png"
+}
+
+# ---- countdown ----
+
++ progress_bar {
+    id        = "__timeout__"
+    left      = 50%-140
+    top       = 72%
+    width     = 280
+    height    = 3
+    show_text = false
+    bg_color  = "#2c2c2e"
+    fg_color  = "#8e8e93"
+    border_color = "#2c2c2e"
+}
+
+# ---- key hints ----
+
++ label {
+    left  = 0
+    top   = 78%
+    width = 100%
+    align = "center"
+    text  = "Use the arrow keys to select   ·   Enter to boot   ·   E to edit   ·   C for a console"
+    color = "#636366"
+    font  = "Inter Regular 13"
+}

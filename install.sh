@@ -18,7 +18,7 @@ BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 DRY_RUN=0
-DO_PACMAN=1 DO_AUR=1 DO_DOTFILES=1 DO_SERVICES=1 DO_SHELL=1 DO_SDDM=1 DO_CLI=1 DO_TOOLS=1 DO_WEBAPPS=1
+DO_PACMAN=1 DO_AUR=1 DO_DOTFILES=1 DO_SERVICES=1 DO_SHELL=1 DO_SDDM=1 DO_CLI=1 DO_TOOLS=1 DO_WEBAPPS=1 DO_GRUB=1
 
 # Names that could not be installed, reported at the end instead of aborting.
 FAILED=()
@@ -71,6 +71,7 @@ usage: ./install.sh [options]
       --skip-cli      skip building the zenix CLI and the calendar popup
       --skip-tools    skip pnpm and Claude Code
       --skip-webapps  skip installing the browser web apps
+      --skip-grub     skip installing the GRUB theme
   -h, --help          this message
 USAGE
 }
@@ -87,6 +88,7 @@ while (( $# )); do
     --skip-cli)       DO_CLI=0 ;;
     --skip-tools)     DO_TOOLS=0 ;;
     --skip-webapps)   DO_WEBAPPS=0 ;;
+    --skip-grub)      DO_GRUB=0 ;;
     -h|--help)        usage; exit 0 ;;
     *)                usage >&2; die "unknown option: $1" ;;
   esac
@@ -459,6 +461,64 @@ setup_shell() {
     info "changing the login shell to $zsh_bin"
     run sudo chsh -s "$zsh_bin" "$USER" || FAILED+=("chsh to zsh")
   fi
+}
+
+# ------------------------------------------------------------------- grub ----
+
+# Set or replace a KEY=value in /etc/default/grub, uncommenting it if needed.
+set_grub_default() {
+  local key="$1" value="$2" file=/etc/default/grub
+
+  if grep -qE "^[[:space:]]*#?[[:space:]]*${key}=" "$file"; then
+    run sudo sed -i -E "s|^[[:space:]]*#?[[:space:]]*${key}=.*|${key}=${value}|" "$file"
+  else
+    run sudo sed -i "\$a ${key}=${value}" "$file"
+  fi
+  ok "/etc/default/grub: ${key}=${value}"
+}
+
+install_grub_theme() {
+  step "Installing the GRUB theme"
+
+  if [[ ! -d "$REPO/grub/theme" ]]; then
+    skip "no grub/theme directory"
+    return
+  fi
+  if [[ ! -d /boot/grub ]]; then
+    warn "/boot/grub missing — GRUB is not installed here; skipping the theme"
+    return
+  fi
+
+  local dest=/boot/grub/themes/zenix
+  run sudo install -d -m 755 /boot/grub/themes "$dest"
+  local f
+  for f in "$REPO"/grub/theme/*; do
+    run sudo install -m 644 "$f" "$dest/$(basename "$f")"
+  done
+  ok "theme copied to $dest"
+
+  run sudo cp -n /etc/default/grub /etc/default/grub.zenix-backup
+
+  set_grub_default GRUB_THEME "\"$dest/theme.txt\""
+
+  # A theme is only ever drawn if the menu is actually shown. Manjaro ships
+  # GRUB_TIMEOUT_STYLE=hidden, which boots straight through and never renders
+  # it — the single most likely reason a GRUB theme "does not work".
+  set_grub_default GRUB_TIMEOUT_STYLE menu
+
+  # Themes need the graphical terminal; console output disables them.
+  if grep -qE '^[[:space:]]*GRUB_TERMINAL(_OUTPUT)?=.*console' /etc/default/grub; then
+    warn "GRUB_TERMINAL_OUTPUT is set to console; the theme will not render"
+    warn "remove it from /etc/default/grub to use gfxterm"
+  fi
+
+  info "regenerating /boot/grub/grub.cfg"
+  run sudo grub-mkconfig -o /boot/grub/grub.cfg || {
+    warn "grub-mkconfig failed; the theme is installed but not active"
+    FAILED+=("grub theme (grub-mkconfig)")
+    return
+  }
+  ok "GRUB theme active"
 }
 
 # ---------------------------------------------------------------- webapps ----
@@ -973,6 +1033,7 @@ main() {
   if (( DO_SDDM ));     then install_sddm_theme; else skip "sddm theme skipped"; fi
   if (( DO_TOOLS ));    then install_user_tools; else skip "user tooling skipped"; fi
   if (( DO_WEBAPPS )); then install_webapps;    else skip "web apps skipped"; fi
+  if (( DO_GRUB ));    then install_grub_theme; else skip "grub theme skipped"; fi
   if (( DO_CLI ));      then install_cli; install_calendar_popup;
                         else skip "cli skipped"; fi
   if (( DO_SERVICES )); then enable_services; else skip "services skipped"; fi
