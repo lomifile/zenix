@@ -26,6 +26,13 @@ FAILED=()
 AUR_EXTRA=()
 # Set by install_aur_helper: whichever of yay/paru we end up driving.
 AUR_HELPER=
+# The image hyprpaper shows on the desktop, picked by name out of
+# assets/wallpaper/; SRC/DEST are filled in by resolve_wallpaper.
+WALLPAPER_NAME="azoc6k1g99mh1.png"
+WALLPAPER_SRC= WALLPAPER_DEST=
+# The greeter gets its own, picked by name out of assets/wallpaper/.
+GREETER_WALLPAPER_NAME="couple-bus-sunset.jpg"
+GREETER_WALLPAPER_SRC=
 
 # ---------------------------------------------------------------- output ----
 
@@ -87,9 +94,12 @@ done
 resolve_wallpaper() {
   if [[ -n "${ZENIX_WALLPAPER:-}" ]]; then
     WALLPAPER_SRC="$ZENIX_WALLPAPER"
+  elif [[ -f "$REPO/assets/wallpaper/$WALLPAPER_NAME" ]]; then
+    WALLPAPER_SRC="$REPO/assets/wallpaper/$WALLPAPER_NAME"
   else
-    # Prefer png/jpg: the greeter renders through Qt, which needs
-    # qt6-imageformats for webp and that is not in packages/pacman.txt.
+    warn "assets/wallpaper/$WALLPAPER_NAME missing; falling back to the first image"
+    # Prefer png/jpg: hyprpaper reads webp fine, but the greeter falls back to
+    # this image and Qt needs qt6-imageformats for webp, which pacman.txt omits.
     WALLPAPER_SRC="$(find "$REPO/assets/wallpaper" -maxdepth 1 -type f \
                        \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) \
                      2>/dev/null | sort | head -1)"
@@ -102,6 +112,21 @@ resolve_wallpaper() {
     return
   fi
   WALLPAPER_DEST="$HOME/Pictures/wallpaper/$(basename "$WALLPAPER_SRC")"
+}
+
+# The login screen is its own surface, so it does not have to match the desktop.
+# Override with ZENIX_GREETER_WALLPAPER=/path/to/image.
+resolve_greeter_wallpaper() {
+  if [[ -n "${ZENIX_GREETER_WALLPAPER:-}" ]]; then
+    GREETER_WALLPAPER_SRC="$ZENIX_GREETER_WALLPAPER"
+  elif [[ -f "$REPO/assets/wallpaper/$GREETER_WALLPAPER_NAME" ]]; then
+    GREETER_WALLPAPER_SRC="$REPO/assets/wallpaper/$GREETER_WALLPAPER_NAME"
+  else
+    warn "assets/wallpaper/$GREETER_WALLPAPER_NAME missing; greeter falls back to the desktop wallpaper"
+    GREETER_WALLPAPER_SRC="$WALLPAPER_SRC"
+  fi
+
+  [[ -f "$GREETER_WALLPAPER_SRC" ]] || GREETER_WALLPAPER_SRC=""
 }
 
 # -------------------------------------------------------------- preflight ----
@@ -120,11 +145,15 @@ preflight() {
   ping -c1 -W3 archlinux.org >/dev/null 2>&1 || warn "no route to archlinux.org — package steps will likely fail."
 
   resolve_wallpaper
+  resolve_greeter_wallpaper
   if [[ -n "$WALLPAPER_SRC" ]]; then
-    info "paper:   $(basename "$WALLPAPER_SRC")"
+    info "paper:   $(basename "$WALLPAPER_SRC") (desktop)"
   else
-    warn "no image in assets/wallpaper/; hyprpaper and the greeter will be blank"
+    warn "no image in assets/wallpaper/; hyprpaper will be blank"
   fi
+  [[ -n "$GREETER_WALLPAPER_SRC" ]] \
+    && info "greeter: $(basename "$GREETER_WALLPAPER_SRC")" \
+    || warn "no greeter wallpaper; the login screen falls back to a flat colour"
 
   info "repo:    $REPO"
   info "configs: $CONFIG"
@@ -446,8 +475,8 @@ install_sddm_theme() {
   done
 
   # the greeter cannot read ~/Pictures either, so the wallpaper ships with it
-  if [[ -n "$WALLPAPER_SRC" ]]; then
-    run sudo install -m 644 "$WALLPAPER_SRC" "$dest/background.png"
+  if [[ -n "$GREETER_WALLPAPER_SRC" ]]; then
+    run sudo install -m 644 "$GREETER_WALLPAPER_SRC" "$dest/background.png"
   else
     warn "no wallpaper resolved; the greeter falls back to a flat colour"
   fi
