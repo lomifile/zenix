@@ -248,3 +248,4 @@ spotify-launcher
 # --- misc system ---
 cronie
 glibc-locales
+gcalcli

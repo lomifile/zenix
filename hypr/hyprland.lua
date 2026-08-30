@@ -48,12 +48,30 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 
+hl.window_rule({
+  match = { class = "^(calendar-tasks)$" },
+  float = true
+})
 
+hl.window_rule({
+  match = { class = "^(calendar-tasks)$" },
+  pin = true
+})
+
+hl.window_rule({
+  match = { class = "^(calendar-tasks)$" },
+  move = "50% 5%"
+})
+
+hl.window_rule({
+  match = { class = "^(calendar-tasks)$" },
+  animation = "slide"
+})
 
 hl.config({
   general = {
     gaps_in          = 6,
-gaps_out = { top = 4, right = 8, bottom = 8, left = 8 },
+    gaps_out         = { top = 4, right = 8, bottom = 8, left = 8 },
     border_size      = 2,
     col              = {
       active_border   = { colors = { "rgba(ffffffcc)", "rgba(ffffff55)" }, angle = 45 },

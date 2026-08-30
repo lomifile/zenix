@@ -1,107 +1,108 @@
 {
-    "layer": "top",
-    "position": "top",
-    "height": 36,
-    "spacing": 0,
-    "margin-top": 6,
-    "margin-bottom": 0,
-    "margin-left": 12,
-    "margin-right": 12,
+  "layer": "top",
+  "position": "top",
+  "height": 36,
+  "spacing": 0,
+  "margin-top": 6,
+  "margin-bottom": 0,
+  "margin-left": 12,
+  "margin-right": 12,
 
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": [
-        "custom/cpu",
-        "custom/memory",
-        "network",
-        "bluetooth",
-        "custom/volume",
-        "custom/battery"
-    ],
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "custom/cpu",
+    "custom/memory",
+    "network",
+    "bluetooth",
+    "custom/volume",
+    "custom/battery",
+  ],
 
-    "hyprland/workspaces": {
-        "format": "{name}",
-        "on-click": "activate",
-        "all-outputs": true
+  "hyprland/workspaces": {
+    "format": "{name}",
+    "on-click": "activate",
+    "all-outputs": true,
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 44,
+    "separate-outputs": true,
+    "rewrite": { "": "Desktop" },
+  },
+
+  "clock": {
+    "format": "{:%a %d %b   %H:%M}",
+    "interval": 30,
+    "tooltip-format": "<span size='x-large' weight='bold'>{:%B %Y}</span>\n\n<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "left",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#f5f5f7'><b>{}</b></span>",
+        "days": "<span color='#f5f5f7'>{}</span>",
+        "weeks": "<span color='#8e8e93'>W{}</span>",
+        "weekdays": "<span color='#8e8e93'><b>{}</b></span>",
+        "today": "<span color='#0a84ff'><b>{}</b></span>",
+      },
     },
-
-    "hyprland/window": {
-        "format": "{title}",
-        "max-length": 44,
-        "separate-outputs": true,
-        "rewrite": { "": "Desktop" }
+    "actions": {
+      "on-click-left": "~/.config/waybar/scripts/calendar_popup.py",
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down",
     },
+    "tooltip": false,
+  },
 
-    "clock": {
-        "format": "{:%a %d %b   %H:%M}",
-        "interval": 30,
-        "tooltip-format": "<span size='x-large' weight='bold'>{:%B %Y}</span>\n\n<tt>{calendar}</tt>",
-        "calendar": {
-            "mode": "month",
-            "mode-mon-col": 3,
-            "weeks-pos": "left",
-            "on-scroll": 1,
-            "format": {
-                "months":   "<span color='#f5f5f7'><b>{}</b></span>",
-                "days":     "<span color='#f5f5f7'>{}</span>",
-                "weeks":    "<span color='#8e8e93'>W{}</span>",
-                "weekdays": "<span color='#8e8e93'><b>{}</b></span>",
-                "today":    "<span color='#0a84ff'><b>{}</b></span>"
-            }
-        },
-        "actions": {
-            "on-click-right": "mode",
-            "on-scroll-up": "shift_up",
-            "on-scroll-down": "shift_down"
-        }
-    },
+  "custom/cpu": {
+    "exec": "~/.config/waybar/scripts/statbar.sh cpu",
+    "interval": 2,
+    "tooltip": false,
+  },
 
+  "custom/memory": {
+    "exec": "~/.config/waybar/scripts/statbar.sh memory",
+    "interval": 3,
+    "tooltip": false,
+  },
 
-    "custom/cpu": {
-        "exec": "~/.config/waybar/scripts/statbar.sh cpu",
-        "interval": 2,
-        "tooltip": false
-    },
+  "custom/volume": {
+    "exec": "~/.config/waybar/scripts/statbar.sh volume",
+    "interval": 1,
+    "on-click": "pavucontrol",
+    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+    "tooltip": false,
+  },
 
-    "custom/memory": {
-        "exec": "~/.config/waybar/scripts/statbar.sh memory",
-        "interval": 3,
-        "tooltip": false
-    },
+  "custom/battery": {
+    "exec": "~/.config/waybar/scripts/statbar.sh battery",
+    "interval": 10,
+    "tooltip": false,
+  },
 
-    "custom/volume": {
-        "exec": "~/.config/waybar/scripts/statbar.sh volume",
-        "interval": 1,
-        "on-click": "pavucontrol",
-        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
-        "tooltip": false
-    },
+  "network": {
+    "interval": 2,
+    "format-wifi": "  {bandwidthDownBytes}   {bandwidthUpBytes}",
+    "format-ethernet": "  {bandwidthDownBytes}   {bandwidthUpBytes}",
+    "format-disconnected": "󰤭 offline",
+    "tooltip-format": "{ifname}  {ipaddr}",
+    "on-click": "nm-connection-editor",
+  },
 
-    "custom/battery": {
-        "exec": "~/.config/waybar/scripts/statbar.sh battery",
-        "interval": 10,
-        "tooltip": false
-    },
-
-    "network": {
-        "interval": 2,
-        "format-wifi": "  {bandwidthDownBytes}   {bandwidthUpBytes}",
-        "format-ethernet": "  {bandwidthDownBytes}   {bandwidthUpBytes}",
-        "format-disconnected": "󰤭 offline",
-        "tooltip-format": "{ifname}  {ipaddr}",
-        "on-click": "nm-connection-editor"
-    },
-
-    "bluetooth": {
-        "format": "󰂯",
-        "format-disabled": "󰂲",
-        "format-off": "󰂲",
-        "format-on": "󰂯",
-        "format-connected": "󰂱 {num_connections}",
-        "tooltip-format": "{controller_alias}\n{status}",
-        "tooltip-format-connected": "{controller_alias}\n\n{device_enumerate}",
-        "tooltip-format-enumerate-connected": "  {device_alias}",
-        "on-click": "blueman-manager"
-    }
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "format-on": "󰂯",
+    "format-connected": "󰂱 {num_connections}",
+    "tooltip-format": "{controller_alias}\n{status}",
+    "tooltip-format-connected": "{controller_alias}\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "  {device_alias}",
+    "on-click": "blueman-manager",
+  },
 }
