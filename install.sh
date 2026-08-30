@@ -18,7 +18,7 @@ BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 DRY_RUN=0
-DO_PACMAN=1 DO_AUR=1 DO_DOTFILES=1 DO_SERVICES=1 DO_SHELL=1 DO_SDDM=1
+DO_PACMAN=1 DO_AUR=1 DO_DOTFILES=1 DO_SERVICES=1 DO_SHELL=1 DO_SDDM=1 DO_CLI=1
 
 # Names that could not be installed, reported at the end instead of aborting.
 FAILED=()
@@ -68,6 +68,7 @@ usage: ./install.sh [options]
       --skip-services skip enabling systemd units
       --skip-shell    skip oh-my-zsh, rustup and the login-shell change
       --skip-sddm     skip installing the greeter theme
+      --skip-cli      skip building and installing the zenix CLI
   -h, --help          this message
 USAGE
 }
@@ -81,6 +82,7 @@ while (( $# )); do
     --skip-services)  DO_SERVICES=0 ;;
     --skip-shell)     DO_SHELL=0 ;;
     --skip-sddm)      DO_SDDM=0 ;;
+    --skip-cli)       DO_CLI=0 ;;
     -h|--help)        usage; exit 0 ;;
     *)                usage >&2; die "unknown option: $1" ;;
   esac
@@ -454,6 +456,53 @@ setup_shell() {
   fi
 }
 
+# -------------------------------------------------------------------- cli ----
+
+# Built from cli/ and installed with pipx, so the CLI gets its own venv instead
+# of fighting Arch's externally-managed system Python (PEP 668).
+install_cli() {
+  step "Building the zenix CLI"
+
+  if ! command -v python3 >/dev/null; then
+    warn "python3 missing; skipping the CLI"
+    return
+  fi
+  if ! python3 -c 'import build' 2>/dev/null; then
+    warn "python-build missing; skipping the CLI (it is in packages/pacman.txt)"
+    return
+  fi
+
+  # --no-isolation: build against the repo packages rather than pulling a
+  # toolchain from PyPI into a throwaway env.
+  if (( DRY_RUN )); then
+    printf '    %s$ (cd %s/cli && python3 -m build --wheel --no-isolation)%s\n' "$DIM" "$REPO" "$N"
+  else
+    ( cd "$REPO/cli" && rm -rf dist && python3 -m build --wheel --no-isolation ) \
+      || { warn "wheel build failed; skipping the CLI"; FAILED+=("zenix cli (build)"); return; }
+  fi
+
+  local wheel
+  wheel="$(find "$REPO/cli/dist" -name 'zenix-*.whl' 2>/dev/null | sort | tail -1)"
+  if [[ -z "$wheel" ]] && ! (( DRY_RUN )); then
+    warn "no wheel produced; skipping the CLI"
+    FAILED+=("zenix cli (no wheel)")
+    return
+  fi
+
+  if command -v pipx >/dev/null || (( DRY_RUN )); then
+    run pipx install --force "${wheel:-$REPO/cli}" || FAILED+=("zenix cli (pipx)")
+  else
+    warn "pipx missing; installing into a venv at ~/.local/share/zenix instead"
+    run python3 -m venv "$HOME/.local/share/zenix"
+    run "$HOME/.local/share/zenix/bin/pip" install --quiet "$wheel"
+    run mkdir -p "$HOME/.local/bin"
+    run ln -sfn "$HOME/.local/share/zenix/bin/zenix" "$HOME/.local/bin/zenix"
+  fi
+
+  ok "zenix installed to ~/.local/bin/zenix"
+  info "run 'zenix status' from anywhere; it finds the repo via \$ZENIX_REPO or --repo"
+}
+
 # ------------------------------------------------------------------- sddm ----
 
 # The theme has to be copied rather than symlinked: sddm runs as its own user
@@ -598,6 +647,7 @@ main() {
   if (( DO_DOTFILES )); then link_dotfiles;   else skip "dotfiles skipped"; fi
   if (( DO_SHELL ));    then setup_shell;     else skip "shell setup skipped"; fi
   if (( DO_SDDM ));     then install_sddm_theme; else skip "sddm theme skipped"; fi
+  if (( DO_CLI ));      then install_cli;        else skip "cli skipped"; fi
   if (( DO_SERVICES )); then enable_services; else skip "services skipped"; fi
 
   summary

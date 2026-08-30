@@ -201,6 +201,9 @@ rustup
 jdk-openjdk
 python-pip
 python-pipx
+python-build
+python-setuptools
+python-wheel
 python-docker
 python-paramiko
 docker

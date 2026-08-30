@@ -71,6 +71,12 @@ bindkey -s '^q' 'tmux detach\n'
 # --- zoxide (was: `zoxide init fish | source`) ---
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
+# --- ~/.local/bin (pipx puts the zenix CLI here) ---
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+
 # --- pnpm ---
 export PNPM_HOME="/home/f/.local/share/pnpm"
 case ":$PATH:" in

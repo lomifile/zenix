@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zenix"
+description = "Manage the parts of the zenix setup that change often"
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["version"]
+
+# Deliberately none: install.sh runs this on a machine that has just been
+# built, where the only certainty is the interpreter from the base install.
+dependencies = []
+
+[project.scripts]
+zenix = "zenix.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "zenix.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
