@@ -80,6 +80,30 @@ while (( $# )); do
   shift
 done
 
+# -------------------------------------------------------------- wallpaper ----
+
+# assets/wallpaper/ is a collection, so one of them has to be nominated as the
+# active image. Override the choice with ZENIX_WALLPAPER=/path/to/image.
+resolve_wallpaper() {
+  if [[ -n "${ZENIX_WALLPAPER:-}" ]]; then
+    WALLPAPER_SRC="$ZENIX_WALLPAPER"
+  else
+    # Prefer png/jpg: the greeter renders through Qt, which needs
+    # qt6-imageformats for webp and that is not in packages/pacman.txt.
+    WALLPAPER_SRC="$(find "$REPO/assets/wallpaper" -maxdepth 1 -type f \
+                       \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \) \
+                     2>/dev/null | sort | head -1)"
+    [[ -n "$WALLPAPER_SRC" ]] || WALLPAPER_SRC="$(find "$REPO/assets/wallpaper" \
+                                   -maxdepth 1 -type f 2>/dev/null | sort | head -1)"
+  fi
+
+  if [[ -z "$WALLPAPER_SRC" || ! -f "$WALLPAPER_SRC" ]]; then
+    WALLPAPER_SRC="" WALLPAPER_DEST=""
+    return
+  fi
+  WALLPAPER_DEST="$HOME/Pictures/wallpaper/$(basename "$WALLPAPER_SRC")"
+}
+
 # -------------------------------------------------------------- preflight ----
 
 preflight() {
@@ -94,6 +118,13 @@ preflight() {
   fi
 
   ping -c1 -W3 archlinux.org >/dev/null 2>&1 || warn "no route to archlinux.org — package steps will likely fail."
+
+  resolve_wallpaper
+  if [[ -n "$WALLPAPER_SRC" ]]; then
+    info "paper:   $(basename "$WALLPAPER_SRC")"
+  else
+    warn "no image in assets/wallpaper/; hyprpaper and the greeter will be blank"
+  fi
 
   info "repo:    $REPO"
   info "configs: $CONFIG"
@@ -324,7 +355,12 @@ ZSHENV
 # hyprpaper has no $HOME expansion, so the path has to be baked in.
 write_hyprpaper_conf() {
   local dest="$CONFIG/hypr/hyprpaper.conf"
-  local paper="$HOME/Pictures/wallpaper.png"
+  local paper="$WALLPAPER_DEST"
+
+  if [[ -z "$paper" ]]; then
+    warn "skipping hyprpaper.conf: no wallpaper resolved"
+    return
+  fi
 
   run mkdir -p "$CONFIG/hypr"
   if (( DRY_RUN )); then
@@ -338,27 +374,16 @@ write_hyprpaper_conf() {
 }
 
 install_wallpaper() {
-  local dest="$HOME/Pictures/wallpaper.png"
-
-  run mkdir -p "$HOME/Pictures"
-
-  # The single active wallpaper: hyprpaper.conf and the greeter both point at
-  # this one file. Swap assets/wallpaper.png to change what the desktop shows.
-  if [[ -e "$dest" ]]; then
-    skip "~/Pictures/wallpaper.png already present"
-  elif [[ -f "$REPO/assets/wallpaper.png" ]]; then
-    run cp "$REPO/assets/wallpaper.png" "$dest"
-    ok "~/Pictures/wallpaper.png installed"
-  else
-    warn "assets/wallpaper.png missing; hyprpaper will have nothing to show"
+  if [[ ! -d "$REPO/assets/wallpaper" ]]; then
+    warn "assets/wallpaper/ missing; nothing to install"
+    return
   fi
 
-  # The rest of the collection, for switching by hand later.
-  if [[ -d "$REPO/assets/wallpaper" ]]; then
-    run mkdir -p "$HOME/Pictures/wallpaper"
-    run cp -rn "$REPO/assets/wallpaper/." "$HOME/Pictures/wallpaper/"
-    ok "~/Pictures/wallpaper/ synced ($(find "$REPO/assets/wallpaper" -type f | wc -l) files)"
-  fi
+  run mkdir -p "$HOME/Pictures/wallpaper"
+  run cp -rn "$REPO/assets/wallpaper/." "$HOME/Pictures/wallpaper/"
+  ok "~/Pictures/wallpaper/ synced ($(find "$REPO/assets/wallpaper" -type f | wc -l) files)"
+
+  [[ -n "$WALLPAPER_DEST" ]] && ok "active: ${WALLPAPER_DEST/#$HOME/\~}" || true
 }
 
 # ------------------------------------------------------------------ shell ----
@@ -421,10 +446,10 @@ install_sddm_theme() {
   done
 
   # the greeter cannot read ~/Pictures either, so the wallpaper ships with it
-  if [[ -f "$REPO/assets/wallpaper.png" ]]; then
-    run sudo install -m 644 "$REPO/assets/wallpaper.png" "$dest/background.png"
+  if [[ -n "$WALLPAPER_SRC" ]]; then
+    run sudo install -m 644 "$WALLPAPER_SRC" "$dest/background.png"
   else
-    warn "assets/wallpaper.png missing; the greeter falls back to a flat colour"
+    warn "no wallpaper resolved; the greeter falls back to a flat colour"
   fi
 
   run sudo install -d -m 755 /etc/sddm.conf.d
