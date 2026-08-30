@@ -53,7 +53,14 @@ class CalendarTaskWindow(Gtk.Window):
         # hl.window_rule entries instead. set_keep_above() and set_wmclass()
         # are X11-only no-ops here for the same reason.
 
-        self.connect("focus-out-event", lambda w, e: self.close())
+        # Close on focus loss, but only once the window has actually held
+        # focus. hypr's input.follow_mouse = 1 means a window mapped under a
+        # cursor that is still over the waybar clock may never be focused, and
+        # an unguarded focus-out handler then closes the popup the instant it
+        # maps — looking as though the click did nothing.
+        self._had_focus = False
+        self.connect("focus-in-event", self._on_focus_in)
+        self.connect("focus-out-event", self._on_focus_out)
         self.connect("key-press-event", self._on_key_press)
 
         # The panel is translucent so hyprland's decoration.blur shows through
@@ -150,6 +157,15 @@ class CalendarTaskWindow(Gtk.Window):
         return label
 
     # -- chrome ------------------------------------------------------------
+
+    def _on_focus_in(self, _widget, _event) -> bool:
+        self._had_focus = True
+        return False
+
+    def _on_focus_out(self, _widget, _event) -> bool:
+        if self._had_focus:
+            self.close()
+        return False
 
     def _on_key_press(self, _widget, event) -> bool:
         if event.keyval == Gdk.KEY_Escape:
