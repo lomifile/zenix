@@ -1,0 +1,8 @@
+apple_cursor
+apple_hyprcursor
+supergfxctl
+lib32-libcanberra
+brave-bin
+bruno-bin
+mongodb-compass-bin
+
