@@ -503,14 +503,23 @@ install_grub_theme() {
 
   # A theme is only ever drawn if the menu is actually shown. Manjaro ships
   # GRUB_TIMEOUT_STYLE=hidden, which boots straight through and never renders
-  # it — the single most likely reason a GRUB theme "does not work".
+  # it.
   set_grub_default GRUB_TIMEOUT_STYLE menu
 
-  # Themes need the graphical terminal; console output disables them.
-  if grep -qE '^[[:space:]]*GRUB_TERMINAL(_OUTPUT)?=.*console' /etc/default/grub; then
-    warn "GRUB_TERMINAL_OUTPUT is set to console; the theme will not render"
-    warn "remove it from /etc/default/grub to use gfxterm"
+  # Themes are drawn by gfxterm and nothing else. grub-mkconfig defaults to it
+  # when the value is empty, but a GRUB_TERMINAL= line anywhere in the file
+  # sets both halves and would silently select the text console, so pin it.
+  set_grub_default GRUB_TERMINAL_OUTPUT gfxterm
+  if grep -qE '^[[:space:]]*GRUB_TERMINAL=' /etc/default/grub; then
+    warn "GRUB_TERMINAL= is set and overrides GRUB_TERMINAL_OUTPUT; comment it out"
   fi
+
+  # gfxterm has to actually get a video mode. "auto" is enough on real
+  # hardware, but VirtualBox's GOP advertises a short mode list and the probe
+  # can fail, dropping GRUB back to the plain text menu with no error — the
+  # theme then simply never appears. A fallback chain fixes that and costs
+  # nothing on bare metal, where the first entry usually matches the panel.
+  set_grub_default GRUB_GFXMODE "1920x1080x32,1280x1024x32,1024x768x32,auto"
 
   info "regenerating /boot/grub/grub.cfg"
   run sudo grub-mkconfig -o /boot/grub/grub.cfg || {
