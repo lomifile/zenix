@@ -9,7 +9,6 @@
 title-text: ""
 
 desktop-image: "background.png"
-desktop-image-scale-method: "crop"
 desktop-color: "#0a0a0c"
 
 terminal-font: "Inter Regular 16"
@@ -52,17 +51,13 @@ message-bg-color: "#0a0a0c"
     # insets the label inside the selection pill
     item_padding = 24
 
-    # no OS icons: the Mac picker shows one glyph per disk, not per entry, and
-    # a mixed icon set would read as noise here
+    # No OS icons: no icons/ directory ships with this theme. If entries turn
+    # out indented as though space were still reserved, that is these three.
     icon_width      = 0
     icon_height     = 0
     item_icon_space = 0
 
     selected_item_pixmap_style = "select_*.png"
-
-    scrollbar       = true
-    scrollbar_width = 3
-    scrollbar_thumb = "select_*.png"
 }
 
 # ---- countdown ----
