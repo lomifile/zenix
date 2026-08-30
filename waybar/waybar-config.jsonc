@@ -34,7 +34,26 @@
 
     "clock": {
         "format": "{:%a %d %b   %H:%M}",
-        "tooltip-format": "<tt><big>{:%Y %B}</big>\n{calendar}</tt>"
+        "interval": 30,
+        "tooltip-format": "<span size='x-large' weight='bold'>{:%B %Y}</span>\n\n<tt>{calendar}</tt>",
+        "calendar": {
+            "mode": "month",
+            "mode-mon-col": 3,
+            "weeks-pos": "left",
+            "on-scroll": 1,
+            "format": {
+                "months":   "<span color='#f5f5f7'><b>{}</b></span>",
+                "days":     "<span color='#f5f5f7'>{}</span>",
+                "weeks":    "<span color='#8e8e93'>W{}</span>",
+                "weekdays": "<span color='#8e8e93'><b>{}</b></span>",
+                "today":    "<span color='#0a84ff'><b>{}</b></span>"
+            }
+        },
+        "actions": {
+            "on-click-right": "mode",
+            "on-scroll-up": "shift_up",
+            "on-scroll-down": "shift_down"
+        }
     },
 
 

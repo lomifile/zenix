@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=WhatsApp
+Comment=WhatsApp Web in a chromeless Brave window
+Exec=brave --app=https://web.whatsapp.com --class=whatsapp
+Icon=whatsapp
+Terminal=false
+Categories=Network;InstantMessaging;
+StartupWMClass=whatsapp
+X-Zenix-WebApp=true
