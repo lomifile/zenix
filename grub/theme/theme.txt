@@ -68,7 +68,7 @@ message-bg-color: "#0a0a0c"
     top       = 72%
     width     = 280
     height    = 3
-    show_text = false
+    text      = ""
     bg_color  = "#2c2c2e"
     fg_color  = "#8e8e93"
     border_color = "#2c2c2e"

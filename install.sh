@@ -522,12 +522,70 @@ install_grub_theme() {
   set_grub_default GRUB_GFXMODE "1920x1080x32,1280x1024x32,1024x768x32,auto"
 
   info "regenerating /boot/grub/grub.cfg"
-  run sudo grub-mkconfig -o /boot/grub/grub.cfg || {
+  if ! run sudo grub-mkconfig -o /boot/grub/grub.cfg; then
     warn "grub-mkconfig failed; the theme is installed but not active"
     FAILED+=("grub theme (grub-mkconfig)")
     return
-  }
-  ok "GRUB theme active"
+  fi
+
+  verify_grub_theme
+}
+
+# grub-mkconfig exits 0 whether or not it picked the theme up, so check the
+# generated config rather than trusting it. Without this the installer reports
+# success and the machine still boots to the plain text menu.
+verify_grub_theme() {
+  local cfg=/boot/grub/grub.cfg
+
+  if (( DRY_RUN )); then
+    printf '    %s$ (verify %s references the theme)%s\n' "$DIM" "$cfg" "$N"
+    return
+  fi
+
+  # grub.cfg is mode 600 root, so read it once through sudo; grepping it
+  # directly as the user fails on every pattern and looks like a broken theme.
+  local content
+  if ! content="$(sudo cat "$cfg" 2>/dev/null)"; then
+    warn "cannot read $cfg; skipping verification"
+    return
+  fi
+
+  local missing=()
+  grep -q '^insmod gfxmenu'  <<<"$content" || missing+=("insmod gfxmenu")
+  grep -q '^set theme='      <<<"$content" || missing+=("set theme=")
+  grep -q 'themes/zenix'     <<<"$content" || missing+=("a themes/zenix path")
+  grep -qE '^[[:space:]]*loadfont.*zenix.*\.pf2' <<<"$content" \
+    || missing+=("loadfont for the theme fonts")
+
+  if (( ${#missing[@]} == 0 )); then
+    ok "verified: grub.cfg loads the theme"
+    info "$(grep -m1 '^set theme=' <<<"$content")"
+    return
+  fi
+
+  warn "grub-mkconfig ran but $cfg does not reference the theme"
+  warn "missing: ${missing[*]}"
+  warn "the machine will boot to the plain text menu. Checking why:"
+
+  local theme_line
+  theme_line="$(grep -E '^[[:space:]]*GRUB_THEME=' /etc/default/grub || true)"
+  warn "  GRUB_THEME is: ${theme_line:-<unset>}"
+
+  grep -qE '^[[:space:]]*GRUB_TERMINAL_OUTPUT=gfxterm' /etc/default/grub \
+    || warn "  GRUB_TERMINAL_OUTPUT is not gfxterm — only gfxterm draws themes"
+  grep -qE '^[[:space:]]*GRUB_TERMINAL=' /etc/default/grub \
+    && warn "  GRUB_TERMINAL= is set and overrides GRUB_TERMINAL_OUTPUT" || true
+  [[ -r /boot/grub/themes/zenix/theme.txt ]] \
+    || warn "  /boot/grub/themes/zenix/theme.txt is missing or unreadable"
+
+  # 00_header drops the theme silently when grub-probe cannot describe the
+  # filesystem holding it.
+  if command -v grub-probe >/dev/null; then
+    sudo grub-probe -t fs /boot/grub/themes/zenix/theme.txt >/dev/null 2>&1 \
+      || warn "  grub-probe cannot read the filesystem holding the theme"
+  fi
+
+  FAILED+=("grub theme (not referenced in grub.cfg)")
 }
 
 # ---------------------------------------------------------------- webapps ----
