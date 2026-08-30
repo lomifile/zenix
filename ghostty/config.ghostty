@@ -1,0 +1,13 @@
+theme = TokyoNight Moon
+font-family = ZedMono Nerd Font
+
+
+# Add some nice looking padding
+window-padding-x = 4
+window-padding-y = 2
+
+# Don't hang around
+quit-after-last-window-closed = true
+
+# Fixes issues with Ctrl-R
+term = xterm-256color

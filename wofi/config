@@ -1,0 +1,16 @@
+show=drun
+prompt=Spotlight Search
+width=680
+height=440
+location=center
+xoffset=0
+yoffset=-80
+allow_images=true
+image_size=36
+insensitive=true
+no_actions=true
+hide_scroll=true
+matching=fuzzy
+term=foot
+gtk_dark=false
+dynamic_lines=true

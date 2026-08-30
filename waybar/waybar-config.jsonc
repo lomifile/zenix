@@ -1,0 +1,98 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+    "margin-top": 0,
+    "margin-bottom": 0,
+    "margin-left": 0,
+    "margin-right": 0,
+
+    "modules-left": ["custom/apple", "hyprland/workspaces", "hyprland/window"],
+    "modules-center": [],
+    "modules-right": ["cpu", "memory", "pulseaudio", "network", "bluetooth", "battery", "tray", "custom/spotlight", "clock"],
+
+    "custom/apple": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "wofi --show drun"
+    },
+
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "on-click": "activate",
+        "all-outputs": true,
+        "persistent-workspaces": { "*": 5 }
+    },
+
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 50,
+        "separate-outputs": true,
+        "rewrite": {
+            "": "Finder"
+        }
+    },
+
+    "cpu": {
+        "format": "  {usage}%",
+        "interval": 2,
+        "tooltip": false
+    },
+
+    "memory": {
+        "format": "  {percentage}%",
+        "interval": 2,
+        "tooltip": false
+    },
+
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": " ",
+        "format-icons": { "default": ["", "", ""] },
+        "scroll-step": 5,
+        "on-click": "pavucontrol",
+        "tooltip": false
+    },
+
+    "network": {
+        "format-wifi": "  {signalStrength}%",
+        "format-ethernet": " ",
+        "format-disconnected": " ",
+        "tooltip-format": "{ifname} {ipaddr}",
+        "on-click": "nm-connection-editor"
+    },
+
+    "bluetooth": {
+        "format": "",
+        "format-disabled": "",
+        "format-connected": "  {num_connections}",
+        "on-click": "blueman-manager",
+        "tooltip": false
+    },
+
+    "battery": {
+        "states": { "warning": 30, "critical": 15 },
+        "format": "{icon} {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip": false
+    },
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8
+    },
+
+    "custom/spotlight": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "wofi --show drun"
+    },
+
+    "clock": {
+        "format": "{:%a %d %b   %H:%M}",
+        "tooltip-format": "<tt><big>{:%Y %B}</big>\n{calendar}</tt>"
+    }
+}

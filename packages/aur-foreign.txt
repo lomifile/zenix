@@ -1,0 +1,5 @@
+bruno-bin
+librepods-git
+linux-firmware-meta
+mongodb-compass-bin
+postman-bin

@@ -1,0 +1,115 @@
+* {
+  font-family: "SF Pro Display", "SF Pro Text", "Inter", "Font Awesome 6 Free";
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+window {
+  margin-top: 300px;
+}
+
+window#waybar {
+  background-color: rgba(250, 250, 252, 0.55);
+  color: #1d1d1f;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+#custom-apple {
+  font-size: 15px;
+  color: #1d1d1f;
+  padding: 0 12px 0 14px;
+}
+
+#custom-apple:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+#workspaces {
+  margin: 0 4px;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  margin: 4px 2px;
+  color: #86868b;
+  background-color: transparent;
+  border-radius: 6px;
+}
+
+#workspaces button.active {
+  color: #ffffff;
+  background-color: #0a84ff;
+}
+
+#workspaces button:hover {
+  color: #1d1d1f;
+  background-color: rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+}
+
+#window {
+  font-weight: 600;
+  color: #1d1d1f;
+  padding: 0 8px;
+}
+
+window#waybar.empty #window {
+  background-color: transparent;
+}
+
+#cpu,
+#memory,
+#pulseaudio,
+#network,
+#bluetooth,
+#battery,
+#custom-spotlight,
+#clock {
+  padding: 0 8px;
+  color: #1d1d1f;
+}
+
+#cpu:hover,
+#memory:hover,
+#pulseaudio:hover,
+#network:hover,
+#bluetooth:hover,
+#battery:hover,
+#custom-spotlight:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+}
+
+#custom-spotlight {
+  font-size: 14px;
+  padding: 0 10px;
+}
+
+#clock {
+  font-weight: 500;
+  padding: 0 14px 0 8px;
+}
+
+#battery.warning {
+  color: #ff9f0a;
+}
+
+#battery.critical {
+  color: #ff453a;
+}
+
+#battery.charging {
+  color: #30d158;
+}
+
+#tray {
+  padding: 0 6px;
+}
+
+#tray menu {
+  background-color: rgba(250, 250, 252, 0.95);
+  color: #1d1d1f;
+}
