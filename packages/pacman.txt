@@ -143,6 +143,7 @@ tumbler
 perl-file-mimeinfo
 papirus-icon-theme
 gnome-themes-extra
+gtk3
 gtklock
 
 # --- fonts (only the faces the configs name) ---
@@ -201,6 +202,7 @@ rustup
 jdk-openjdk
 python-pip
 python-pipx
+python-gobject
 python-build
 python-setuptools
 python-wheel
@@ -248,4 +250,3 @@ spotify-launcher
 # --- misc system ---
 cronie
 glibc-locales
-gcalcli

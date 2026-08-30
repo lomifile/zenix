@@ -6,3 +6,4 @@ brave-bin
 bruno-bin
 mongodb-compass-bin
 
+gcalcli

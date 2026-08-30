@@ -49,13 +49,12 @@
         "today": "<span color='#0a84ff'><b>{}</b></span>",
       },
     },
+    "on-click": "~/.local/bin/calendar-popup",
     "actions": {
-      "on-click-left": "~/.config/waybar/scripts/calendar_popup.py",
       "on-click-right": "mode",
       "on-scroll-up": "shift_up",
       "on-scroll-down": "shift_down",
     },
-    "tooltip": false,
   },
 
   "custom/cpu": {

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calendar-popup"
+description = "Google Calendar agenda popup for the waybar clock"
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["version"]
+
+# PyGObject (gi) comes from the python-gobject pacman package, not PyPI, and
+# gcalcli is an external command. Neither can be a wheel dependency, so the
+# venv is created with --system-site-packages — see ../install.sh.
+dependencies = []
+
+[project.scripts]
+calendar-popup = "calendar_popup.__main__:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "calendar_popup.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
