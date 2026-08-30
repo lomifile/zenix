@@ -18,7 +18,7 @@ BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 DRY_RUN=0
-DO_PACMAN=1 DO_AUR=1 DO_DOTFILES=1 DO_SERVICES=1 DO_SHELL=1
+DO_PACMAN=1 DO_AUR=1 DO_DOTFILES=1 DO_SERVICES=1 DO_SHELL=1 DO_SDDM=1
 
 # Names that could not be installed, reported at the end instead of aborting.
 FAILED=()
@@ -60,6 +60,7 @@ usage: ./install.sh [options]
       --skip-dotfiles skip linking configs into ~/.config
       --skip-services skip enabling systemd units
       --skip-shell    skip oh-my-zsh, rustup and the login-shell change
+      --skip-sddm     skip installing the greeter theme
   -h, --help          this message
 USAGE
 }
@@ -72,6 +73,7 @@ while (( $# )); do
     --skip-dotfiles)  DO_DOTFILES=0 ;;
     --skip-services)  DO_SERVICES=0 ;;
     --skip-shell)     DO_SHELL=0 ;;
+    --skip-sddm)      DO_SDDM=0 ;;
     -h|--help)        usage; exit 0 ;;
     *)                usage >&2; die "unknown option: $1" ;;
   esac
@@ -338,13 +340,25 @@ write_hyprpaper_conf() {
 install_wallpaper() {
   local dest="$HOME/Pictures/wallpaper.png"
 
+  run mkdir -p "$HOME/Pictures"
+
+  # The single active wallpaper: hyprpaper.conf and the greeter both point at
+  # this one file. Swap assets/wallpaper.png to change what the desktop shows.
   if [[ -e "$dest" ]]; then
     skip "~/Pictures/wallpaper.png already present"
-    return
+  elif [[ -f "$REPO/assets/wallpaper.png" ]]; then
+    run cp "$REPO/assets/wallpaper.png" "$dest"
+    ok "~/Pictures/wallpaper.png installed"
+  else
+    warn "assets/wallpaper.png missing; hyprpaper will have nothing to show"
   fi
-  run mkdir -p "$HOME/Pictures"
-  run cp "$REPO/assets/wallpaper.png" "$dest"
-  ok "~/Pictures/wallpaper.png installed"
+
+  # The rest of the collection, for switching by hand later.
+  if [[ -d "$REPO/assets/wallpaper" ]]; then
+    run mkdir -p "$HOME/Pictures/wallpaper"
+    run cp -rn "$REPO/assets/wallpaper/." "$HOME/Pictures/wallpaper/"
+    ok "~/Pictures/wallpaper/ synced ($(find "$REPO/assets/wallpaper" -type f | wc -l) files)"
+  fi
 }
 
 # ------------------------------------------------------------------ shell ----
@@ -384,6 +398,39 @@ setup_shell() {
     info "changing the login shell to $zsh_bin"
     run sudo chsh -s "$zsh_bin" "$USER" || FAILED+=("chsh to zsh")
   fi
+}
+
+# ------------------------------------------------------------------- sddm ----
+
+# The theme has to be copied rather than symlinked: sddm runs as its own user
+# and $HOME is 0700, so it cannot follow a link back into the repo.
+install_sddm_theme() {
+  step "Installing the SDDM greeter theme"
+
+  if ! command -v sddm >/dev/null && ! pacman -Qq sddm >/dev/null 2>&1; then
+    skip "sddm not installed"
+    return
+  fi
+
+  local dest=/usr/share/sddm/themes/zenix
+
+  run sudo install -d -m 755 "$dest"
+  local f
+  for f in "$REPO"/sddm/zenix/*; do
+    run sudo install -m 644 "$f" "$dest/$(basename "$f")"
+  done
+
+  # the greeter cannot read ~/Pictures either, so the wallpaper ships with it
+  if [[ -f "$REPO/assets/wallpaper.png" ]]; then
+    run sudo install -m 644 "$REPO/assets/wallpaper.png" "$dest/background.png"
+  else
+    warn "assets/wallpaper.png missing; the greeter falls back to a flat colour"
+  fi
+
+  run sudo install -d -m 755 /etc/sddm.conf.d
+  run sudo install -m 644 "$REPO/sddm/conf.d/99-zenix.conf" /etc/sddm.conf.d/99-zenix.conf
+
+  ok "greeter theme installed to $dest"
 }
 
 # --------------------------------------------------------------- services ----
@@ -496,6 +543,7 @@ main() {
 
   if (( DO_DOTFILES )); then link_dotfiles;   else skip "dotfiles skipped"; fi
   if (( DO_SHELL ));    then setup_shell;     else skip "shell setup skipped"; fi
+  if (( DO_SDDM ));     then install_sddm_theme; else skip "sddm theme skipped"; fi
   if (( DO_SERVICES )); then enable_services; else skip "services skipped"; fi
 
   summary
