@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh the zenix agenda cache periodically
+
+[Timer]
+# Once shortly after login, then every five minutes. Persistent catches up
+# after a suspend so the bar is not showing a stale agenda on wake.
+OnStartupSec=30s
+OnUnitActiveSec=5min
+Persistent=true
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

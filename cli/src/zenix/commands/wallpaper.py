@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 
@@ -113,20 +114,50 @@ def apply_desktop(ctx, repo, name: str) -> None:
     if not which("hyprctl"):
         info("hyprctl unavailable; the change lands at next login")
         return
-    ctx.run(["hyprctl", "hyprpaper", "unload", "all"])
-    ctx.run(["hyprctl", "hyprpaper", "preload", str(live)])
-    ctx.run(["hyprctl", "hyprpaper", "wallpaper", f",{live}"])
-    ok("hyprpaper reloaded")
+
+    # hyprctl exits non-zero when no compositor is running (or when hyprpaper
+    # is not up). Report what actually happened rather than assuming.
+    failed = 0
+    failed += ctx.run(["hyprctl", "hyprpaper", "unload", "all"]) != 0
+    failed += ctx.run(["hyprctl", "hyprpaper", "preload", str(live)]) != 0
+    failed += ctx.run(["hyprctl", "hyprpaper", "wallpaper", f",{live}"]) != 0
+
+    if failed:
+        info("hyprland is not running; the change lands at next login")
+    else:
+        ok("hyprpaper reloaded")
 
 
 def apply_greeter(ctx, src: Path) -> None:
-    if not SDDM_THEME_DIR.is_dir() and not ctx.dry_run:
+    if SDDM_THEME_DIR.is_dir() or ctx.dry_run:
+        # Always landed as background.png: theme.conf names that, and Qt
+        # decodes by content rather than extension.
+        ctx.run(["sudo", "install", "-m", "644", str(src),
+                 str(SDDM_THEME_DIR / "background.png")])
+        ok("greeter background installed")
+    else:
         info(f"{SDDM_THEME_DIR} not present; run install.sh to deploy the theme")
+
+    update_hyprlock(ctx, src.name)
+
+
+def update_hyprlock(ctx, name: str) -> None:
+    """hyprlock shows the greeter's image, so it has to follow the same choice.
+    Without this the two drift apart the first time the greeter is changed."""
+    conf = Path.home() / ".config" / "hypr" / "hyprlock.conf"
+    if not conf.is_file():
+        info("no ~/.config/hypr/hyprlock.conf yet; install.sh will generate it")
         return
-    # Always landed as background.png: theme.conf names that, and Qt decodes
-    # by content rather than extension.
-    ctx.run(["sudo", "install", "-m", "644", str(src), str(SDDM_THEME_DIR / "background.png")])
-    ok("greeter background installed")
+
+    target = Path.home() / "Pictures" / "wallpaper" / name
+    text = conf.read_text()
+    new_text, count = re.subn(r"(?m)^(\s*)path\s*=.*$", rf"\1path = {target}", text, count=1)
+    if not count:
+        warn("hyprlock.conf has no path= line in its background block; not changed")
+        return
+
+    ctx.write(conf, new_text)
+    ok(f"{conf} background -> {name}")
 
 
 def cmd_set(ctx, repo, args) -> None:

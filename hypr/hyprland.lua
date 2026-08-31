@@ -48,26 +48,6 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 
-hl.window_rule({
-  match = { class = "^(calendar-tasks)$" },
-  float = true
-})
-
-hl.window_rule({
-  match = { class = "^(calendar-tasks)$" },
-  pin = true
-})
-
-hl.window_rule({
-  match = { class = "^(calendar-tasks)$" },
-  move = "50% 5%"
-})
-
-hl.window_rule({
-  match = { class = "^(calendar-tasks)$" },
-  animation = "slide"
-})
-
 hl.config({
   general = {
     gaps_in          = 6,
@@ -174,6 +154,12 @@ end
 
 hl.bind(mod .. " + A", hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mod .. " + SHIFT + A", hl.dsp.window.move({ workspace = "special:magic" }))
+
+-- macOS moves between Spaces with CTRL + arrows. "e-1"/"e+1" step through
+-- workspaces that already exist rather than conjuring empty ones, which is how
+-- Spaces behave -- and matches the scroll binds below.
+hl.bind("CTRL + left", hl.dsp.focus({ workspace = "e-1" }))
+hl.bind("CTRL + right", hl.dsp.focus({ workspace = "e+1" }))
 
 hl.bind(mod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))

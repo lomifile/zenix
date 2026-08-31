@@ -32,7 +32,7 @@ WALLPAPER_NAME="azoc6k1g99mh1.png"
 WALLPAPER_SRC= WALLPAPER_DEST=
 # The greeter gets its own, picked by name out of assets/wallpaper/.
 GREETER_WALLPAPER_NAME="couple-bus-sunset.jpg"
-GREETER_WALLPAPER_SRC=
+GREETER_WALLPAPER_SRC= GREETER_WALLPAPER_DEST=
 
 # ---------------------------------------------------------------- output ----
 
@@ -134,7 +134,13 @@ resolve_greeter_wallpaper() {
     GREETER_WALLPAPER_SRC="$WALLPAPER_SRC"
   fi
 
-  [[ -f "$GREETER_WALLPAPER_SRC" ]] || GREETER_WALLPAPER_SRC=""
+  if [[ -f "$GREETER_WALLPAPER_SRC" ]]; then
+    # install_wallpaper syncs the whole collection here, so hyprlock can read
+    # it without depending on the root-owned copy in the sddm theme directory.
+    GREETER_WALLPAPER_DEST="$HOME/Pictures/wallpaper/$(basename "$GREETER_WALLPAPER_SRC")"
+  else
+    GREETER_WALLPAPER_SRC="" GREETER_WALLPAPER_DEST=""
+  fi
 }
 
 # -------------------------------------------------------------- preflight ----
@@ -339,13 +345,12 @@ link_dotfiles() {
   # below because it needs an absolute wallpaper path.
   link "$REPO/hypr/hyprland.lua"  "$CONFIG/hypr/hyprland.lua"
   link "$REPO/hypr/hypridle.conf" "$CONFIG/hypr/hypridle.conf"
-  link "$REPO/hypr/hyprlock.conf" "$CONFIG/hypr/hyprlock.conf"
 
   # waybar and wofi are renamed on the way in
   link "$REPO/waybar/waybar-config.jsonc" "$CONFIG/waybar/config.jsonc"
   link "$REPO/waybar/waybar-style.css"    "$CONFIG/waybar/style.css"
   # linked as a directory so new scripts are picked up without editing this
-  # list; the modules shell out to statbar.sh and the clock to calendar_popup.py
+  # list; the modules shell out to statbar.sh and agenda.py
   link "$REPO/waybar/scripts"             "$CONFIG/waybar/scripts"
   link "$REPO/wofi/config"                "$CONFIG/wofi/config"
   link "$REPO/wofi/style.css"             "$CONFIG/wofi/style.css"
@@ -362,6 +367,7 @@ link_dotfiles() {
 
   write_zshenv
   write_hyprpaper_conf
+  write_hyprlock_conf
   install_wallpaper
 }
 
@@ -409,6 +415,27 @@ write_hyprpaper_conf() {
         "$REPO/hypr/hyprpaper.conf" > "$dest"
   fi
   ok "~/.config/hypr/hyprpaper.conf written"
+}
+
+# hyprlock has no $HOME expansion either, and it shows the greeter's image so
+# the lock screen and the login screen are the same surface.
+write_hyprlock_conf() {
+  local dest="$CONFIG/hypr/hyprlock.conf"
+
+  if [[ -z "$GREETER_WALLPAPER_DEST" ]]; then
+    warn "no greeter wallpaper resolved; linking hyprlock.conf unchanged"
+    link "$REPO/hypr/hyprlock.conf" "$dest"
+    return
+  fi
+
+  run mkdir -p "$CONFIG/hypr"
+  if (( DRY_RUN )); then
+    printf '    %s$ write %s (background %s)%s\n' "$DIM" "$dest" "$GREETER_WALLPAPER_DEST" "$N"
+  else
+    sed -e "s|^\([[:space:]]*\)path = .*|\1path = $GREETER_WALLPAPER_DEST|" \
+        "$REPO/hypr/hyprlock.conf" > "$dest"
+  fi
+  ok "~/.config/hypr/hyprlock.conf written"
 }
 
 install_wallpaper() {
@@ -588,132 +615,13 @@ verify_grub_theme() {
   FAILED+=("grub theme (not referenced in grub.cfg)")
 }
 
-# ---------------------------------------------------------------- webapps ----
-
-# Browser web apps, declared as plain .desktop files under webapps/.
-#
-# Brave's own "Install app" flow writes Exec=... --app-id=<hash>, which only
-# resolves against the PWA registry inside one Brave profile, and an Icon= name
-# keyed to the same hash. Neither exists on a fresh machine, so those entries
-# launch nothing. Declaring --app=<url> here instead keeps them reproducible,
-# and --class= gives the window an app_id that hyprland rules can match.
-install_webapps() {
-  step "Installing web apps"
-
-  local src="$REPO/webapps"
-  if [[ ! -d "$src" ]]; then
-    skip "no webapps/ directory"
-    return
-  fi
-
-  local entries=()
-  shopt -s nullglob
-  entries=("$src"/*.desktop)
-  local icon_files=("$src"/icons/*.png)
-  shopt -u nullglob
-
-  if (( ${#entries[@]} == 0 )); then
-    skip "no web apps declared"
-    return
-  fi
-
-  if ! command -v brave >/dev/null; then
-    warn "brave not installed; the launchers will appear but will not start"
-  fi
-
-  local apps="$HOME/.local/share/applications"
-  local hicolor="$HOME/.local/share/icons/hicolor"
-  run mkdir -p "$apps" "$hicolor/512x512/apps"
-
-  local f
-  for f in "${entries[@]}"; do
-    run install -m 644 "$f" "$apps/$(basename "$f")"
-    ok "$(basename "$f" .desktop)"
-  done
-  for f in "${icon_files[@]}"; do
-    run install -m 644 "$f" "$hicolor/512x512/apps/$(basename "$f")"
-  done
-
-  # Without these the launcher and the icon may not show up until the next login.
-  if command -v update-desktop-database >/dev/null; then
-    run update-desktop-database "$apps"
-  fi
-  if command -v gtk-update-icon-cache >/dev/null; then
-    run gtk-update-icon-cache -qtf "$hicolor"
-  fi
-
-  info "${#entries[@]} web app(s) installed to ~/.local/share/applications"
-}
-
-# ------------------------------------------------------------- user tools ----
-
-# pnpm and Claude Code are installed with their own installers rather than from
-# the repos or the AUR, because both self-update in place and both land in
-# ~/.local, which is where this setup already looks for them: zsh/.zshrc exports
-# PNPM_HOME=~/.local/share/pnpm and puts ~/.local/bin on PATH.
-
-# Run a shell pipeline that `run` cannot express as an argv list.
-run_pipeline() {
-  if (( DRY_RUN )); then
-    printf '    %s$ %s%s\n' "$DIM" "$1" "$N"
-    return 0
-  fi
-  bash -c "$1"
-}
-
-install_pnpm() {
-  if command -v pnpm >/dev/null; then
-    skip "pnpm already installed ($(pnpm --version 2>/dev/null))"
-    return
-  fi
-
-  info "installing pnpm"
-  # SHELL is pinned to bash so pnpm's installer appends its PATH block to
-  # ~/.bashrc instead of ~/.config/zsh/.zshrc — that file is a symlink into
-  # this repo, and zsh/.zshrc already sets PNPM_HOME and the PATH entry.
-  if run_pipeline 'curl -fsSL https://get.pnpm.io/install.sh | SHELL=/bin/bash PNPM_HOME="$HOME/.local/share/pnpm" sh -'; then
-    ok "pnpm installed to ~/.local/share/pnpm"
-  else
-    warn "pnpm install failed"
-    FAILED+=("pnpm")
-  fi
-}
-
-install_claude_code() {
-  if command -v claude >/dev/null; then
-    skip "claude already installed ($(claude --version 2>/dev/null | head -1))"
-    return
-  fi
-
-  info "installing Claude Code"
-  if run_pipeline 'curl -fsSL https://claude.ai/install.sh | bash'; then
-    ok "claude installed to ~/.local/bin/claude"
-  else
-    warn "Claude Code install failed"
-    FAILED+=("claude-code")
-  fi
-}
-
-install_user_tools() {
-  step "Installing user tooling"
-
-  if ! command -v curl >/dev/null; then
-    warn "curl missing; skipping pnpm and Claude Code"
-    FAILED+=("pnpm, claude-code (no curl)")
-    return
-  fi
-
-  install_pnpm
-  install_claude_code
-}
-
 # -------------------------------------------------------------------- cli ----
 
 # Built from cli/ and installed with pipx, so the CLI gets its own venv instead
 # of fighting Arch's externally-managed system Python (PEP 668).
 # Build one of the repo's Python projects and install it with pipx, which
 # gives each its own venv instead of fighting Arch's externally-managed system
-# Python (PEP 668). Extra pipx flags are passed through — calendar-popup needs
+# Python (PEP 668). Extra pipx flags are passed through for projects that need
 # --system-site-packages so the venv can import gi from python-gobject.
 build_python_project() {
   local dir="$1" binary="$2"; shift 2
@@ -757,34 +665,6 @@ build_python_project() {
   ok "$binary installed to ~/.local/bin/$binary"
 }
 
-install_cli() {
-  step "Building the zenix CLI"
-
-  if ! command -v python3 >/dev/null; then
-    warn "python3 missing; skipping the CLI"
-    return
-  fi
-  build_python_project "$REPO/cli" zenix || return
-  info "run 'zenix status' from anywhere; it finds the repo via \$ZENIX_REPO or --repo"
-}
-
-install_calendar_popup() {
-  step "Building the calendar popup"
-
-  if ! command -v python3 >/dev/null; then
-    warn "python3 missing; skipping the calendar popup"
-    return
-  fi
-
-  # gi comes from the python-gobject package, not PyPI, so an isolated venv
-  # cannot import it.
-  build_python_project "$REPO/calendar-popup" calendar-popup --system-site-packages || return
-
-  if ! command -v gcalcli >/dev/null; then
-    info "gcalcli is not installed yet; the popup will say so until it is"
-  fi
-}
-
 # ---------------------------------------------------------------- webapps ----
 
 # Browser web apps, declared as plain .desktop files under webapps/.
@@ -794,6 +674,31 @@ install_calendar_popup() {
 # keyed to the same hash. Neither exists on a fresh machine, so those entries
 # launch nothing. Declaring --app=<url> here instead keeps them reproducible,
 # and --class= gives the window an app_id that hyprland rules can match.
+# The waybar agenda module reads a cache; this is what refreshes it.
+install_agenda_timer() {
+  step "Installing the agenda timer"
+
+  local src="$REPO/systemd"
+  if [[ ! -d "$src" ]]; then
+    skip "no systemd/ directory"
+    return
+  fi
+
+  local dest="$CONFIG/systemd/user"
+  run mkdir -p "$dest"
+  local f
+  for f in "$src"/*.service "$src"/*.timer; do
+    [[ -e "$f" ]] || continue
+    run install -m 644 "$f" "$dest/$(basename "$f")"
+  done
+
+  run systemctl --user daemon-reload
+  enable_user_unit zenix-agenda.timer
+  # Populate the cache now so the bar is not blank until the first firing.
+  run systemctl --user start zenix-agenda.service || true
+  ok "agenda cache refreshes every 5 minutes"
+}
+
 install_webapps() {
   step "Installing web apps"
 
@@ -1099,10 +1004,10 @@ main() {
   if (( DO_SHELL ));    then setup_shell;     else skip "shell setup skipped"; fi
   if (( DO_SDDM ));     then install_sddm_theme; else skip "sddm theme skipped"; fi
   if (( DO_TOOLS ));    then install_user_tools; else skip "user tooling skipped"; fi
-  if (( DO_WEBAPPS )); then install_webapps;    else skip "web apps skipped"; fi
+  if (( DO_WEBAPPS )); then install_webapps; install_agenda_timer;
+                       else skip "web apps skipped"; fi
   if (( DO_GRUB ));    then install_grub_theme; else skip "grub theme skipped"; fi
-  if (( DO_CLI ));      then install_cli; install_calendar_popup;
-                        else skip "cli skipped"; fi
+  if (( DO_CLI ));      then install_cli;        else skip "cli skipped"; fi
   if (( DO_SERVICES )); then enable_services; else skip "services skipped"; fi
 
   summary

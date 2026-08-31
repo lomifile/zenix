@@ -70,6 +70,7 @@ window#waybar {
 #custom-memory,
 #custom-volume,
 #custom-battery,
+#custom-agenda,
 #network,
 #bluetooth {
     padding: 0 10px;
@@ -83,6 +84,7 @@ window#waybar {
 #custom-memory:hover,
 #custom-volume:hover,
 #custom-battery:hover,
+#custom-agenda:hover,
 #network:hover,
 #bluetooth:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -93,6 +95,14 @@ window#waybar {
 #custom-volume { color: #f5f5f7; }
 #custom-battery { color: #f5f5f7; }
 #bluetooth     { color: #0a84ff; }
+
+/* the agenda module carries a class from its JSON, so the icon reports state
+   without needing a second element in the bar */
+#custom-agenda              { color: #f5f5f7; }
+#custom-agenda.empty        { color: #8e8e93; }
+#custom-agenda.has-events   { color: #0a84ff; }
+#custom-agenda.stale        { color: #ff9f0a; }
+#custom-agenda.error        { color: #ff453a; }
 
 tooltip {
     background-color: rgba(28, 28, 30, 0.96);

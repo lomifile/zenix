@@ -17,6 +17,7 @@
     "bluetooth",
     "custom/volume",
     "custom/battery",
+    "custom/agenda",
   ],
 
   "hyprland/workspaces": {
@@ -49,12 +50,22 @@
         "today": "<span color='#0a84ff'><b>{}</b></span>",
       },
     },
-    "on-click": "~/.local/bin/calendar-popup",
     "actions": {
       "on-click-right": "mode",
       "on-scroll-up": "shift_up",
       "on-scroll-down": "shift_down",
     },
+  },
+
+  // Today's agenda, read from the cache that `zenix agenda fetch` writes on a
+  // systemd timer. The module never touches the network, so the tooltip is
+  // instant and works offline.
+  "custom/agenda": {
+    "exec": "~/.config/waybar/scripts/agenda.py",
+    "return-type": "json",
+    "interval": 60,
+    "on-click": "xdg-open https://calendar.google.com",
+    "on-click-right": "systemctl --user start zenix-agenda.service"
   },
 
   "custom/cpu": {

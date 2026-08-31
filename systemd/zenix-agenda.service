@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh the zenix Google Calendar agenda cache
+Documentation=https://github.com/lomifile/zenix
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/zenix agenda fetch
+# The cache is written even on failure so the bar shows the reason rather than
+# going blank; a non-zero exit here would only add noise to the journal.
+SuccessExitStatus=0 1
