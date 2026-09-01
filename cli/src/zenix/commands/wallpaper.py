@@ -115,12 +115,14 @@ def apply_desktop(ctx, repo, name: str) -> None:
         info("hyprctl unavailable; the change lands at next login")
         return
 
-    # hyprctl exits non-zero when no compositor is running (or when hyprpaper
-    # is not up). Report what actually happened rather than assuming.
-    failed = 0
-    failed += ctx.run(["hyprctl", "hyprpaper", "unload", "all"]) != 0
-    failed += ctx.run(["hyprctl", "hyprpaper", "preload", str(live)]) != 0
-    failed += ctx.run(["hyprctl", "hyprpaper", "wallpaper", f",{live}"]) != 0
+    # hyprpaper 0.8's IPC accepts only `wallpaper` and `listactive`; `preload`,
+    # `unload` and `reload` all come back as "invalid hyprpaper request". The
+    # `preload` keyword still exists in hyprpaper.conf -- that is the config
+    # grammar, not the IPC one -- so it stays in the generated file.
+    #
+    # `wallpaper` loads the image itself, so one call is the whole job. hyprctl
+    # exits 1 on an invalid request, a bad path, or no running compositor.
+    failed = ctx.run(["hyprctl", "hyprpaper", "wallpaper", f",{live}"]) != 0
 
     if failed:
         info("hyprland is not running; the change lands at next login")

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.calendar",
+  "name": "Calendar",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "The month and today's agenda, from the cache the bar already reads",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Calendar.qml"
+  }
+}

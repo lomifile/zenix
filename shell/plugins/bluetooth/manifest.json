@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.bluetooth",
+  "name": "Bluetooth",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Paired devices, one key to connect or disconnect",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Bluetooth.qml"
+  }
+}

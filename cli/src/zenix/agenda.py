@@ -11,7 +11,7 @@ import json
 import os
 import subprocess
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 TIMEOUT_SECONDS = 20
@@ -20,6 +20,10 @@ TIMEOUT_SECONDS = 20
 _TSV_MIN_FIELDS = 5
 _START_TIME_INDEX = 1
 _TITLE_INDEX = 4
+
+# gcalcli 4.5 labels its TSV. Matching the row rather than blindly dropping the
+# first line keeps this working against versions that emit no header.
+_TSV_HEADER = ("start_date", "start_time", "end_date", "end_time", "title")
 
 
 def cache_path() -> Path:
@@ -43,18 +47,36 @@ def parse_tsv(text: str) -> list[Event]:
         if not line.strip():
             continue
         parts = line.split("\t")
+        if tuple(p.strip() for p in parts[:len(_TSV_HEADER)]) == _TSV_HEADER:
+            continue
         if len(parts) >= _TSV_MIN_FIELDS:
             events.append(Event(time=parts[_START_TIME_INDEX].strip(),
                                 title=parts[_TITLE_INDEX].strip()))
     return events
 
 
-def fetch(span: tuple[str, str] = ("today", "tomorrow")) -> tuple[list[Event], str | None]:
-    """Return (events, error). Never raises — the caller caches either way."""
+def fetch(span: tuple[str, str] | None = None) -> tuple[list[Event], str | None]:
+    """Today's events. Returns (events, error); never raises.
+
+    The range is given as explicit dates rather than gcalcli's "today" and
+    "tomorrow" keywords. Those are anchored to *now*, which both hides events
+    earlier in the day and spills into tomorrow morning -- a 07:00 event shows
+    up as tomorrow's until 07:00, then vanishes. Midnight-to-midnight is what
+    a day view means.
+    """
+    if span is None:
+        start = date.today()
+        span = (start.isoformat(), (start + timedelta(days=1)).isoformat())
+
     try:
         result = subprocess.run(
             ["gcalcli", "agenda", span[0], span[1], "--tsv"],
             capture_output=True, text=True, timeout=TIMEOUT_SECONDS,
+            # Unauthenticated, gcalcli prompts on stdin for a client id and
+            # blocks until the timeout -- 20s of a systemd timer every five
+            # minutes, and a frozen popup on a manual refresh. With stdin
+            # closed it fails in half a second and says why.
+            stdin=subprocess.DEVNULL,
         )
     except FileNotFoundError:
         return [], "gcalcli is not installed"

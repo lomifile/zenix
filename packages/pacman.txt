@@ -184,8 +184,6 @@ which
 unarchiver
 7zip
 unzip
-nano
-nano-syntax-highlighting
 man-db
 man-pages
 texinfo
@@ -247,7 +245,6 @@ pcsc-tools
 libnfc
 
 # --- apps ---
-firefox-developer-edition
 libreoffice-still
 spotify-launcher
 

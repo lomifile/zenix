@@ -50,6 +50,11 @@
         "today": "<span color='#0a84ff'><b>{}</b></span>",
       },
     },
+    // Spelled out rather than a bare `zenix-shell`: waybar inherits the
+    // graphical session PATH, which SDDM sets to
+    // /usr/local/sbin:/usr/local/bin:/usr/bin. ~/.local/bin comes from
+    // zsh/.zshrc, which only interactive shells read.
+    "on-click": "~/.local/bin/zenix-shell shell toggle zenix.calendar",
     "actions": {
       "on-click-right": "mode",
       "on-scroll-up": "shift_up",
@@ -113,6 +118,9 @@
     "tooltip-format": "{controller_alias}\n{status}",
     "tooltip-format-connected": "{controller_alias}\n\n{device_enumerate}",
     "tooltip-format-enumerate-connected": "  {device_alias}",
-    "on-click": "blueman-manager",
+    // Spelled out for the same reason as the clock: waybar inherits the
+    // graphical session PATH, which has no ~/.local/bin.
+    "on-click": "~/.local/bin/zenix-shell shell toggle zenix.bluetooth",
+    "on-click-right": "blueman-manager",
   },
 }

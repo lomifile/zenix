@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Notion
+Comment=Notion in a chromeless brave window
+Exec=brave --app=https://www.notion.so/ --class=notion
+Icon=notion
+Terminal=false
+Categories=Office;
+StartupWMClass=notion
+X-Zenix-WebApp=true

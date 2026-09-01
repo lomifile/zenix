@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Calendar
+Comment=Google Calendar in a chromeless brave window
+Exec=brave --app=https://calendar.google.com/calendar --class=google-calendar
+Icon=google-calendar
+Terminal=false
+Categories=Network;
+StartupWMClass=google-calendar
+X-Zenix-WebApp=true

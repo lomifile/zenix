@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Gmail
+Comment=Gmail in a chromeless brave window
+Exec=brave --app=https://mail.google.com/ --class=gmail
+Icon=gmail
+Terminal=false
+Categories=Network;
+StartupWMClass=gmail
+X-Zenix-WebApp=true

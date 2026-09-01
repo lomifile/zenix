@@ -4,7 +4,10 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" 
 
 local terminal    = "ghostty"
 local fileManager = "thunar"
-local menu        = "wofi --show drun"
+-- `pkill || launch` makes the chord a toggle, the way Cmd+Space dismisses
+-- Spotlight: pkill exits 0 when it killed something, so the launcher only
+-- starts when one was not already up. -x matches the process name exactly.
+local menu        = "pkill -x wofi || wofi --show drun"
 
 local LAPTOP      = "eDP-1"
 
@@ -133,6 +136,8 @@ hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + M", hl.dsp.exit())
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mod .. " + R", hl.dsp.exec_cmd(menu))
+-- Spotlight lives on Cmd+Space; SUPER + Space is the same reach here.
+hl.bind(mod .. " + Space", hl.dsp.exec_cmd(menu))
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
 hl.bind(mod .. " + P", hl.dsp.window.pseudo())
@@ -143,6 +148,7 @@ hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 -- Popups hosted by zenix-shell. `toggle` rather than `summon` so the same
 -- chord that opened one closes it.
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.containers"))
+hl.bind(mod .. " + B", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.bluetooth"))
 
 hl.bind(mod .. " + left", hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + right", hl.dsp.focus({ direction = "right" }))

@@ -21,6 +21,8 @@ shell/
   services/
     PluginRegistry.qml          finds plugins and reads their manifests
   plugins/
+    bluetooth/                  devices (SUPER + B, or the waybar icon)
+    calendar/                   month and agenda (click the waybar clock)
     containers/                 Docker monitor (SUPER + D)
 ```
 
@@ -109,6 +111,36 @@ New directories under `shell/plugins/` need no registration — `install.sh`
 links `shell/` as a whole, and the registry finds them on the next start (or on
 `zenix-shell shell rescan`).
 
+## Calendar
+
+Click the clock in waybar. The month on the left, today's agenda on the right.
+Read-only by design: anything beyond looking hands over to Google Calendar.
+
+| Key | |
+|---|---|
+| `←` `→`, `h` `l` | previous / next month |
+| `t` | back to today |
+| `r` | refresh the agenda now |
+| `g` | open Google Calendar, and close |
+| `Esc` | return to today, then close |
+
+The agenda is read from `~/.cache/zenix/agenda.json` — the same file
+`waybar/scripts/agenda.py` reads, written by `zenix agenda fetch` on a systemd
+timer. So the popup adds no dependency of its own, cannot disagree with the bar
+beside it, and opens in a file read rather than a network round trip. The file
+is watched, so a popup left open updates itself when the timer fires.
+
+The day is a real midnight-to-midnight range, given to gcalcli as explicit
+dates. Its `today` and `tomorrow` keywords are anchored to *now* instead, which
+both hides events earlier in the day and spills into tomorrow morning.
+
+`r` and the timer shell out to `~/.local/bin/zenix` by absolute path: this
+process is started by hyprland from the display manager, whose PATH does not
+include `~/.local/bin`.
+
+gcalcli missing or unauthenticated is an ordinary answer here, not an error —
+the header says which, and `gcalcli init` is usually the fix.
+
 ## Containers
 
 `SUPER + D`. What is running, what it costs, and the four things worth doing
@@ -138,3 +170,36 @@ sizes.
 Docker being unreachable is an ordinary answer here, not an error: the popup
 says so and shows what the daemon replied. `sudo systemctl enable --now docker`
 is usually the fix.
+
+## Bluetooth
+
+`SUPER + B`, or click the bluetooth icon in waybar. Paired devices, and one key
+to connect or disconnect.
+
+| Key | |
+|---|---|
+| `↑` `↓`, `j` `k`, `Ctrl-J` `Ctrl-K` | move |
+| `Enter`, or a click on the row | connect a disconnected device, disconnect a connected one |
+| `t` | trust / untrust |
+| `s` | scan for nearby devices |
+| `p` | power the adapter on or off |
+| `b` | hand over to blueman |
+| `/` | filter by name or address |
+| `Esc` | clear the filter, then close |
+
+One `bluetoothctl` pass per poll emits the adapter line and a row per device.
+`bluetoothctl info` is per-device, so spawning one process each would be the
+expensive part; batching the loop into a single shell keeps the whole sweep to
+about 90ms. It runs on a 2s timer, and only while the popup is on screen.
+
+Connecting is wrapped in `timeout 25`: a device that is off or out of range
+otherwise blocks until bluez gives up, which is far longer than anyone wants a
+row to sit spinning.
+
+The list sorts connected first, then paired, so the rows worth acting on stay
+at the top as it re-sorts underneath the keys. Selection follows the MAC rather
+than the row number for the same reason.
+
+Battery is shown for the devices that report one, amber under 30% and red under
+15%. An adapter that is off, a daemon that is not answering and nothing paired
+are three different problems, and the empty state says which.

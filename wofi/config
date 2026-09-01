@@ -1,16 +1,20 @@
 show=drun
-prompt=Spotlight Search
+prompt=Search
+
+# Spotlight sits slightly above centre rather than dead middle
 width=680
-height=440
+height=420
 location=center
-xoffset=0
-yoffset=-80
+
 allow_images=true
-image_size=36
+image_size=32
+
 insensitive=true
+matching=fuzzy
 no_actions=true
 hide_scroll=true
-matching=fuzzy
-term=foot
-gtk_dark=false
-dynamic_lines=true
+
+term=ghostty
+
+# the stylesheet is a dark one
+gtk_dark=true

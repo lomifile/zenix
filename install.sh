@@ -62,13 +62,16 @@ usage() {
 usage: ./install.sh [options]
 
   -n, --dry-run       print what would happen, change nothing
+      --configs-only  only copy configuration: dotfiles, the greeter theme,
+                      the web apps, the agenda timer and the GRUB theme.
+                      Installs no packages and builds nothing.
       --skip-packages skip the repo package install
       --skip-aur      skip the AUR helper and the AUR package install
       --skip-dotfiles skip linking configs into ~/.config
       --skip-services skip enabling systemd units
       --skip-shell    skip oh-my-zsh, rustup and the login-shell change
       --skip-sddm     skip installing the greeter theme
-      --skip-cli      skip building the zenix CLI and the calendar popup
+      --skip-cli      skip building the zenix CLI
       --skip-tools    skip pnpm and Claude Code
       --skip-webapps  skip installing the browser web apps
       --skip-grub     skip installing the GRUB theme
@@ -79,6 +82,10 @@ USAGE
 while (( $# )); do
   case "$1" in
     -n|--dry-run)     DRY_RUN=1 ;;
+    # Everything that writes configuration, nothing that installs software.
+    # Listed before the --skip-* cases on purpose: a later --skip-grub (or
+    # any other) still overrides it, so the two compose.
+    --configs-only)   DO_PACMAN=0 DO_AUR=0 DO_SHELL=0 DO_TOOLS=0 DO_CLI=0 DO_SERVICES=0 ;;
     --skip-packages)  DO_PACMAN=0 ;;
     --skip-aur)       DO_AUR=0 ;;
     --skip-dotfiles)  DO_DOTFILES=0 ;;
