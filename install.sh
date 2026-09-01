@@ -690,6 +690,29 @@ build_python_project() {
   ok "$binary installed to ~/.local/bin/$binary"
 }
 
+# sddm merges /etc/sddm.conf.d/* in sorted order with the last file winning, so
+# a theme can be installed correctly and still never appear. Name the file that
+# actually decides it rather than trusting the prefix.
+verify_sddm_theme() {
+  if (( DRY_RUN )); then
+    printf '    %s$ (verify no later conf.d file overrides Current=)%s\n' "$DIM" "$N"
+    return
+  fi
+
+  local winner="" file
+  for file in $(ls /etc/sddm.conf.d/ 2>/dev/null | sort); do
+    grep -qE '^[[:space:]]*Current[[:space:]]*=' "/etc/sddm.conf.d/$file" && winner="$file"
+  done
+
+  if [[ "$winner" == "zz-zenix.conf" ]]; then
+    ok "verified: zz-zenix.conf has the last word on Current="
+  else
+    warn "$winner sorts after zz-zenix.conf and also sets Current= —"
+    warn "the greeter will use its theme, not zenix. Rename or remove it."
+    FAILED+=("sddm theme (overridden by $winner)")
+  fi
+}
+
 # ---------------------------------------------------------------- webapps ----
 
 # Browser web apps, declared as plain .desktop files under webapps/.
@@ -909,9 +932,13 @@ install_sddm_theme() {
   fi
 
   run sudo install -d -m 755 /etc/sddm.conf.d
-  run sudo install -m 644 "$REPO/sddm/conf.d/99-zenix.conf" /etc/sddm.conf.d/99-zenix.conf
+  run sudo install -m 644 "$REPO/sddm/conf.d/zz-zenix.conf" /etc/sddm.conf.d/zz-zenix.conf
+  # Earlier versions shipped this as 99-zenix.conf, which loses to
+  # kde_settings.conf on a sorted read.
+  [[ -e /etc/sddm.conf.d/99-zenix.conf ]] && run sudo rm -f /etc/sddm.conf.d/99-zenix.conf
 
   ok "greeter theme installed to $dest"
+  verify_sddm_theme
 }
 
 # --------------------------------------------------------------- services ----
