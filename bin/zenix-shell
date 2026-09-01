@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Forward an IPC call to the running zenix-shell.
+#
+# The shell is a single long-lived Quickshell process started by hyprland.lua.
+# This script does not start it -- it only talks to it, which is the whole
+# point: summoning a window is a message to a process that is already up.
+#
+#   zenix-shell shell ping
+#   zenix-shell shell list
+#   zenix-shell shell toggle zenix.containers
+#   zenix-shell shell summon zenix.containers '{"filter":"postgres"}'
+#
+# Exits non-zero when the shell is not reachable, so a keybind that silently
+# does nothing can be told apart from one that is wired up wrong.
+
+set -euo pipefail
+
+SHELL_PATH="${ZENIX_SHELL_PATH:-${XDG_CONFIG_HOME:-$HOME/.config}/zenix/shell}"
+
+usage() {
+  sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+  exit "${1:-0}"
+}
+
+if (($# == 0)) || [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
+  usage 0
+fi
+
+if (($# < 2)); then
+  echo "zenix-shell: need a target and a function" >&2
+  echo "usage: zenix-shell <target> <function> [args...]" >&2
+  exit 2
+fi
+
+if [[ ! -f "$SHELL_PATH/shell.qml" ]]; then
+  echo "zenix-shell: no shell.qml under $SHELL_PATH" >&2
+  echo "  set ZENIX_SHELL_PATH, or run install.sh to link it into ~/.config" >&2
+  exit 1
+fi
+
+# `qs` matches instances by Wayland display. A caller from outside the session
+# -- an ssh shell, a TTY, a systemd unit -- has none, so recover it from the
+# compositor socket rather than failing for a reason that reads like the shell
+# is down.
+if [[ -z ${WAYLAND_DISPLAY:-} ]]; then
+  socket=$(ls -t "${XDG_RUNTIME_DIR:-/run/user/$UID}"/wayland-[0-9]* 2>/dev/null | grep -v '\.lock$' | head -n1)
+  [[ -n $socket ]] && export WAYLAND_DISPLAY="${socket##*/}"
+fi
+
+# summon/toggle take a JSON payload the caller usually does not care about.
+if [[ $1 == "shell" && ( $2 == "summon" || $2 == "toggle" ) ]] && (($# == 3)); then
+  set -- "$1" "$2" "$3" "{}"
+fi
+
+# `--` keeps a function name that collides with a qs subcommand (list, call)
+# as a positional. A missing shell is reported by a nonzero exit; an
+# IPC-level failure (unknown target, wrong arity) comes back on stdout with a
+# zero exit, so the output is checked too.
+output=$(timeout --kill-after=1s "${ZENIX_SHELL_IPC_TIMEOUT:-2s}" \
+  qs ipc -p "$SHELL_PATH" call -- "$@" 2>&1) || {
+  echo "zenix-shell: no running shell at $SHELL_PATH" >&2
+  [[ -n $output ]] && echo "$output" >&2
+  exit 1
+}
+
+[[ -n $output ]] && printf '%s\n' "$output"
+
+case "$output" in
+  "unknown plugin: "* | "not summonable" | "failed to load")
+    exit 1
+    ;;
+esac
+
+exit 0

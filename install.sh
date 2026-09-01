@@ -362,6 +362,16 @@ link_dotfiles() {
   # nvim goes in whole so lazy-lock.json stays under version control
   link "$REPO/nvim" "$CONFIG/nvim"
 
+  # zenix-shell, linked as a directory so a new plugin under shell/plugins is
+  # found by the next restart without this list having to learn about it.
+  # hyprland.lua starts it with `qs -p ~/.config/zenix/shell`.
+  link "$REPO/shell" "$CONFIG/zenix/shell"
+
+  # The IPC wrapper every keybind goes through. On PATH rather than in
+  # ~/.config, because it is a command, not configuration.
+  run mkdir -p "$HOME/.local/bin"
+  link "$REPO/bin/zenix-shell" "$HOME/.local/bin/zenix-shell"
+
   # zsh reads from $ZDOTDIR, set by the ~/.zshenv written below
   link "$REPO/zsh/.zshrc" "$CONFIG/zsh/.zshrc"
 
