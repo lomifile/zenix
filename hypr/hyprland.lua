@@ -39,6 +39,10 @@ hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 hl.on("hyprland.start", function()
   hl.exec_cmd("hyprpaper")
   hl.exec_cmd("waybar")
+  -- One Quickshell process hosts every custom popup for the session; nothing
+  -- else may start one. Windows are summoned into it over IPC by zenix-shell,
+  -- which is what keeps a popup at ~30ms instead of a cold QML start.
+  hl.exec_cmd("qs -p \"$HOME/.config/zenix/shell\"")
   hl.exec_cmd("mako")
   hl.exec_cmd("systemctl --user start hyprpolkitagent")
   hl.exec_cmd("hypridle")
@@ -136,6 +140,10 @@ hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
+-- Popups hosted by zenix-shell. `toggle` rather than `summon` so the same
+-- chord that opened one closes it.
+hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.containers"))
+
 hl.bind(mod .. " + left", hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mod .. " + up", hl.dsp.focus({ direction = "up" }))
@@ -193,6 +201,24 @@ for _, c in ipairs({ "pavucontrol", "org.pulseaudio.pavucontrol", "blueman-manag
   hl.window_rule({ match = { class = c }, float = true })
 end
 
+-- Terminals the containers popup hands off to. The popup is for the glance;
+-- anything that wants scrollback, a prompt or a full TUI gets a real window,
+-- and each carries its own app id so it can be sized for what it shows.
+-- float/center/size go in separately: Hyprland's Lua rules apply one property
+-- per rule, and combining them silently drops all but the first.
+for _, spec in ipairs({
+  { class = "^zenix\\.container-logs$",  size = { 1100, 700 } },
+  { class = "^zenix\\.container-shell$", size = { 1000, 620 } },
+  { class = "^zenix\\.lazydocker$",      size = { 1280, 800 } },
+}) do
+  hl.window_rule({ match = { class = spec.class }, float = true })
+  hl.window_rule({ match = { class = spec.class }, center = true })
+  hl.window_rule({ match = { class = spec.class }, size = spec.size })
+end
+
 hl.layer_rule({ match = { namespace = "wofi" }, blur = true, ignore_alpha = 0.4 })
+-- Every zenix-shell popup draws its card semi-transparent and lets the
+-- compositor supply the frosting, so the blur belongs here rather than in QML.
+hl.layer_rule({ match = { namespace = "^zenix-" }, blur = true, ignore_alpha = 0.4 })
 -- hl.layer_rule({ match = { namespace = "waybar" }, blur = true })
 hl.layer_rule({ match = { namespace = "notifications" }, blur = true })

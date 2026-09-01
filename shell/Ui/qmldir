@@ -1,0 +1,4 @@
+module qs.Ui
+Overlay 1.0 Overlay.qml
+KeyHint 1.0 KeyHint.qml
+StatusDot 1.0 StatusDot.qml

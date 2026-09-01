@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.containers",
+  "name": "Containers",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Docker containers at a glance, with lazydocker one key away",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Containers.qml"
+  }
+}

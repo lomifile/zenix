@@ -123,6 +123,8 @@ hyprpolkitagent
 polkit
 waybar
 wofi
+# hosts zenix-shell, the process behind every custom popup (see shell/README.md)
+quickshell
 mako
 cliphist
 wl-clipboard
@@ -211,6 +213,8 @@ python-paramiko
 docker
 docker-buildx
 docker-compose
+# what the containers popup hands off to for anything deeper than a glance
+lazydocker
 mkcert
 dbeaver
 
