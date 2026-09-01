@@ -311,10 +311,34 @@ Item {
   // Hands a container off to a terminal. These are the things a popup should
   // not try to be: a log pager, a shell, a full TUI. Each gets its own app id
   // so hyprland.lua can float and size them.
+  //
+  // A handoff that fails is the worst thing this popup can do, because it
+  // fails invisibly: a terminal whose command is missing or exits at once
+  // opens and closes faster than it can be read, so an uninstalled binary and
+  // a dead daemon both look exactly like the key doing nothing. Every handoff
+  // is wrapped so a non-zero exit stays on screen with its status.
+  function heldOpen(script) {
+    return script
+      + "; status=$?; "
+      + "if [ \"$status\" -ne 0 ]; then "
+      + "printf '\\n[exited %s] press enter to close\\n' \"$status\"; read -r _; "
+      + "fi"
+  }
+
+  // Checks the binary exists before running it, so "not installed" is reported
+  // as itself, with the command that fixes it, rather than as whatever the
+  // shell says about a name it could not find.
+  function requiring(binary, hint, script) {
+    return "if ! command -v " + binary + " >/dev/null 2>&1; then "
+      + "printf '%s is not installed\\n\\n  %s\\n\\npress enter to close\\n' "
+      + "'" + binary + "' '" + hint + "'; read -r _; exit 0; fi; "
+      + heldOpen(script)
+  }
+
   function openLogs(id, name) {
     Quickshell.execDetached(["ghostty", "--class=zenix.container-logs",
       "--title=logs: " + name,
-      "-e", "bash", "-c", "docker logs -f --tail 200 " + id])
+      "-e", "bash", "-c", heldOpen("docker logs -f --tail 200 " + id)])
   }
 
   function openShell(id, name) {
@@ -322,11 +346,12 @@ Item {
     Quickshell.execDetached(["ghostty", "--class=zenix.container-shell",
       "--title=shell: " + name,
       "-e", "bash", "-c",
-      "docker exec -it " + id + " bash || docker exec -it " + id + " sh"])
+      heldOpen("docker exec -it " + id + " bash || docker exec -it " + id + " sh")])
   }
 
   function openLazydocker() {
     Quickshell.execDetached(["ghostty", "--class=zenix.lazydocker",
-      "--title=lazydocker", "-e", "lazydocker"])
+      "--title=lazydocker", "-e", "bash", "-c",
+      requiring("lazydocker", "sudo pacman -S lazydocker", "lazydocker")])
   }
 }
