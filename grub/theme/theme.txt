@@ -1,7 +1,9 @@
-# zenix — a Sonoma-flavoured GRUB theme.
+# zenix -- a Sonoma-flavoured GRUB theme.
 #
-# Palette matches hypr/hyprlock.conf, waybar/waybar-style.css and the SDDM
-# greeter, so the machine looks like one system from boot to desktop.
+# Modelled on the macOS Startup Manager: flat near-black ground, one large
+# disk icon per entry, generous negative space, and a selection that is a soft
+# fill rather than a button. Deliberately no title, no keyboard hints and no
+# colour -- those read as a Linux theme.
 #
 # Font names must match the NAME baked into the .pf2 files exactly; grub-mkfont
 # composes them as "<family> <style> <size>". See build.sh.
@@ -9,7 +11,7 @@
 title-text: ""
 
 desktop-image: "background.png"
-desktop-color: "#0a0a0c"
+desktop-color: "#0b0b0d"
 
 terminal-font: "Inter Regular 16"
 terminal-left: "8%"
@@ -20,68 +22,46 @@ terminal-border: "0"
 
 message-font: "Inter Regular 16"
 message-color: "#f5f5f7"
-message-bg-color: "#0a0a0c"
-
-# ---- hostname, small and quiet, the way the Mac boot picker labels things ----
-
-+ label {
-    left     = 0
-    top      = 21%
-    width    = 100%
-    align    = "center"
-    text     = "zenix"
-    color    = "#8e8e93"
-    font     = "Inter Regular 13"
-}
+message-bg-color: "#0b0b0d"
 
 # ---- the entries ----
 
 + boot_menu {
-    left   = 50%-260
-    top    = 28%
-    width  = 520
-    height = 38%
+    left   = 50%-290
+    top    = 26%
+    width  = 580
+    height = 46%
 
     item_font           = "Inter Regular 20"
     item_color          = "#98989d"
     selected_item_color = "#ffffff"
 
-    item_height  = 44
+    # tall rows so each icon has room to breathe, the way the Startup
+    # Manager spaces its disks
+    item_height  = 124
     item_spacing = 6
-    # insets the label inside the selection pill
-    item_padding = 24
+    item_padding = 18
 
-    # No OS icons: no icons/ directory ships with this theme. If entries turn
-    # out indented as though space were still reserved, that is these three.
-    icon_width      = 0
-    icon_height     = 0
-    item_icon_space = 0
+    icon_width      = 96
+    icon_height     = 96
+    item_icon_space = 24
 
     selected_item_pixmap_style = "select_*.png"
 }
 
 # ---- countdown ----
+#
+# Thin, white, and low on the screen -- the bar that sits under the Apple logo
+# while a Mac boots.
 
 + progress_bar {
-    id        = "__timeout__"
-    left      = 50%-140
-    top       = 72%
-    width     = 280
-    height    = 3
-    text      = ""
-    bg_color  = "#2c2c2e"
-    fg_color  = "#8e8e93"
+    id           = "__timeout__"
+    left         = 50%-120
+    top          = 78%
+    width        = 240
+    height       = 3
+    text         = ""
+    bg_color     = "#2c2c2e"
+    fg_color     = "#f5f5f7"
     border_color = "#2c2c2e"
-}
-
-# ---- key hints ----
-
-+ label {
-    left  = 0
-    top   = 78%
-    width = 100%
-    align = "center"
-    text  = "Use the arrow keys to select   ·   Enter to boot   ·   E to edit   ·   C for a console"
-    color = "#636366"
-    font  = "Inter Regular 13"
 }

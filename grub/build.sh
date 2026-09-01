@@ -25,7 +25,6 @@ echo "==> fonts"
 # "Inter Regular <size>".
 grub-mkfont -s 16 -n "Inter" -o "$OUT/inter-16.pf2" "$INTER"
 grub-mkfont -s 20 -n "Inter" -o "$OUT/inter-20.pf2" "$INTER"
-grub-mkfont -s 13 -n "Inter" -o "$OUT/inter-13.pf2" "$INTER"
 
 echo "==> images"
 python3 mkassets.py "$OUT"

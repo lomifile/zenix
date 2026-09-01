@@ -18,11 +18,16 @@ THEME = HERE / "theme"
 INTER = "/usr/share/fonts/inter/InterVariable.ttf"
 
 W, H = 1920, 1080
-ENTRIES = ["Arch Linux", "Advanced options for Arch Linux", "UEFI Firmware Settings"]
+# (label, icon class or None) -- the firmware entry carries no --class, so
+# grub finds no icon for it and leaves the slot empty.
+ENTRIES = [("Arch Linux", "gnu-linux"),
+           ("Advanced options for Arch Linux", "gnu-linux"),
+           ("UEFI Firmware Settings", None)]
 SELECTED = 0
 
-MENU_LEFT, MENU_TOP, MENU_WIDTH = W // 2 - 260, int(H * 0.28), 520
-ITEM_HEIGHT, ITEM_SPACING, ITEM_PADDING = 44, 6, 24
+MENU_LEFT, MENU_TOP, MENU_WIDTH = W // 2 - 290, int(H * 0.26), 580
+ITEM_HEIGHT, ITEM_SPACING, ITEM_PADDING = 124, 6, 18
+ICON, ICON_SPACE = 96, 24
 
 
 def nine_slice(prefix: str, width: int, height: int) -> Image.Image:
@@ -50,32 +55,28 @@ def nine_slice(prefix: str, width: int, height: int) -> Image.Image:
 def main() -> None:
     img = Image.open(THEME / "background.png").convert("RGBA")
     draw = ImageDraw.Draw(img)
-    f20 = ImageFont.truetype(INTER, 20)
-    f13 = ImageFont.truetype(INTER, 13)
-
-    def centered(text, y, font, fill):
-        w = draw.textlength(text, font=font)
-        draw.text(((W - w) / 2, y), text, font=font, fill=fill)
-
-    centered("zenix", int(H * 0.21), f13, "#8e8e93")
+    f18 = ImageFont.truetype(INTER, 20)
 
     y = MENU_TOP
-    for i, entry in enumerate(ENTRIES):
+    for i, (label, icon_class) in enumerate(ENTRIES):
         if i == SELECTED:
             img.alpha_composite(nine_slice("select", MENU_WIDTH, ITEM_HEIGHT), (MENU_LEFT, y))
+
+        icon_x = MENU_LEFT + ITEM_PADDING
+        if icon_class:
+            icon = Image.open(THEME / "icons" / f"{icon_class}.png").convert("RGBA")
+            img.alpha_composite(icon, (icon_x, y + (ITEM_HEIGHT - ICON) // 2))
+
         colour = "#ffffff" if i == SELECTED else "#98989d"
-        bbox = draw.textbbox((0, 0), entry, font=f20)
-        draw.text((MENU_LEFT + ITEM_PADDING,
+        bbox = draw.textbbox((0, 0), label, font=f18)
+        draw.text((icon_x + ICON + ICON_SPACE,
                    y + (ITEM_HEIGHT - (bbox[3] - bbox[1])) / 2 - bbox[1]),
-                  entry, font=f20, fill=colour)
+                  label, font=f18, fill=colour)
         y += ITEM_HEIGHT + ITEM_SPACING
 
-    bar_left, bar_top, bar_w = W // 2 - 140, int(H * 0.72), 280
+    bar_left, bar_top, bar_w = W // 2 - 120, int(H * 0.78), 240
     draw.rectangle([bar_left, bar_top, bar_left + bar_w, bar_top + 3], fill="#2c2c2e")
-    draw.rectangle([bar_left, bar_top, bar_left + int(bar_w * 0.62), bar_top + 3], fill="#8e8e93")
-
-    centered("Use the arrow keys to select   ·   Enter to boot   ·   "
-             "E to edit   ·   C for a console", int(H * 0.78), f13, "#636366")
+    draw.rectangle([bar_left, bar_top, bar_left + int(bar_w * 0.62), bar_top + 3], fill="#f5f5f7")
 
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "preview.png")
     img.convert("RGB").save(out)

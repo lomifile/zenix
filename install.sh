@@ -517,10 +517,18 @@ install_grub_theme() {
   fi
 
   local dest=/boot/grub/themes/zenix
-  run sudo install -d -m 755 /boot/grub/themes "$dest"
+  run sudo install -d -m 755 /boot/grub/themes "$dest" "$dest/icons"
+
+  # install(1) cannot copy a directory, so the entry icons in theme/icons are
+  # walked separately -- globbing theme/* alone silently skipped them.
   local f
   for f in "$REPO"/grub/theme/*; do
+    [[ -f "$f" ]] || continue
     run sudo install -m 644 "$f" "$dest/$(basename "$f")"
+  done
+  for f in "$REPO"/grub/theme/icons/*; do
+    [[ -f "$f" ]] || continue
+    run sudo install -m 644 "$f" "$dest/icons/$(basename "$f")"
   done
   ok "theme copied to $dest"
 
