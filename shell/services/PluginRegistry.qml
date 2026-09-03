@@ -18,7 +18,7 @@ Item {
   property string firstPartyDir: ""
   property string userDir: ""
 
-  // [{ id, name, description, kinds, entryPoints, keepLoaded, dir, firstParty }]
+  // [{ id, name, description, kinds, entryPoints, keepLoaded, autostart, dir, firstParty }]
   property var plugins: []
 
   property bool scanning: false

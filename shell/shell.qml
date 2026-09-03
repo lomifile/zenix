@@ -63,6 +63,10 @@ ShellRoot {
       // re-reading anything. Worth it for a window opened many times a day;
       // wasteful for one opened rarely, which is why it is per-plugin.
       readonly property bool keepLoaded: modelData.keepLoaded === true
+      // A plugin that is part of the desktop rather than something summoned
+      // onto it. The host opens these once the plugin list settles; they still
+      // expose open/close, so `hide` puts one away for the session.
+      readonly property bool autostart: modelData.autostart === true
 
       readonly property string entry: kind === ""
         ? ""
@@ -108,7 +112,17 @@ ShellRoot {
         onTriggered: if (!holder.isOpen()) holder.loader.active = false
       }
 
-      Component.onCompleted: shell.holders[pluginId] = holder
+      readonly property Timer autostartTimer: Timer {
+        // One tick, so the whole plugin list is mounted before anything claims
+        // an exclusive zone and starts resizing tiles.
+        interval: 0
+        onTriggered: holder.open("{}")
+      }
+
+      Component.onCompleted: {
+        shell.holders[pluginId] = holder
+        if (autostart) autostartTimer.start()
+      }
       Component.onDestruction: delete shell.holders[pluginId]
     }
   }

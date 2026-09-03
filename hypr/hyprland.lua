@@ -32,6 +32,7 @@ local function reconfigure_monitors()
 end
 
 hl.on("monitor.layout_changed", reconfigure_monitors)
+hl.on("config.reloaded", reconfigure_monitors)
 
 hl.env("HYPRCURSOR_THEME", "macOS-hypr")
 hl.env("HYPRCURSOR_SIZE", "24")
@@ -93,6 +94,14 @@ hl.config({
 
 	dwindle = { preserve_split = true },
 
+	group = {
+		col = {
+			border_active   = "rgba(0a84ffcc)",
+			border_inactive = "rgba(ffffff22)",
+		},
+		groupbar = { enabled = false },
+	},
+
 	misc = {
 		force_default_wallpaper = 0,
 		disable_hyprland_logo = true,
@@ -132,10 +141,52 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 local mod = "SUPER"
 
+local function toggle_workspace_tabs()
+	local monitor = hl.get_active_monitor()
+	local workspace = monitor and monitor.active_workspace
+	if not workspace then return end
+
+	local tiled = {}
+	for _, window in ipairs(hl.get_workspace_windows(workspace)) do
+		if not window.floating then tiled[#tiled + 1] = window end
+	end
+	if #tiled == 0 then return end
+
+	local grouped = false
+	for _, window in ipairs(tiled) do
+		if window.group then
+			grouped = true
+			break
+		end
+	end
+
+	if grouped then
+		for i = #tiled, 1, -1 do
+			local window = tiled[i]
+			if window.group then window.group:remove(window) end
+		end
+		return
+	end
+
+	local head = tiled[1]
+	hl.dispatch(hl.dsp.group.toggle({ window = "address:" .. head.address }))
+
+	local anchored = hl.get_window("address:" .. head.address) or head
+	local group = anchored.group
+	if not group then return end
+
+	for i = 2, #tiled do
+		group:add(tiled[i])
+	end
+end
+
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 -- hl.bind(mod .. " + C", hl.dsp.window.close())
 hl.bind(mod .. " + M", hl.dsp.exit())
-hl.bind(mod .. " + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(mod .. " + E", toggle_workspace_tabs)
+hl.bind(mod .. " + Tab", hl.dsp.group.next())
+hl.bind(mod .. " + SHIFT + Tab", hl.dsp.group.prev())
 hl.bind(mod .. " + Space", hl.dsp.exec_cmd(menu))
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.tabs",
+  "name": "Tabs",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "A tab bar along the bottom of every monitor showing window groups",
+  "kinds": [
+    "panel"
+  ],
+  "keepLoaded": true,
+  "autostart": true,
+  "entryPoints": {
+    "panel": "TabBar.qml"
+  }
+}

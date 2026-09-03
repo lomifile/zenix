@@ -21,6 +21,7 @@ shell/
   services/
     PluginRegistry.qml          finds plugins and reads their manifests
   plugins/
+    tabs/                       the group tab bar along the bottom (always on)
     audio/                      output and input devices (SUPER + S, or the waybar icon)
     bluetooth/                  devices (SUPER + B, or the waybar icon)
     wifi/                       networks (SUPER + W, or the waybar icon)
@@ -75,6 +76,12 @@ to a built-in plugin is a copy rather than an edit to the checkout.
 `menu`; the first of those it finds is the one it loads. `keepLoaded` keeps the
 window mounted between summons — worth it for something opened many times a
 day, wasteful for something opened rarely.
+
+`autostart` is for a plugin that is part of the desktop rather than something
+summoned onto it: the host opens it once the plugin list has settled, without
+waiting for an IPC call. Such a plugin still exposes `open`/`close`, so
+`zenix-shell shell hide <id>` puts it away for the session. `tabs` is the only
+one so far.
 
 The entry point is a plain `Item` exposing three things:
 
@@ -259,7 +266,7 @@ each row carrying its own slider.
 | `/` | filter by device name |
 | `Esc` | clear the filter, then close |
 
-`pactl -f json` supplies the whole picture in one pass -- sinks, sources and
+`pactl -f json` supplies the whole picture in one pass — sinks, sources and
 both defaults -- which the service hands straight to `JSON.parse`. The tree
 `wpctl status` prints is meant to be read, not parsed, and would need a parser
 that breaks the next time a column moves.
@@ -279,3 +286,59 @@ volume between the write and the next read. The optimistic value is dropped
 Writes are coalesced to one in flight, with only the latest queued behind it. A
 drag across the track emits a value per frame, and spawning a `pactl` per frame
 is how you get a slider that lags behind the pointer.
+
+## Tabs
+
+`SUPER + E` folds every tiled window on the workspace into one group — i3's
+tabbed layout. The group is then the only tile, so it fills the workspace, and
+one window shows at a time. The tabs appear in a pill along the bottom of the
+monitor. Pressing it again puts them all back to tiled.
+
+| Key | |
+|---|---|
+| `SUPER + E` | tab every window on the workspace, or untab them |
+| `SUPER + Tab`, `SUPER + Shift + Tab` | next / previous tab |
+| click a tab | focus that window |
+| middle-click a tab | close that window |
+
+Cycling and the group itself are Hyprland's (`togglegroup`,
+`changegroupactive`); the bar is ours, and so is gathering the whole workspace.
+`togglegroup` acts on one window, so `toggle_workspace_tabs` in `hyprland.lua`
+walks the focused monitor's active workspace, makes a group out of the first
+tiled window and `group:add()`s the rest — floating windows left alone, since
+a dialog does not belong in the stack. The workspace comes from
+`hl.get_active_monitor().active_workspace`: bare `hl.get_active_workspace()`
+follows the active *window*, which on a multi-monitor setup can be a workspace
+you are not looking at.
+
+Hyprland's own groupbar is turned off in `hyprland.lua`, because it cannot be
+moved: `CHyprGroupBarDecoration::getPositioningInfo()` hardcodes
+`info.edges = DECORATION_EDGE_TOP`, and `group:groupbar:priority` is decoration
+stacking order, not position.
+
+That hardcoded edge is also why this is a strip at the bottom of the screen
+rather than a bar on the bottom of each tile. The native groupbar sets
+`info.reserved = true`, which is what makes a window shrink to make room for it.
+A layer-shell surface cannot reserve space *inside* a tile, so a per-tile bar
+would have to be drawn over the bottom of the window — across a terminal's
+prompt and an editor's status line. Anchored to the monitor instead, the
+exclusive zone reserves the space for real and nothing is ever covered.
+
+The bar exists only while a group does. No groups on the visible workspace and
+the window is unmapped and the exclusive zone goes to zero, so the strip costs
+no screen height on a workspace that is not using it.
+
+Every group on the workspace gets a segment, divided by a hairline, with the one
+holding focus at full strength and the others dimmed. Showing only the focused
+group would be less to draw, but a second group would then vanish from a bar
+whose whole job is saying what is stacked where.
+
+One bar per monitor, via `Variants` over `Quickshell.screens`, each reading the
+active workspace of its own monitor. The 34" at home and the 27" at work are the
+same code path rather than a special case.
+
+Group membership comes from `grouped` on each toplevel's `lastIpcObject`, which
+Hyprland fills with the group's addresses *in tab order*, so the bar draws them
+in the order the keys cycle through. That field only refreshes on
+`refreshToplevels()`, so the service asks for one on the events that can change
+a group, debounced 40ms to collapse the burst that arrives when a window opens.
