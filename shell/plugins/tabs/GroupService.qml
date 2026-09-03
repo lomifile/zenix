@@ -47,28 +47,43 @@ QtObject {
       var ipc = windows[j].lastIpcObject
       var members = ipc ? ipc.grouped : null
       if (!members || members.length < 1) continue
+      if (ipc.mapped === false) continue
 
       var key = members.map(normalise).join("|")
       if (seen[key]) continue
       seen[key] = true
 
       var tabs = []
+      var front = -1
+      var frontOrder = Infinity
+
       for (var k = 0; k < members.length; k++) {
         var address = normalise(members[k])
         var window = byAddress[address]
         if (!window) continue
 
         var meta = window.lastIpcObject || ({})
+        if (meta.mapped === false) continue
+
+        var order = typeof meta.focusHistoryID === "number" ? meta.focusHistoryID : Infinity
+        if (order < frontOrder) {
+          frontOrder = order
+          front = tabs.length
+        }
+
         tabs.push({
           address: address,
           title: window.title || meta.class || "Window",
           appClass: meta.class || "",
-          active: meta.visible === true,
+          active: false,
           focused: address === focusedAddress
         })
       }
 
       if (tabs.length < 1) continue
+
+      if (front < 0) front = 0
+      tabs[front].active = true
 
       var focused = false
       for (var t = 0; t < tabs.length; t++) if (tabs[t].focused) focused = true
@@ -89,6 +104,15 @@ QtObject {
 
   property Timer debounce: Timer {
     interval: 40
+    onTriggered: {
+      Hyprland.refreshToplevels()
+      service.revision += 1
+      service.settle.restart()
+    }
+  }
+
+  property Timer settle: Timer {
+    interval: 300
     onTriggered: {
       Hyprland.refreshToplevels()
       service.revision += 1

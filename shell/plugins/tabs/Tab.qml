@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 
 import qs.Commons
 
@@ -14,14 +13,24 @@ Rectangle {
 
   readonly property bool active: model.active
 
-  implicitWidth: Math.max(84, Math.min(220, content.implicitWidth + Style.gapWide * 2))
+  readonly property int dotSize: 6
+  readonly property int maxTextWidth: 220 - Style.gapWide * 2 - dotSize - Style.gap
+
+  implicitWidth: Math.max(84, Math.min(220,
+    Math.min(label.implicitWidth, maxTextWidth)
+      + (active ? dotSize + Style.gap : 0)
+      + Style.gapWide * 2))
   implicitHeight: 26
   radius: height / 2
+  clip: true
 
   color: active
-    ? Color.elevated
-    : (hover.hovered ? Qt.rgba(1, 1, 1, 0.06) : "transparent")
-  opacity: dimmed && !active ? 0.55 : 1
+    ? Qt.rgba(1, 1, 1, 0.16)
+    : (hover.hovered ? Qt.rgba(1, 1, 1, 0.07) : "transparent")
+  opacity: dimmed && !active ? 0.5 : 1
+
+  border.width: active ? Style.border : 0
+  border.color: Qt.rgba(1, 1, 1, 0.16)
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }
@@ -44,32 +53,35 @@ Rectangle {
     onTapped: tab.closed()
   }
 
-  RowLayout {
-    id: content
-
-    anchors.fill: parent
-    anchors.leftMargin: Style.gapWide
-    anchors.rightMargin: Style.gapWide
+  Row {
+    anchors.centerIn: parent
     spacing: Style.gap
 
     Rectangle {
-      width: 5
-      height: 5
-      radius: 2.5
-      color: Color.accent
+      anchors.verticalCenter: parent.verticalCenter
+      width: tab.dotSize
+      height: tab.dotSize
+      radius: tab.dotSize / 2
+      color: Color.green
       visible: tab.active
-      Layout.alignment: Qt.AlignVCenter
     }
 
     Text {
+      id: label
+
+      anchors.verticalCenter: parent.verticalCenter
+      width: Math.min(implicitWidth, tab.maxTextWidth)
+
       text: tab.model.title
-      color: tab.active ? Color.foreground : Color.muted
+      color: tab.active
+        ? Color.foreground
+        : (hover.hovered ? Color.muted : Color.faint)
       font.family: Style.font.family
       font.pixelSize: Style.font.small
       font.weight: tab.active ? Font.DemiBold : Font.Normal
+      horizontalAlignment: Text.AlignHCenter
+      verticalAlignment: Text.AlignVCenter
       elide: Text.ElideRight
-      Layout.fillWidth: true
-      Layout.minimumWidth: 0
 
       Behavior on color {
         ColorAnimation { duration: Style.fast }

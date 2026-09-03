@@ -32,34 +32,16 @@ Item {
       readonly property var groups: service.groups
       readonly property bool present: root.opened && groups.length > 0
 
-      property bool closing: false
-
-      onPresentChanged: {
-        if (present) {
-          closing = false
-          closeTimer.stop()
-        } else {
-          closing = true
-          closeTimer.restart()
-        }
-      }
-
       GroupService {
         id: service
         screen: scope.modelData
-      }
-
-      Timer {
-        id: closeTimer
-        interval: Style.normal
-        onTriggered: scope.closing = false
       }
 
       PanelWindow {
         id: window
 
         screen: scope.modelData
-        visible: scope.present || scope.closing
+        visible: scope.present || bar.opacity > 0
 
         anchors { bottom: true; left: true; right: true }
         color: "transparent"
@@ -69,6 +51,7 @@ Item {
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
         implicitHeight: root.barHeight + root.liftoff * 2
+        exclusionMode: ExclusionMode.Normal
         exclusiveZone: scope.present ? root.barHeight + root.liftoff : 0
 
         mask: Region {
