@@ -2,32 +2,35 @@
 
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
 
-local terminal    = "ghostty"
+local terminal = "ghostty"
 local fileManager = "thunar"
--- `pkill || launch` makes the chord a toggle, the way Cmd+Space dismisses
--- Spotlight: pkill exits 0 when it killed something, so the launcher only
--- starts when one was not already up. -x matches the process name exactly.
-local menu        = "pkill -x wofi || wofi --show drun"
+local menu = "pkill -x wofi || wofi --show drun"
 
-local LAPTOP      = "eDP-1"
+local LAPTOP = "eDP-1"
+
+local applied_state = nil
 
 local function reconfigure_monitors()
-  local mons = hl.get_monitors({ all = true })
-  local has_external = false
-  for _, m in ipairs(mons) do
-    hl.notification.create({ text = "mon: " .. tostring(m.name), timeout = 3000 })
-    if m.name ~= LAPTOP and m.name ~= "" then
-      has_external = true
-    end
-  end
-  if has_external then
-    hl.monitor({ output = LAPTOP, disabled = true })
-  else
-    hl.monitor({ output = LAPTOP, mode = "preferred", position = "auto", scale = "auto" })
-  end
+	local has_external = false
+	for _, m in ipairs(hl.get_monitors()) do
+		if m.name ~= LAPTOP then
+			has_external = true
+		end
+	end
+
+	local wanted = has_external and "off" or "on"
+	if wanted == applied_state then
+		return
+	end
+	applied_state = wanted
+
+	if has_external then
+		hl.monitor({ output = LAPTOP, disabled = true })
+	else
+		hl.monitor({ output = LAPTOP, mode = "preferred", position = "auto", scale = "auto" })
+	end
 end
 
-hl.on("hyprland.start", reconfigure_monitors)
 hl.on("monitor.layout_changed", reconfigure_monitors)
 
 hl.env("HYPRCURSOR_THEME", "macOS-hypr")
@@ -40,69 +43,67 @@ hl.env("MOZ_ENABLE_WAYLAND", "1")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
 hl.on("hyprland.start", function()
-  hl.exec_cmd("hyprpaper")
-  hl.exec_cmd("waybar")
-  -- One Quickshell process hosts every custom popup for the session; nothing
-  -- else may start one. Windows are summoned into it over IPC by zenix-shell,
-  -- which is what keeps a popup at ~30ms instead of a cold QML start.
-  hl.exec_cmd("qs -p \"$HOME/.config/zenix/shell\"")
-  hl.exec_cmd("mako")
-  hl.exec_cmd("systemctl --user start hyprpolkitagent")
-  hl.exec_cmd("hypridle")
-  hl.exec_cmd("nm-applet --indicator")
-  hl.exec_cmd("blueman-applet")
-  hl.exec_cmd("wl-paste --type text --watch cliphist store")
-  hl.exec_cmd("wl-paste --type image --watch cliphist store")
+	reconfigure_monitors()
+	hl.exec_cmd("hyprpaper")
+	hl.exec_cmd("waybar")
+	hl.exec_cmd('qs -p "$HOME/.config/zenix/shell"')
+	hl.exec_cmd("mako")
+	hl.exec_cmd("systemctl --user start hyprpolkitagent")
+	hl.exec_cmd("hypridle")
+	hl.exec_cmd("nm-applet --indicator")
+	hl.exec_cmd("blueman-applet")
+	hl.exec_cmd("wl-paste --type text --watch cliphist store")
+	hl.exec_cmd("wl-paste --type image --watch cliphist store")
 end)
 
 hl.config({
-  general = {
-    gaps_in          = 6,
-    gaps_out         = { top = 4, right = 8, bottom = 8, left = 8 },
-    border_size      = 2,
-    col              = {
-      active_border   = { colors = { "rgba(ffffffcc)", "rgba(ffffff55)" }, angle = 45 },
-      inactive_border = "rgba(ffffff22)",
-    },
-    resize_on_border = true,
-    allow_tearing    = false,
-    layout           = "dwindle",
-  },
+	general = {
+		gaps_in = 6,
+		gaps_out = { top = 4, right = 8, bottom = 8, left = 8 },
+		border_size = 2,
+		col = {
+			active_border = { colors = { "rgba(ffffffcc)", "rgba(ffffff55)" }, angle = 45 },
+			inactive_border = "rgba(ffffff22)",
+		},
+		resize_on_border = true,
+		allow_tearing = false,
+		layout = "dwindle",
+	},
 
-  decoration = {
-    rounding         = 12,
-    rounding_power   = 2,
-    active_opacity   = 1.0,
-    inactive_opacity = 0.96,
-    shadow           = {
-      enabled      = true,
-      range        = 25,
-      render_power = 3,
-      color        = 0x40000000,
-    },
-    blur             = {
-      enabled  = true,
-      size     = 8,
-      passes   = 3,
-      vibrancy = 0.22,
-    },
-  },
+	decoration = {
+		rounding = 12,
+		rounding_power = 2,
+		active_opacity = 1.0,
+		inactive_opacity = 0.96,
+		shadow = {
+			enabled = true,
+			range = 25,
+			render_power = 3,
+			color = 0x40000000,
+		},
+		blur = {
+			enabled = true,
+			size = 8,
+			passes = 3,
+			vibrancy = 0.22,
+		},
+	},
 
-  animations = { enabled = true },
+	animations = { enabled = true },
 
-  dwindle = { preserve_split = true },
+	dwindle = { preserve_split = true },
 
-  misc = {
-    force_default_wallpaper = 0,
-    disable_hyprland_logo   = true,
-  },
+	misc = {
+		force_default_wallpaper = 0,
+		disable_hyprland_logo = true,
+	},
 
-  input = {
-    kb_layout = "us",
-    follow_mouse = 1,
-    sensitivity = 0,
-    touchpad = { natural_scroll = true, tap_to_click = true },
-  },
+	input = {
+		kb_layout = "us",
+		follow_mouse = 1,
+		sensitivity = 0,
+		touchpad = { natural_scroll = true, tap_to_click = true },
+	},
 })
 
 hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
@@ -136,7 +137,6 @@ hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + M", hl.dsp.exit())
 hl.bind(mod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mod .. " + R", hl.dsp.exec_cmd(menu))
--- Spotlight lives on Cmd+Space; SUPER + Space is the same reach here.
 hl.bind(mod .. " + Space", hl.dsp.exec_cmd(menu))
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
@@ -145,8 +145,6 @@ hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
--- Popups hosted by zenix-shell. `toggle` rather than `summon` so the same
--- chord that opened one closes it.
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.containers"))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.bluetooth"))
 hl.bind(mod .. " + W", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.wifi"))
@@ -162,17 +160,14 @@ hl.bind(mod .. " + SHIFT + up", hl.dsp.window.move({ direction = "up" }))
 hl.bind(mod .. " + SHIFT + down", hl.dsp.window.move({ direction = "down" }))
 
 for i = 1, 10 do
-  local key = i % 10
-  hl.bind(mod .. " + " .. key, hl.dsp.focus({ workspace = i }))
-  hl.bind(mod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+	local key = i % 10
+	hl.bind(mod .. " + " .. key, hl.dsp.focus({ workspace = i }))
+	hl.bind(mod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
 hl.bind(mod .. " + A", hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mod .. " + SHIFT + A", hl.dsp.window.move({ workspace = "special:magic" }))
 
--- macOS moves between Spaces with CTRL + arrows. "e-1"/"e+1" step through
--- workspaces that already exist rather than conjuring empty ones, which is how
--- Spaces behave -- and matches the scroll binds below.
 hl.bind("CTRL + left", hl.dsp.focus({ workspace = "e-1" }))
 hl.bind("CTRL + right", hl.dsp.focus({ workspace = "e+1" }))
 
@@ -182,15 +177,24 @@ hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"))
-hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | wl-copy"))
+hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
 hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"))
 
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
-  { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
-  { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
-  { locked = true, repeating = true })
+hl.bind(
+	"XF86AudioRaiseVolume",
+	hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
+	{ locked = true, repeating = true }
+)
+hl.bind(
+	"XF86AudioLowerVolume",
+	hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
+	{ locked = true, repeating = true }
+)
+hl.bind(
+	"XF86AudioMute",
+	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
+	{ locked = true, repeating = true }
+)
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { locked = true, repeating = true })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
@@ -200,32 +204,24 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 
 hl.window_rule({ name = "suppress-maximize", match = { class = ".*" }, suppress_event = "maximize" })
 hl.window_rule({
-  name     = "fix-xwayland-drags",
-  match    = { class = "^$", title = "^$", xwayland = true, float = true, fullscreen = false, pin = false },
-  no_focus = true,
+	name = "fix-xwayland-drags",
+	match = { class = "^$", title = "^$", xwayland = true, float = true, fullscreen = false, pin = false },
+	no_focus = true,
 })
 for _, c in ipairs({ "pavucontrol", "org.pulseaudio.pavucontrol", "blueman-manager", "nm-connection-editor" }) do
-  hl.window_rule({ match = { class = c }, float = true })
+	hl.window_rule({ match = { class = c }, float = true })
 end
 
--- Terminals the containers popup hands off to. The popup is for the glance;
--- anything that wants scrollback, a prompt or a full TUI gets a real window,
--- and each carries its own app id so it can be sized for what it shows.
--- float/center/size go in separately: Hyprland's Lua rules apply one property
--- per rule, and combining them silently drops all but the first.
 for _, spec in ipairs({
-  { class = "^zenix\\.container-logs$",  size = { 1100, 700 } },
-  { class = "^zenix\\.container-shell$", size = { 1000, 620 } },
-  { class = "^zenix\\.lazydocker$",      size = { 1280, 800 } },
+	{ class = "^zenix\\.container-logs$", size = { 1100, 700 } },
+	{ class = "^zenix\\.container-shell$", size = { 1000, 620 } },
+	{ class = "^zenix\\.lazydocker$", size = { 1280, 800 } },
 }) do
-  hl.window_rule({ match = { class = spec.class }, float = true })
-  hl.window_rule({ match = { class = spec.class }, center = true })
-  hl.window_rule({ match = { class = spec.class }, size = spec.size })
+	hl.window_rule({ match = { class = spec.class }, float = true })
+	hl.window_rule({ match = { class = spec.class }, center = true })
+	hl.window_rule({ match = { class = spec.class }, size = spec.size })
 end
 
 hl.layer_rule({ match = { namespace = "wofi" }, blur = true, ignore_alpha = 0.4 })
--- Every zenix-shell popup draws its card semi-transparent and lets the
--- compositor supply the frosting, so the blur belongs here rather than in QML.
 hl.layer_rule({ match = { namespace = "^zenix-" }, blur = true, ignore_alpha = 0.4 })
--- hl.layer_rule({ match = { namespace = "waybar" }, blur = true })
 hl.layer_rule({ match = { namespace = "notifications" }, blur = true })

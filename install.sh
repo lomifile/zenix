@@ -345,8 +345,23 @@ link() {
   ok "${dest/#$HOME/\~} -> ${src/#$REPO/repo}"
 }
 
+retire() {
+  local dest="$1" why="$2"
+
+  [[ -e "$dest" || -L "$dest" ]] || return
+
+  local stash="$BACKUP/${dest#$HOME/}"
+  info "retiring ${dest/#$HOME/\~} ($why)"
+  run mkdir -p "$(dirname "$stash")"
+  run mv "$dest" "$stash"
+}
+
 link_dotfiles() {
   step "Linking dotfiles"
+
+  retire "$CONFIG/hypr/hyprland.conf" "superseded by hyprland.lua"
+  retire "$CONFIG/wofi/power.sh"      "superseded by zenix-shell"
+  retire "$CONFIG/wofi/bluetooth.sh"  "superseded by zenix-shell"
 
   # hyprland: the .lua config is the live one; hyprpaper.conf is generated
   # below because it needs an absolute wallpaper path.
