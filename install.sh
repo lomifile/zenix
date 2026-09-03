@@ -348,7 +348,7 @@ link() {
 retire() {
   local dest="$1" why="$2"
 
-  [[ -e "$dest" || -L "$dest" ]] || return
+  [[ -e "$dest" || -L "$dest" ]] || return 0
 
   local stash="$BACKUP/${dest#$HOME/}"
   info "retiring ${dest/#$HOME/\~} ($why)"
@@ -378,9 +378,9 @@ link_dotfiles() {
   link "$REPO/wofi/config"                "$CONFIG/wofi/config"
   link "$REPO/wofi/style.css"             "$CONFIG/wofi/style.css"
 
-  # ghostty 1.2+ reads config.ghostty, and the config pulls in auto/theme
-  link "$REPO/ghostty/config.ghostty"     "$CONFIG/ghostty/config.ghostty"
-  link "$REPO/ghostty/auto/theme.ghostty" "$CONFIG/ghostty/auto/theme.ghostty"
+  # ghostty 1.2+ reads config.ghostty; `theme =` names a file under themes/
+  link "$REPO/ghostty/config.ghostty"       "$CONFIG/ghostty/config.ghostty"
+  link "$REPO/ghostty/themes/xcode-zenix"   "$CONFIG/ghostty/themes/xcode-zenix"
 
   # nvim goes in whole so lazy-lock.json stays under version control
   link "$REPO/nvim" "$CONFIG/nvim"
@@ -398,10 +398,43 @@ link_dotfiles() {
   # zsh reads from $ZDOTDIR, set by the ~/.zshenv written below
   link "$REPO/zsh/.zshrc" "$CONFIG/zsh/.zshrc"
 
+  # tmux 3.1+ reads ~/.tmux.conf AND $XDG_CONFIG_HOME/tmux/tmux.conf, sourcing
+  # every one that exists -- so the legacy path is retired rather than left to
+  # load a second, stale copy on top of this one.
+  retire "$HOME/.tmux.conf" "moved to $CONFIG/tmux/tmux.conf"
+  link "$REPO/tmux/tmux.conf" "$CONFIG/tmux/tmux.conf"
+
+  # lazygit rewrites this file wholesale whenever a setting changes in-app, so
+  # it is linked rather than generated: edits land in the repo by construction.
+  link "$REPO/lazygit/config.yml" "$CONFIG/lazygit/config.yml"
+
   write_zshenv
+  patch_tmux_theme
   write_hyprpaper_conf
   write_hyprlock_conf
   install_wallpaper
+}
+
+# tokyo-night-tmux hardcodes four palettes and has no option for a custom one,
+# so tmux/themes.sh replaces the copy tpm cloned outright. A plugin update
+# restores the upstream file, which is why this reapplies on every install
+# rather than being done once by hand.
+patch_tmux_theme() {
+  local dest="$HOME/.tmux/plugins/tokyo-night-tmux/src/themes.sh"
+  local theme="$REPO/tmux/themes.sh"
+
+  if [[ ! -d "$(dirname "$dest")" ]]; then
+    skip "tokyo-night-tmux not installed; theme not applied"
+    return
+  fi
+
+  if (( DRY_RUN )); then
+    printf '    %s$ install %s over %s%s\n' "$DIM" "$theme" "$dest" "$N"
+    return
+  fi
+
+  run install -m 644 "$theme" "$dest"
+  ok "tmux theme installed into tokyo-night-tmux"
 }
 
 # Generated rather than linked: the repo copy would hardcode one username, and

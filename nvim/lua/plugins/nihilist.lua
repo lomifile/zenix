@@ -4,12 +4,6 @@ return {
     opts = {},
   },
   {
-    "folke/tokyonight.nvim",
-    lazy = false,
-    priority = 1000,
-    opts = {},
-  },
-  {
     "nvim-neo-tree/neo-tree.nvim",
     opts = {
       filesystem = {

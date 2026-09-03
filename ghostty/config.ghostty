@@ -1,6 +1,5 @@
-theme = TokyoNight Moon
+theme = xcode-zenix
 font-family = ZedMono Nerd Font
-
 
 # Add some nice looking padding
 window-padding-x = 4

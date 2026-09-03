@@ -8,18 +8,14 @@ HAS_WIDECHARS="false"
 if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
   source /usr/share/zsh/manjaro-zsh-config
 fi
-# manjaro-zsh-prompt (powerlevel10k) is intentionally NOT sourced here —
-# it would override the oh-my-zsh theme set below, since it re-asserts
-# its own prompt on every precmd. oh-my-zsh's ZSH_THEME is the prompt now.
 
-# --- aliases (from fish functions/*.fish) ---
 alias c='clear'
 alias e='exa --icons'
 alias elah='exa -lah'
 alias ff='fastfetch'
 alias g='git'
 alias gb='git branch'
-alias gco='git checkout'          # was tangled up with `gb` in the fish version
+alias gco='git checkout'          
 alias gc='git add . && git commit -m'
 alias gdf='git diff'
 alias glog='git log'
@@ -29,9 +25,7 @@ alias gs='git status'
 alias r='rm -rf'
 alias t='tree'
 alias v='nvim'
-# no separate `z` alias needed — zoxide's own init below provides the `z` command
 
-# --- tmux sessionizer (fish's tmux_sessionizer.fish + config.fish binds) ---
 tmux-sessionizer() {
   local selected
   if [[ $# -eq 1 ]]; then
@@ -62,16 +56,13 @@ tmux-attach-session() {
   tmux attach -t "$session"
 }
 
-# fish's `bind \cf ...` -> zsh: bind the key to type+enter the command
 bindkey -s '^f' 'tmux-sessionizer\n'
 bindkey -s '^a' 'tmux-attach-session\n'
 bindkey -s '^l' 'tmux ls\n'
 bindkey -s '^q' 'tmux detach\n'
 
-# --- zoxide (was: `zoxide init fish | source`) ---
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
-# --- ~/.local/bin (pipx puts the zenix CLI here) ---
 case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
@@ -92,11 +83,6 @@ export PATH="$HOME/.opencode/bin:$PATH"
 
 # --- rustup/cargo (was conf.d/rustup.fish) ---
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-
-# --- nvm (fish_plugins had jorgebucaran/nvm.fish, default version was 24) ---
-# export NVM_DIR="$HOME/.nvm"
-# [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-# nvm alias default 24 >/dev/null 2>&1
 
 # --- misc (was in fish_variables) ---
 export VIRTUAL_ENV_DISABLE_PROMPT=true
