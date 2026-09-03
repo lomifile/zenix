@@ -411,6 +411,11 @@ link_dotfiles() {
   # read via $FZF_DEFAULT_OPTS_FILE, exported from zsh/.zshrc
   link "$REPO/fzf/fzfrc" "$CONFIG/fzf/fzfrc"
 
+  # tmux-sessionizer: the script goes on PATH under its conventional name, which
+  # is also what Ctrl-F in zsh and prefix+f in tmux both call.
+  link "$REPO/zsh/tmux-sessioniser.sh"     "$HOME/.local/bin/tmux-sessionizer"
+  link "$REPO/zsh/tmux-sessionizer.conf"   "$CONFIG/tmux-sessionizer/tmux-sessionizer.conf"
+
   write_zshenv
   patch_tmux_theme
   write_hyprpaper_conf

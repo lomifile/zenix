@@ -26,28 +26,10 @@ alias r='rm -rf'
 alias t='tree'
 alias v='nvim'
 
-tmux-sessionizer() {
-  local selected
-  if [[ $# -eq 1 ]]; then
-    selected="$1"
-  else
-    selected=$(find ~/work ~/learn ~/build ~/projects -mindepth 1 -maxdepth 1 -type d 2>/dev/null | fzf)
-  fi
-  [[ -z "$selected" ]] && return 0
-
-  local selected_name=$(basename "$selected" | tr . _)
-  local tmux_running=$(pgrep tmux)
-
-  if [[ -z "$TMUX" && -z "$tmux_running" ]]; then
-    tmux new-session -s "$selected_name" -c "$selected"
-    return 0
-  fi
-
-  if ! tmux has-session -t "$selected_name" 2>/dev/null; then
-    tmux new-session -ds "$selected_name" -c "$selected"
-  fi
-  tmux switch-client -t "$selected_name"
-}
+# tmux-sessionizer is a script on PATH (zsh/tmux-sessioniser.sh, linked to
+# ~/.local/bin/tmux-sessionizer). It used to be a function here; a function of
+# the same name would shadow the script, so it was removed rather than renamed.
+# Search paths live in zsh/tmux-sessionizer.conf.
 
 tmux-attach-session() {
   tmux ls
