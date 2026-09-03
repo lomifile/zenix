@@ -95,7 +95,7 @@ hl.config({
 
 	group = {
 		col = {
-			border_active   = "rgba(0a84ffcc)",
+			border_active = "rgba(0a84ffcc)",
 			border_inactive = "rgba(ffffff22)",
 		},
 		groupbar = { enabled = false },
@@ -143,13 +143,19 @@ local mod = "SUPER"
 local function toggle_workspace_tabs()
 	local monitor = hl.get_active_monitor()
 	local workspace = monitor and monitor.active_workspace
-	if not workspace then return end
+	if not workspace then
+		return
+	end
 
 	local tiled = {}
 	for _, window in ipairs(hl.get_workspace_windows(workspace)) do
-		if not window.floating then tiled[#tiled + 1] = window end
+		if not window.floating then
+			tiled[#tiled + 1] = window
+		end
 	end
-	if #tiled == 0 then return end
+	if #tiled == 0 then
+		return
+	end
 
 	local grouped = false
 	for _, window in ipairs(tiled) do
@@ -162,7 +168,9 @@ local function toggle_workspace_tabs()
 	if grouped then
 		for i = #tiled, 1, -1 do
 			local window = tiled[i]
-			if window.group then window.group:remove(window) end
+			if window.group then
+				window.group:remove(window)
+			end
 		end
 		return
 	end
@@ -172,7 +180,9 @@ local function toggle_workspace_tabs()
 
 	local anchored = hl.get_window("address:" .. head.address) or head
 	local group = anchored.group
-	if not group then return end
+	if not group then
+		return
+	end
 
 	for i = 2, #tiled do
 		group:add(tiled[i])
@@ -180,8 +190,6 @@ local function toggle_workspace_tabs()
 end
 
 hl.bind(mod .. " + Q", hl.dsp.window.close())
--- hl.bind(mod .. " + C", hl.dsp.window.close())
-hl.bind(mod .. " + M", hl.dsp.exit())
 hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mod .. " + E", toggle_workspace_tabs)
 hl.bind(mod .. " + Tab", hl.dsp.group.next())
@@ -194,6 +202,7 @@ hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
+hl.bind(mod .. " + M", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.power"))
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.containers"))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.bluetooth"))
 hl.bind(mod .. " + W", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.wifi"))

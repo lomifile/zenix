@@ -22,6 +22,7 @@ shell/
     PluginRegistry.qml          finds plugins and reads their manifests
   plugins/
     notifications/              banners in the top right (always on)
+    power/                      lock / log out / sleep / restart / shut down (SUPER + M)
     tabs/                       the group tab bar along the bottom (always on)
     audio/                      output and input devices (SUPER + S, or the waybar icon)
     bluetooth/                  devices (SUPER + B, or the waybar icon)
@@ -383,3 +384,31 @@ same message twice at two different sizes.
 The whole stack lives in one layer surface sized to its contents rather than one
 surface per card. Cards can then animate against each other, and the compositor
 sees one blur region instead of a new one per notification.
+
+## Power
+
+`SUPER + M`. Five tiles: lock, log out, sleep, restart, shut down.
+
+| Key | |
+|---|---|
+| `←` `→`, `Tab` | move |
+| `l` `o` `s` `r` `p` | jump straight to an action |
+| `Enter`, or a click | run it — twice for the destructive three |
+| `Esc` | cancel a pending action, then close |
+
+Log out, restart and shut down arm on the first `Enter` and only fire on the
+second: the header turns into a question in the action's own colour and the
+footer says what the next `Enter` will do. Lock and sleep skip that — both are
+undone by touching a key, and a confirmation step for them is just friction.
+
+Movement is arrows and `Tab` only. Every letter is an action shortcut, so `h`/`l`
+cannot also mean movement without `l` being both "right" and "Lock".
+
+Logging out runs `hyprctl dispatch 'hl.dsp.exit()'`, not `hyprctl dispatch exit`.
+Under the Lua config a bare dispatcher name is rejected — dispatchers have to be
+written the way `hyprland.lua` would write them. The old wofi menu used the bare
+form, so its logout entry had quietly stopped working.
+
+The hostname beside the title is read from `/etc/hostname` rather than
+`$HOSTNAME`, which is a shell variable and normally not exported to a process
+started by the compositor.

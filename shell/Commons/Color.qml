@@ -29,6 +29,7 @@ QtObject {
   // popup carrying color, so these have to stay apart at the size of a dot.
   readonly property color green: "#30d158"
   readonly property color amber: "#ff9f0a"
+  readonly property color yellow: "#ffd60a"
   readonly property color red: "#ff453a"
   readonly property color grey: "#8e8e93"
 }

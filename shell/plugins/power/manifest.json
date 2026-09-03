@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.power",
+  "name": "Power",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Lock, log out, sleep, restart, shut down",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Power.qml"
+  }
+}
