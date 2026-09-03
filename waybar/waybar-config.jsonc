@@ -17,20 +17,20 @@
     "bluetooth",
     "custom/volume",
     "custom/battery",
-    "custom/agenda",
+    "custom/agenda"
   ],
 
   "hyprland/workspaces": {
     "format": "{name}",
     "on-click": "activate",
-    "all-outputs": true,
+    "all-outputs": true
   },
 
   "hyprland/window": {
     "format": "{title}",
     "max-length": 44,
     "separate-outputs": true,
-    "rewrite": { "": "Desktop" },
+    "rewrite": { "": "Desktop" }
   },
 
   "clock": {
@@ -47,8 +47,8 @@
         "days": "<span color='#f5f5f7'>{}</span>",
         "weeks": "<span color='#8e8e93'>W{}</span>",
         "weekdays": "<span color='#8e8e93'><b>{}</b></span>",
-        "today": "<span color='#0a84ff'><b>{}</b></span>",
-      },
+        "today": "<span color='#0a84ff'><b>{}</b></span>"
+      }
     },
     // Spelled out rather than a bare `zenix-shell`: waybar inherits the
     // graphical session PATH, which SDDM sets to
@@ -58,8 +58,8 @@
     "actions": {
       "on-click-right": "mode",
       "on-scroll-up": "shift_up",
-      "on-scroll-down": "shift_down",
-    },
+      "on-scroll-down": "shift_down"
+    }
   },
 
   // Today's agenda, read from the cache that `zenix agenda fetch` writes on a
@@ -76,28 +76,29 @@
   "custom/cpu": {
     "exec": "~/.config/waybar/scripts/statbar.sh cpu",
     "interval": 2,
-    "tooltip": false,
+    "tooltip": false
   },
 
   "custom/memory": {
     "exec": "~/.config/waybar/scripts/statbar.sh memory",
     "interval": 3,
-    "tooltip": false,
+    "tooltip": false
   },
 
   "custom/volume": {
     "exec": "~/.config/waybar/scripts/statbar.sh volume",
     "interval": 1,
-    "on-click": "pavucontrol",
+    "on-click": "~/.local/bin/zenix-shell shell toggle zenix.audio",
+    "on-click-right": "pavucontrol",
     "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
     "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
-    "tooltip": false,
+    "tooltip": false
   },
 
   "custom/battery": {
     "exec": "~/.config/waybar/scripts/statbar.sh battery",
     "interval": 10,
-    "tooltip": false,
+    "tooltip": false
   },
 
   "network": {
@@ -116,7 +117,7 @@
     // Spelled out for the same reason as the clock: waybar inherits the
     // graphical session PATH, which has no ~/.local/bin.
     "on-click": "nmcli -t -f TYPE,STATE device status | grep -q '^ethernet:connected' || ~/.local/bin/zenix-shell shell toggle zenix.wifi",
-    "on-click-right": "nm-connection-editor",
+    "on-click-right": "nm-connection-editor"
   },
 
   "bluetooth": {
@@ -131,6 +132,6 @@
     // Spelled out for the same reason as the clock: waybar inherits the
     // graphical session PATH, which has no ~/.local/bin.
     "on-click": "~/.local/bin/zenix-shell shell toggle zenix.bluetooth",
-    "on-click-right": "blueman-manager",
-  },
+    "on-click-right": "blueman-manager"
+  }
 }

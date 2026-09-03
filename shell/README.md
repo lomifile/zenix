@@ -21,6 +21,7 @@ shell/
   services/
     PluginRegistry.qml          finds plugins and reads their manifests
   plugins/
+    audio/                      output and input devices (SUPER + S, or the waybar icon)
     bluetooth/                  devices (SUPER + B, or the waybar icon)
     wifi/                       networks (SUPER + W, or the waybar icon)
     calendar/                   month and agenda (click the waybar clock)
@@ -241,3 +242,40 @@ The password reaches nmcli in argv, which `/proc/<pid>/cmdline` exposes to this
 user for the couple of seconds the command runs. Quickshell's `Process` has no
 way to write to stdin and nmcli will not take a secret from a file, so this is
 the same trade every nmcli front end makes.
+
+## Sound
+
+`SUPER + S`, or click the volume icon in waybar. Outputs above, inputs below,
+each row carrying its own slider.
+
+| Key | |
+|---|---|
+| `↑` `↓`, `j` `k`, `Ctrl-J` `Ctrl-K` | move |
+| `←` `→`, `h` `l` | volume, 5% a step |
+| `Shift` + `←` `→` | volume, 1% a step |
+| `Enter`, or a click on the row | make this the default device |
+| `m`, or a click on the speaker glyph | mute / unmute |
+| `p` | hand over to pavucontrol |
+| `/` | filter by device name |
+| `Esc` | clear the filter, then close |
+
+`pactl -f json` supplies the whole picture in one pass -- sinks, sources and
+both defaults -- which the service hands straight to `JSON.parse`. The tree
+`wpctl status` prints is meant to be read, not parsed, and would need a parser
+that breaks the next time a column moves.
+
+Sources ending in `.monitor` are loopbacks of an output, not microphones, and
+are dropped: every sink would otherwise appear a second time under Input.
+
+Making a device default also moves the streams already playing through
+`move-sink-input`. `set-default-sink` alone only redirects what starts
+afterwards, so without it a switch does nothing to the thing you switched for.
+
+Dragging a slider writes through an optimistic value the poll is not allowed to
+overwrite: at 1.5s the list would otherwise snap the handle back to the old
+volume between the write and the next read. The optimistic value is dropped
+400ms after the last write lands, once pipewire has been asked again.
+
+Writes are coalesced to one in flight, with only the latest queued behind it. A
+drag across the track emits a value per frame, and spawning a `pactl` per frame
+is how you get a slider that lags behind the pointer.

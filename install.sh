@@ -362,6 +362,7 @@ link_dotfiles() {
   retire "$CONFIG/hypr/hyprland.conf" "superseded by hyprland.lua"
   retire "$CONFIG/wofi/power.sh"      "superseded by zenix-shell"
   retire "$CONFIG/wofi/bluetooth.sh"  "superseded by zenix-shell"
+  retire "$CONFIG/waybar/config"      "superseded by config.jsonc"
 
   # hyprland: the .lua config is the live one; hyprpaper.conf is generated
   # below because it needs an absolute wallpaper path.
@@ -442,8 +443,7 @@ write_hyprpaper_conf() {
   if (( DRY_RUN )); then
     printf '    %s$ write %s (wallpaper %s)%s\n' "$DIM" "$dest" "$paper" "$N"
   else
-    sed -e "s|^preload = .*|preload = $paper|" \
-        -e "s|^wallpaper = .*|wallpaper = , $paper|" \
+    sed -e "s|^\( *\)path = .*|\1path = $paper|" \
         "$REPO/hypr/hyprpaper.conf" > "$dest"
   fi
   ok "~/.config/hypr/hyprpaper.conf written"

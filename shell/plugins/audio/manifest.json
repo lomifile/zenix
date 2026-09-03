@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.audio",
+  "name": "Sound",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Output and input devices, with a volume slider on each",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Audio.qml"
+  }
+}

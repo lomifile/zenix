@@ -108,7 +108,11 @@ def apply_desktop(ctx, repo, name: str) -> None:
             shutil.copy2(source, live)
 
     conf = Path.home() / ".config" / "hypr" / "hyprpaper.conf"
-    ctx.write(conf, f"preload = {live}\nwallpaper = , {live}\nsplash = false\nipc = on\n")
+    ctx.write(
+        conf,
+        "splash = false\nipc = on\n\n"
+        f"wallpaper {{\n    monitor =\n    path = {live}\n    fit_mode = cover\n}}\n",
+    )
     ok(f"{conf} updated")
 
     if not which("hyprctl"):
@@ -116,9 +120,10 @@ def apply_desktop(ctx, repo, name: str) -> None:
         return
 
     # hyprpaper 0.8's IPC accepts only `wallpaper` and `listactive`; `preload`,
-    # `unload` and `reload` all come back as "invalid hyprpaper request". The
-    # `preload` keyword still exists in hyprpaper.conf -- that is the config
-    # grammar, not the IPC one -- so it stays in the generated file.
+    # `unload` and `reload` all come back as "invalid hyprpaper request". 0.8
+    # dropped `preload` from the config grammar too: wallpapers are a special
+    # category keyed on monitor, and the old `preload =` / `wallpaper = ,path`
+    # pair is silently ignored.
     #
     # `wallpaper` loads the image itself, so one call is the whole job. hyprctl
     # exits 1 on an invalid request, a bad path, or no running compositor.
