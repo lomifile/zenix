@@ -27,9 +27,15 @@ def _looks_like_repo(path: Path) -> bool:
 
 
 def find_repo(explicit: str | None = None) -> Path:
-    candidates: list[Path] = []
+    # --repo is an assertion, not a hint: falling through to the search would
+    # quietly edit a different checkout than the one that was named.
     if explicit:
-        candidates.append(Path(explicit).expanduser())
+        path = Path(explicit).expanduser()
+        if not _looks_like_repo(path):
+            die(f"{explicit} is not a zenix checkout (no install.sh + packages/pacman.txt)")
+        return path
+
+    candidates: list[Path] = []
     if env := os.environ.get("ZENIX_REPO"):
         candidates.append(Path(env).expanduser())
 
@@ -41,8 +47,6 @@ def find_repo(explicit: str | None = None) -> Path:
         if _looks_like_repo(c):
             return c
 
-    if explicit:
-        die(f"{explicit} is not a zenix checkout (no install.sh + packages/pacman.txt)")
     die(
         "cannot find the zenix repo — run this from inside it, "
         "or pass --repo PATH, or set ZENIX_REPO"

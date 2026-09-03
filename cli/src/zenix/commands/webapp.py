@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 import shutil
 import struct
-from configparser import ConfigParser
+from configparser import ConfigParser, ParsingError
 from pathlib import Path
 
 from zenix.console import die, dim, header, info, ok, paint, warn
@@ -62,7 +62,12 @@ def entries(repo) -> list[Path]:
 def read_entry(path: Path) -> dict[str, str]:
     parser = ConfigParser(interpolation=None, strict=False)
     parser.optionxform = str  # desktop keys are case-sensitive
-    parser.read(path, encoding="utf-8")
+    try:
+        parser.read(path, encoding="utf-8")
+    except (UnicodeDecodeError, ParsingError):
+        # `zenix webapp list` walks whatever is in webapps/; a file that is not
+        # a desktop entry should read as empty, not abort the listing.
+        return {}
     if not parser.has_section("Desktop Entry"):
         return {}
     return dict(parser["Desktop Entry"])
