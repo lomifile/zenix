@@ -1,7 +1,6 @@
 show=drun
 prompt=Search
 
-# Spotlight sits slightly above centre rather than dead middle
 width=680
 height=420
 location=center
@@ -16,5 +15,4 @@ hide_scroll=true
 
 term=ghostty
 
-# the stylesheet is a dark one
 gtk_dark=true
