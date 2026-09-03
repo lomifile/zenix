@@ -10,3 +10,10 @@ quit-after-last-window-closed = true
 
 # Fixes issues with Ctrl-R
 term = xterm-256color
+
+# Translucent window over a blurred desktop. Hyprland does the blurring itself
+# for any window with transparency (decoration.blur in hypr/hyprland.lua), so
+# background-blur is a no-op there; it is set for the KDE/Plasma session, where
+# ghostty has to ask KWin for it.
+background-opacity = 0.85
+background-blur = true

@@ -61,7 +61,7 @@ local function apply_italics(groups, wanted)
   end
 end
 
-local function completion_groups(c, float_bg)
+local function completion_groups(c, float_bg, menu_bg)
   local kinds = {
     [c.purple] = { "Function", "Method", "Constructor" },
     [c.teal] = { "Variable", "Field", "Property" },
@@ -80,11 +80,11 @@ local function completion_groups(c, float_bg)
   local border = c.fg
 
   local out = {
-    BlinkCmpMenu = { fg = c.fg, bg = c.bg_chrome },
-    BlinkCmpMenuBorder = { fg = border, bg = c.bg_chrome },
+    BlinkCmpMenu = { fg = c.fg, bg = menu_bg },
+    BlinkCmpMenuBorder = { fg = border, bg = menu_bg },
     BlinkCmpMenuSelection = { bg = c.bg_sel },
     BlinkCmpScrollBarThumb = { bg = c.bg_sel },
-    BlinkCmpScrollBarGutter = { bg = c.bg_chrome },
+    BlinkCmpScrollBarGutter = { bg = menu_bg },
 
     BlinkCmpLabel = { fg = c.fg_dim },
     BlinkCmpLabelMatch = { fg = c.cyan, bold = true },
@@ -623,7 +623,8 @@ function M.load()
   end
 
   local float_bg = M.options.transparent and "NONE" or c.bg_float
-  for group, spec in pairs(completion_groups(c, float_bg)) do
+  local menu_bg = M.options.transparent and "NONE" or c.bg_chrome
+  for group, spec in pairs(completion_groups(c, float_bg, menu_bg)) do
     groups[group] = spec
   end
 
