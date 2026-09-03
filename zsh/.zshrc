@@ -10,8 +10,8 @@ if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
 fi
 
 alias c='clear'
-alias e='exa --icons'
-alias elah='exa -lah'
+alias e='eza --icons=auto'
+alias elah='eza -lah'
 alias ff='fastfetch'
 alias g='git'
 alias gb='git branch'
@@ -74,6 +74,18 @@ ZSH_THEME="dstufft"
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
+
+# --- eza in place of ls ----------------------------------------------------
+# Declared after oh-my-zsh, not up with the other aliases: sourcing it defines
+# its own ls/l/la/ll, so anything set earlier is silently overwritten here.
+#
+# --icons=auto emits glyphs only when stdout is a terminal, so piping ls into
+# something still yields plain names. `command ls` reaches coreutils.
+alias ls='eza --group-directories-first --icons=auto'
+alias ll='eza -l  --group-directories-first --icons=auto --git'
+alias la='eza -la --group-directories-first --icons=auto --git'
+alias l='eza -la --group-directories-first --icons=auto --git'
+alias lt='eza --tree --level=2 --group-directories-first --icons=auto'
 
 # --- fzf -------------------------------------------------------------------
 # Appearance lives in fzf/fzfrc so it can carry comments; only behaviour and
