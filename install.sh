@@ -395,6 +395,9 @@ link_dotfiles() {
   run mkdir -p "$HOME/.local/bin"
   link "$REPO/bin/zenix-shell" "$HOME/.local/bin/zenix-shell"
 
+  # grim + satty behind the screenshot keybinds, for the same reason.
+  link "$REPO/bin/zenix-screenshot" "$HOME/.local/bin/zenix-screenshot"
+
   # zsh reads from $ZDOTDIR, set by the ~/.zshenv written below
   link "$REPO/zsh/.zshrc" "$CONFIG/zsh/.zshrc"
 

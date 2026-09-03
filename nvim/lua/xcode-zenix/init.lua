@@ -74,9 +74,14 @@ local function completion_groups(c, float_bg)
     [c.fg_dim] = { "Text", "Reference" },
   }
 
+  -- The popup borders read as one family: menu, documentation, signature help
+  -- and the LSP hover that borrows BlinkCmpDoc* all draw the same white
+  -- hairline, so the rounded corners stay visible against the float body.
+  local border = c.fg
+
   local out = {
     BlinkCmpMenu = { fg = c.fg, bg = c.bg_chrome },
-    BlinkCmpMenuBorder = { fg = c.bg_panel, bg = c.bg_chrome },
+    BlinkCmpMenuBorder = { fg = border, bg = c.bg_chrome },
     BlinkCmpMenuSelection = { bg = c.bg_sel },
     BlinkCmpScrollBarThumb = { bg = c.bg_sel },
     BlinkCmpScrollBarGutter = { bg = c.bg_chrome },
@@ -91,12 +96,12 @@ local function completion_groups(c, float_bg)
     BlinkCmpKindName = { fg = c.gutter },
 
     BlinkCmpDoc = { fg = c.fg_dim, bg = float_bg },
-    BlinkCmpDocBorder = { fg = c.bg_panel, bg = float_bg },
+    BlinkCmpDocBorder = { fg = border, bg = float_bg },
     BlinkCmpDocSeparator = { fg = c.bg_panel, bg = float_bg },
     BlinkCmpDocCursorLine = { bg = c.bg_sel },
 
     BlinkCmpSignatureHelp = { fg = c.fg_dim, bg = float_bg },
-    BlinkCmpSignatureHelpBorder = { fg = c.bg_panel, bg = float_bg },
+    BlinkCmpSignatureHelpBorder = { fg = border, bg = float_bg },
     BlinkCmpSignatureHelpActiveParameter = { fg = c.orange, bold = true },
 
     BlinkCmpKind = { fg = c.comment },
@@ -227,11 +232,36 @@ local function build(c, opts)
 
     StatusLine = { fg = c.fg_dim, bg = c.bg_chrome },
     StatusLineNC = { fg = c.gutter, bg = c.bg_chrome },
-    WinBar = { fg = c.comment, bg = editor_bg },
-    WinBarNC = { fg = c.gutter, bg = editor_bg },
-    TabLine = { fg = c.comment, bg = c.bg_tab },
-    TabLineSel = { fg = c.fg, bg = editor_bg },
+    WinBar = { fg = c.comment, bg = c.bg_tab },
+    WinBarNC = { fg = c.gutter, bg = c.bg_tab },
+    TabLine = { fg = c.comment, bg = c.bg_chrome },
+    TabLineSel = { fg = c.fg, bg = c.bg_chrome },
     TabLineFill = { bg = c.bg_chrome },
+
+    -- The two chrome rows above the editor: a title bar in the tabline and
+    -- buffer chips in the winbar. Named groups rather than colours inlined in
+    -- the lualine config, so `:hi ZenixTab...` tells you what a bar is made of
+    -- and a palette change reaches both at once.
+    ZenixTitle = { fg = c.fg, bg = c.bg_chrome },
+    ZenixTitleDim = { fg = c.comment, bg = c.bg_chrome },
+    ZenixTitleSep = { fg = c.gutter, bg = c.bg_chrome },
+    ZenixTitleDot = { fg = c.teal, bg = c.bg_chrome },
+
+    -- The active chip carries the editor background so it reads as the top
+    -- edge of the buffer below it, the way the mockup's chip does.
+    ZenixTabFill = { bg = c.bg_tab },
+    ZenixTabActive = { fg = c.fg, bg = editor_bg },
+    ZenixTabInactive = { fg = c.comment, bg = c.bg_tab },
+    ZenixTabDot = { fg = c.teal, bg = editor_bg },
+    ZenixTabDotModified = { fg = c.orange, bg = editor_bg },
+    ZenixTabDotInactive = { fg = c.gutter, bg = c.bg_tab },
+    ZenixExplorer = { fg = c.comment, bg = sidebar_bg },
+
+    -- Statusline pieces. diff_add is the palette's green-tinted panel, which
+    -- is what makes the mode block read as a tinted chip rather than a slab.
+    ZenixMode = { fg = c.teal, bg = c.diff_add, bold = true },
+    ZenixLspOn = { fg = c.teal, bg = c.bg_chrome },
+    ZenixLspOff = { fg = c.gutter, bg = c.bg_chrome },
     WinSeparator = { fg = c.chrome_line, bg = editor_bg },
     VertSplit = { fg = c.chrome_line, bg = editor_bg },
 
@@ -436,7 +466,7 @@ local function build(c, opts)
     NeoTreeDirectoryName = { fg = c.fg_dim },
     NeoTreeDirectoryIcon = { fg = c.comment },
     NeoTreeFileName = { fg = c.fg_dim },
-    NeoTreeFileNameOpened = { fg = c.fg },
+    NeoTreeFileNameOpened = { fg = c.teal },
     NeoTreeFileIcon = { fg = c.comment },
     NeoTreeIndentMarker = { fg = "#33353d" },
     NeoTreeExpander = { fg = c.comment },
@@ -447,7 +477,7 @@ local function build(c, opts)
     NeoTreeGitConflict = { fg = c.salmon, bold = true },
     NeoTreeGitUntracked = { fg = c.comment },
     NeoTreeGitIgnored = { fg = c.gutter },
-    NeoTreeCursorLine = { bg = c.bg_sel },
+    NeoTreeCursorLine = { bg = c.diff_add },
     NeoTreeTitleBar = { fg = c.fg, bg = c.bg_chrome },
     NeoTreeFloatBorder = { fg = c.chrome_line, bg = float_bg },
     NeoTreeFloatTitle = { fg = c.fg, bg = float_bg },
@@ -543,14 +573,6 @@ local function build(c, opts)
     MasonNormal = { fg = c.fg, bg = float_bg },
     MasonHeader = { fg = c.bg, bg = c.cyan, bold = true },
     MasonHighlight = { fg = c.cyan },
-
-    BlinkCmpMenu = { fg = c.fg, bg = c.bg_chrome },
-    BlinkCmpMenuBorder = { fg = c.chrome_line, bg = c.bg_chrome },
-    BlinkCmpMenuSelection = { fg = c.fg, bg = c.select_blue },
-    BlinkCmpLabelMatch = { fg = c.cyan, bold = true },
-    BlinkCmpKind = { fg = c.lilac },
-    BlinkCmpDoc = { fg = c.fg, bg = float_bg },
-    BlinkCmpDocBorder = { fg = c.chrome_line, bg = float_bg },
 
     CmpItemAbbr = { fg = c.fg },
     CmpItemAbbrMatch = { fg = c.cyan, bold = true },

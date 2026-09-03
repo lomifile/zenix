@@ -25,7 +25,7 @@ assumes Hyprland on Wayland.
 | | |
 |---|---|
 | `install.sh` | the whole installer: packages, dotfiles, services, greeter, GRUB |
-| `packages/` | `pacman.txt` (252) and `aur.txt` (9), one package per line |
+| `packages/` | `pacman.txt` (216) and `aur.txt` (8), one package per line |
 | `hypr/` | `hyprland.lua`, hypridle, hyprlock, hyprpaper |
 | `shell/` | zenix-shell — one Quickshell process hosting every popup |
 | `bin/zenix-shell` | the IPC wrapper every popup keybind calls |

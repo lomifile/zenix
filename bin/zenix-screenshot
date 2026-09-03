@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Take a screenshot and open it in satty for annotation.
+#
+#   zenix-screenshot            # drag a region (default)
+#   zenix-screenshot region
+#   zenix-screenshot screen     # every output, as one image
+#
+# grim captures, satty annotates. In satty: Enter copies to the clipboard and
+# saves a file, Escape throws the shot away. Files land in
+# ~/Pictures/Screenshots, overridable with $ZENIX_SCREENSHOT_DIR.
+#
+# Cancelling the region drag exits 0 -- that is a decision, not a failure.
+
+set -euo pipefail
+
+DIR="${ZENIX_SCREENSHOT_DIR:-$HOME/Pictures/Screenshots}"
+mode="${1:-region}"
+
+case "$mode" in
+  -h | --help)
+    sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+  region | screen) ;;
+  *)
+    echo "zenix-screenshot: unknown mode ${mode@Q} (want: region, screen)" >&2
+    exit 2
+    ;;
+esac
+
+if ! command -v grim >/dev/null; then
+  echo "zenix-screenshot: grim is not installed" >&2
+  exit 1
+fi
+
+# slurp writes the geometry and exits non-zero when the drag is cancelled.
+# Taken before grim runs so a cancel never reaches the capture.
+geometry=""
+if [[ $mode == region ]]; then
+  if ! command -v slurp >/dev/null; then
+    echo "zenix-screenshot: slurp is not installed; region capture needs it" >&2
+    exit 1
+  fi
+  geometry=$(slurp) || exit 0
+  [[ -n $geometry ]] || exit 0
+fi
+
+mkdir -p "$DIR"
+out="$DIR/$(date +%Y-%m-%d_%H-%M-%S).png"
+
+capture() {
+  if [[ -n $geometry ]]; then
+    grim -g "$geometry" -
+  else
+    grim -
+  fi
+}
+
+# Without satty the shot is still taken and kept -- a missing annotator is no
+# reason to lose the moment being captured.
+if ! command -v satty >/dev/null; then
+  capture >"$out"
+  command -v wl-copy >/dev/null && wl-copy <"$out"
+  echo "zenix-screenshot: satty is not installed; saved to $out" >&2
+  exit 0
+fi
+
+# --save-after-copy so one Enter both copies and writes the file; --early-exit
+# so satty closes itself afterwards rather than sitting there.
+capture | satty \
+  --filename - \
+  --output-filename "$out" \
+  --copy-command wl-copy \
+  --save-after-copy \
+  --early-exit all \
+  --initial-tool arrow

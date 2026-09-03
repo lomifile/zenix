@@ -131,6 +131,7 @@ wl-clipboard
 xclip
 grim
 slurp
+satty
 brightnessctl
 xdg-desktop-portal
 xdg-desktop-portal-hyprland

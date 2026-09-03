@@ -36,24 +36,49 @@ return {
         return { fg = mode_colour[vim.fn.mode()] or c.fg_dim }
       end
 
-      local scrollbar = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" }
+      -- Chips are built by hand rather than with lualine's `buffers` component:
+      -- the dot has to come before the name and change colour on its own, which
+      -- that component has no way to express.
+      local function buffer_chips()
+        local current = vim.api.nvim_get_current_buf()
+        local out = {}
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.bo[buf].buflisted and vim.api.nvim_buf_is_valid(buf) then
+            local name = vim.api.nvim_buf_get_name(buf)
+            name = name ~= "" and vim.fn.fnamemodify(name, ":t") or "untitled"
+            local active = buf == current
+            local chip = active and "ZenixTabActive" or "ZenixTabInactive"
+            local dot = "ZenixTabDotInactive"
+            if vim.bo[buf].modified then
+              dot = "ZenixTabDotModified"
+            elseif active then
+              dot = "ZenixTabDot"
+            end
+            out[#out + 1] = ("%%#%s# %%#%s#●%%#%s# %s %%#ZenixTabFill#"):format(chip, dot, chip, name)
+          end
+        end
+        return table.concat(out)
+      end
 
       opts.options = vim.tbl_deep_extend("force", opts.options or {}, {
         theme = "xcode-zenix",
         section_separators = "",
         component_separators = "",
         globalstatus = true,
-        disabled_filetypes = { statusline = { "dashboard", "alpha", "snacks_dashboard" } },
+        disabled_filetypes = {
+          statusline = { "dashboard", "alpha", "snacks_dashboard" },
+          winbar = { "dashboard", "alpha", "snacks_dashboard", "trouble", "toggleterm" },
+        },
       })
 
       opts.sections = {
         lualine_a = {
-          { function() return "▍" end, color = accent, padding = { left = 1, right = 0 } },
           {
             "mode",
-            fmt = function(str) return str:sub(1, 1) .. str:sub(2):lower() end,
-            color = accent,
-            padding = { left = 1, right = 1 },
+            -- A filled chip rather than the default slab: the mode reads as a
+            -- badge on the bar, which is what the rest of the chrome does too.
+            color = "ZenixMode",
+            padding = { left = 2, right = 2 },
           },
         },
         lualine_b = {
@@ -104,67 +129,95 @@ return {
             color = { fg = c.sand },
           },
           {
+            -- The mockup's floating "LSP" pill, moved onto the bar so it never
+            -- covers a long line. Dim when nothing is attached to this buffer.
             function()
-              local names = {}
-              for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-                names[#names + 1] = client.name
-              end
-              return table.concat(names, " ")
+              return "● LSP"
             end,
-            color = { fg = c.gutter },
+            color = function()
+              return #vim.lsp.get_clients({ bufnr = 0 }) > 0 and "ZenixLspOn" or "ZenixLspOff"
+            end,
+            padding = { left = 1, right = 1 },
           },
           {
+            -- Always shown, not only when unusual: the bar in the mockup states
+            -- the encoding and line ending outright.
             function()
               local enc = vim.bo.fileencoding
-              return (enc ~= "" and enc ~= "utf-8") and enc or ""
-            end,
-            color = { fg = c.orange },
-          },
-          {
-            function()
-              return vim.bo.fileformat ~= "unix" and vim.bo.fileformat or ""
-            end,
-            color = { fg = c.orange },
-          },
-          {
-            function()
-              local label = vim.bo.expandtab and "Spaces" or "Tab Size"
-              local width = vim.bo.shiftwidth
-              if width == 0 then width = vim.bo.tabstop end
-              return label .. ": " .. width
+              return enc ~= "" and enc or vim.o.encoding
             end,
             color = { fg = c.gutter },
+            padding = { left = 1, right = 0 },
           },
-        },
-        lualine_y = {
           {
             function()
-              return vim.bo.filetype ~= "" and vim.bo.filetype or "plain text"
+              return ({ unix = "LF", dos = "CRLF", mac = "CR" })[vim.bo.fileformat] or ""
             end,
-            color = { fg = c.comment },
+            color = { fg = c.gutter },
+            padding = { left = 1, right = 0 },
           },
         },
+        lualine_y = {},
         lualine_z = {
           {
             function()
               local line, col = unpack(vim.api.nvim_win_get_cursor(0))
               return ("Ln %d, Col %d"):format(line, col + 1)
             end,
-            color = { fg = c.fg_dim },
-            padding = { left = 1, right = 1 },
-          },
-          {
-            function()
-              local current = vim.fn.line(".")
-              local total = math.max(vim.fn.line("$"), 1)
-              local index = math.floor((current - 1) / total * #scrollbar) + 1
-              return scrollbar[math.min(index, #scrollbar)]
-            end,
-            color = accent,
-            padding = { left = 0, right = 1 },
+            color = { fg = c.gutter },
+            padding = { left = 1, right = 2 },
           },
         },
       }
+
+      -- Row 1: the title bar. Neovim has one tabline, so it holds the window
+      -- title and the buffer chips live in the winbar below it.
+      opts.tabline = {
+        lualine_a = {
+          {
+            function() return "●" end,
+            color = "ZenixTitleDot",
+            padding = { left = 2, right = 1 },
+          },
+          { function() return "nvim" end, color = "ZenixTitle", padding = { right = 1 } },
+          { function() return "│" end, color = "ZenixTitleSep", padding = 0 },
+          {
+            function()
+              return vim.fn.fnamemodify(vim.uv.cwd() or "", ":~")
+            end,
+            color = "ZenixTitleDim",
+            padding = { left = 1, right = 1 },
+          },
+        },
+        lualine_b = {},
+        lualine_c = {},
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
+      }
+
+      -- Row 2: buffer chips, or the panel's name over a sidebar. One component
+      -- for both because the winbar is per-window and the sidebar is a window.
+      local winbar = {
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = {
+          {
+            function()
+              if vim.bo.filetype == "neo-tree" then
+                return "%#ZenixExplorer#  EXPLORER"
+              end
+              return buffer_chips()
+            end,
+            padding = 0,
+          },
+        },
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
+      }
+      opts.winbar = winbar
+      opts.inactive_winbar = winbar
 
       opts.inactive_sections = {
         lualine_a = {},
@@ -204,28 +257,11 @@ return {
     },
   },
   {
+    -- The tabline is the title bar now and the buffer chips are drawn in the
+    -- winbar by lualine, so bufferline has nothing left to render. LazyVim's
+    -- core <S-h>/<S-l> fall back to :bprevious/:bnext on their own.
     "akinsho/bufferline.nvim",
-    opts = {
-      options = {
-        separator_style = { "│", "│" },
-        indicator = { style = "none" },
-        show_buffer_icons = false,
-        show_buffer_close_icons = false,
-        show_close_icon = false,
-        always_show_bufferline = true,
-        modified_icon = "●",
-        max_name_length = 30,
-        offsets = {
-          {
-            filetype = "neo-tree",
-            text = "FOLDERS",
-            highlight = "NeoTreeRootName",
-            text_align = "left",
-            separator = false,
-          },
-        },
-      },
-    },
+    enabled = false,
   },
   {
     "nvim-neo-tree/neo-tree.nvim",
@@ -278,6 +314,19 @@ return {
       },
       filesystem = {
         use_libuv_file_watcher = true,
+        -- The root line is the cwd, which neo-tree prints in full. The panel is
+        -- 32 columns wide, so anything but the last component is truncated
+        -- noise. Components are merged per source, not globally, so this has to
+        -- live under `filesystem` rather than at the top level.
+        components = {
+          name = function(config, node, state)
+            local result = require("neo-tree.sources.common.components").name(config, node, state)
+            if node:get_depth() == 1 then
+              result.text = vim.fn.fnamemodify(result.text, ":t") .. "/"
+            end
+            return result
+          end,
+        },
         window = {
           mappings = { ["<space>"] = "none" },
         },

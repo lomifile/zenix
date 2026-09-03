@@ -1,5 +1,3 @@
--- Sonoma-flavored Hyprland config (0.55+ Lua / hl API)
-
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
 
 local terminal = "ghostty"
@@ -233,8 +231,8 @@ hl.bind("CTRL + right", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
-hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"))
-hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
+hl.bind("Print", hl.dsp.exec_cmd("zenix-screenshot screen"))
+hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd("zenix-screenshot region"))
 hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"))
 
 hl.bind(
