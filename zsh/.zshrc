@@ -71,7 +71,7 @@ export VIRTUAL_ENV_DISABLE_PROMPT=true
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="dstufft"
-plugins=(git)
+plugins=(git eza fzf golang node pip python rust)
 
 source $ZSH/oh-my-zsh.sh
 
