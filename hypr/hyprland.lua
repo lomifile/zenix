@@ -48,7 +48,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("waybar")
 	hl.exec_cmd('qs -p "$HOME/.config/zenix/shell"')
-	hl.exec_cmd("mako")
 	hl.exec_cmd("systemctl --user start hyprpolkitagent")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("nm-applet --indicator")
@@ -273,4 +272,3 @@ end
 
 hl.layer_rule({ match = { namespace = "wofi" }, blur = true, ignore_alpha = 0.4 })
 hl.layer_rule({ match = { namespace = "^zenix-" }, blur = true, ignore_alpha = 0.4 })
-hl.layer_rule({ match = { namespace = "notifications" }, blur = true })

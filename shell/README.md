@@ -21,6 +21,7 @@ shell/
   services/
     PluginRegistry.qml          finds plugins and reads their manifests
   plugins/
+    notifications/              banners in the top right (always on)
     tabs/                       the group tab bar along the bottom (always on)
     audio/                      output and input devices (SUPER + S, or the waybar icon)
     bluetooth/                  devices (SUPER + B, or the waybar icon)
@@ -80,8 +81,8 @@ day, wasteful for something opened rarely.
 `autostart` is for a plugin that is part of the desktop rather than something
 summoned onto it: the host opens it once the plugin list has settled, without
 waiting for an IPC call. Such a plugin still exposes `open`/`close`, so
-`zenix-shell shell hide <id>` puts it away for the session. `tabs` is the only
-one so far.
+`zenix-shell shell hide <id>` puts it away for the session. `tabs` and
+`notifications` are the two so far.
 
 The entry point is a plain `Item` exposing three things:
 
@@ -342,3 +343,43 @@ Hyprland fills with the group's addresses *in tab order*, so the bar draws them
 in the order the keys cycle through. That field only refreshes on
 `refreshToplevels()`, so the service asks for one on the events that can change
 a group, debounced 40ms to collapse the burst that arrives when a window opens.
+
+## Notifications
+
+Banners in the top right, one card per notification, newest on top. This plugin
+*is* the notification daemon {D} `NotificationServer` claims
+`org.freedesktop.Notifications` on the session bus, so mako is gone from both
+the autostart and the package list. Two daemons cannot share that name, and the
+second one to ask simply loses.
+
+| | |
+|---|---|
+| click the card | run the notification's default action, or dismiss it if it has none |
+| click `✕` (hover, top left) | dismiss |
+| right- or middle-click | dismiss |
+| click an action pill | run that action |
+
+A card carries the app icon, the app name and a relative time on one line, the
+summary in semibold, and the body under it. Actions become pills along the
+bottom. The icon falls back through `image`, `appIcon`, `desktopEntry` and
+`appName` before giving up and drawing the app's initial, because plenty of
+senders set only one of those and an empty square reads as a bug.
+
+Banners expire after 5s, or after `expireTimeout` when the sender asks for
+something specific. Critical urgency never expires on its own {D} a battery
+about to die should not vanish because you looked away. Hovering a card pauses
+its timer, so a notification cannot disappear from under the pointer on its way
+to an action.
+
+The window anchors top-right with `ExclusionMode.Normal` and a zero exclusive
+zone. Zero means it reserves nothing itself but still respects what others have
+reserved, which is what drops it below waybar without the offset being written
+down anywhere {D} change waybar's height and the banners follow.
+
+Banners appear on the focused monitor only, resolved through
+`Hyprland.focusedMonitor`. Rendering them on every screen would mean reading the
+same message twice at two different sizes.
+
+The whole stack lives in one layer surface sized to its contents rather than one
+surface per card. Cards can then animate against each other, and the compositor
+sees one blur region instead of a new one per notification.

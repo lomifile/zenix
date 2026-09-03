@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.notifications",
+  "name": "Notifications",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Notification banners in the top right",
+  "kinds": [
+    "panel"
+  ],
+  "keepLoaded": true,
+  "autostart": true,
+  "entryPoints": {
+    "panel": "Notifications.qml"
+  }
+}
