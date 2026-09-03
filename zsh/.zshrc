@@ -92,6 +92,37 @@ ZSH_THEME="dstufft"
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
+
+# --- fzf -------------------------------------------------------------------
+# Appearance lives in fzf/fzfrc so it can carry comments; only behaviour and
+# the per-keybinding previews are set here.
+export FZF_DEFAULT_OPTS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/fzfrc"
+
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+
+# eza and fd colour their own output through the terminal's 16 ANSI slots,
+# which ghostty maps to the Xcode palette -- so previews match without either
+# tool needing a theme of its own.
+export FZF_CTRL_T_OPTS="
+  --prompt='   '
+  --preview='[ -d {} ] && eza --tree --level=2 --color=always {} || head -200 {}'
+  --preview-window=right,55%,border-left
+"
+
+export FZF_ALT_C_OPTS="
+  --prompt='   '
+  --preview='eza --tree --level=2 --color=always {}'
+  --preview-window=right,55%,border-left
+"
+
+export FZF_CTRL_R_OPTS="
+  --prompt='   '
+  --preview='echo {}'
+  --preview-window=down,3,wrap,border-top
+"
+
 source <(fzf --zsh)
 
 

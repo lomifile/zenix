@@ -1,0 +1,36 @@
+# zenix: fzf styled to match the Xcode palette.
+#
+# Read via $FZF_DEFAULT_OPTS_FILE, set in zsh/.zshrc. One option per line,
+# comments allowed -- which is why this is a file rather than a wall of
+# backslashes in FZF_DEFAULT_OPTS.
+
+# Spotlight-shaped: prompt on top, results below, floating rather than a strip
+# glued to the bottom of the pane.
+--layout=reverse
+--height=45%
+--border=rounded
+--margin=1,2
+--padding=0,1
+
+# Inside tmux, open as a centred popup instead of taking over the pane. Drop
+# this line to get the in-pane strip back; it has no effect outside tmux.
+--tmux=center,80%,60%
+
+--info=right
+--separator=─
+--scrollbar=│
+--prompt='  '
+--pointer=▍
+--marker=✓
+--highlight-line
+--cycle
+
+# bg:-1 keeps the terminal's own background, so fzf inherits ghostty's
+# transparency instead of painting an opaque rectangle over it.
+--color=fg:#a3b1bf,bg:-1,hl:#6bdfff
+--color=fg+:#dfdfe0,bg+:#414453,hl+:#6bdfff
+--color=info:#7f8c98,border:#393b44,separator:#393b44
+--color=prompt:#6bdfff,pointer:#78c2b3,marker:#ffa14f
+--color=spinner:#dabaff,header:#7f8c98,label:#a3b1bf
+--color=query:#dfdfe0,scrollbar:#393b44,gutter:-1
+--color=preview-fg:#a3b1bf,preview-bg:-1,preview-border:#393b44
