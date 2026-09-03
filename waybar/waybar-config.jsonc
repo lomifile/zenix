@@ -102,11 +102,21 @@
 
   "network": {
     "interval": 2,
-    "format-wifi": "  {bandwidthDownBytes}   {bandwidthUpBytes}",
-    "format-ethernet": "  {bandwidthDownBytes}   {bandwidthUpBytes}",
+    // Wi-Fi carries a strength icon, ethernet a plug: which link you are on
+    // should be readable without the tooltip.
+    "format-wifi": "{icon}  {bandwidthDownBytes}   {bandwidthUpBytes}",
+    "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
+    "format-ethernet": "󰈀  {bandwidthDownBytes}   {bandwidthUpBytes}",
     "format-disconnected": "󰤭 offline",
     "tooltip-format": "{ifname}  {ipaddr}",
-    "on-click": "nm-connection-editor",
+    // Clicking is for picking a network, which only means something when
+    // there is no cable. On ethernet it does nothing; disconnected it still
+    // opens, since that is exactly when you want to join something.
+    //
+    // Spelled out for the same reason as the clock: waybar inherits the
+    // graphical session PATH, which has no ~/.local/bin.
+    "on-click": "nmcli -t -f TYPE,STATE device status | grep -q '^ethernet:connected' || ~/.local/bin/zenix-shell shell toggle zenix.wifi",
+    "on-click-right": "nm-connection-editor",
   },
 
   "bluetooth": {

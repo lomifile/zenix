@@ -22,6 +22,7 @@ shell/
     PluginRegistry.qml          finds plugins and reads their manifests
   plugins/
     bluetooth/                  devices (SUPER + B, or the waybar icon)
+    wifi/                       networks (SUPER + W, or the waybar icon)
     calendar/                   month and agenda (click the waybar clock)
     containers/                 Docker monitor (SUPER + D)
 ```
@@ -203,3 +204,40 @@ than the row number for the same reason.
 Battery is shown for the devices that report one, amber under 30% and red under
 15%. An adapter that is off, a daemon that is not answering and nothing paired
 are three different problems, and the empty state says which.
+
+## Wi-Fi
+
+`SUPER + W`, or click the network icon in waybar. Nearby networks, one key to
+join or leave, and a password prompt for one that has not been seen before.
+
+| Key | |
+|---|---|
+| `↑` `↓`, `j` `k`, `Ctrl-J` `Ctrl-K` | move |
+| `Enter`, or a click on the row | join; leave if it is the current one |
+| `s` | scan again |
+| `p` | turn the radio on or off |
+| `e` | hand over to nm-connection-editor |
+| `/` | filter by name |
+| `Esc` | cancel the password, then clear the filter, then close |
+
+`Enter` on a saved or open network joins it straight away. A secured network
+that has never been joined asks for a password first; the field takes every
+key, since a passphrase can contain `j`, `/` and anything else that is
+otherwise a shortcut, and it is drawn as dots.
+
+Polling uses `nmcli ... --rescan no`, which reads NetworkManager's cached scan
+and costs about 15ms. A real scan takes 4.4s and holds the radio, so it only
+ever happens when `s` asks for it.
+
+One SSID can appear several times -- two bands, or several access points. The
+list collapses them to one row, preferring the connected one and otherwise the
+strongest, so a network is never listed three times.
+
+`nmcli -t` escapes literal colons in values as `\:`, so the parser swaps them
+out before splitting fields and back afterwards. An SSID containing a colon
+would otherwise be read as two fields.
+
+The password reaches nmcli in argv, which `/proc/<pid>/cmdline` exposes to this
+user for the couple of seconds the command runs. Quickshell's `Process` has no
+way to write to stdin and nmcli will not take a secret from a file, so this is
+the same trade every nmcli front end makes.

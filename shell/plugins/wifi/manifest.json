@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.wifi",
+  "name": "Wi-Fi",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Nearby networks, with a password prompt for new ones",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Wifi.qml"
+  }
+}

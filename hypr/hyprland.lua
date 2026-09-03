@@ -149,6 +149,7 @@ hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 -- chord that opened one closes it.
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.containers"))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.bluetooth"))
+hl.bind(mod .. " + W", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.wifi"))
 
 hl.bind(mod .. " + left", hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + right", hl.dsp.focus({ direction = "right" }))
