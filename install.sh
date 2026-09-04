@@ -412,6 +412,7 @@ link_dotfiles() {
   link "$REPO/lazygit/config.yml" "$CONFIG/lazygit/config.yml"
 
   link "$REPO/btop" "$CONFIG/btop"
+  link "$REPO/fastfetch/config.jsonc" "$CONFIG/fastfetch/config.jsonc"
 
   # read via $FZF_DEFAULT_OPTS_FILE, exported from zsh/.zshrc
   link "$REPO/fzf/fzfrc" "$CONFIG/fzf/fzfrc"

@@ -10,7 +10,6 @@ if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
 fi
 
 alias c='clear'
-alias e='eza --icons=auto'
 alias elah='eza -lah'
 alias ff='fastfetch'
 alias g='git'
@@ -23,7 +22,7 @@ alias gp='git push origin'
 alias gpl='git pull origin'
 alias gs='git status'
 alias r='rm -rf'
-alias t='tree'
+alias t='eza --tree --icons=auto'
 alias v='nvim'
 
 # tmux-sessionizer is a script on PATH (zsh/tmux-sessioniser.sh, linked to

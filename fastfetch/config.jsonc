@@ -1,0 +1,68 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+
+  "logo": {
+    "type": "builtin",
+    "color": {
+      "1": "34",
+      "2": "90",
+      "3": "90",
+      "4": "37",
+      "5": "37",
+      "6": "97"
+    },
+    "padding": { "top": 2, "left": 2, "right": 5 }
+  },
+
+  "display": {
+    "separator": "  ",
+    "key": { "width": 16 },
+    "color": { "keys": "90", "title": "34" },
+    "percent": { "type": 9 }
+  },
+
+  "modules": [
+    "break",
+    { "type": "title", "format": "{#34}{user-name}{#90}@{#34}{host-name}" },
+    { "type": "custom", "format": "{#90}macOS-flavoured Arch · Hyprland · Quickshell" },
+    { "type": "custom", "format": "{#90}────────────────────────────────────────────────" },
+    "break",
+
+    { "type": "custom", "format": "{#90}SYSTEM  ────────────────────────────────────────" },
+    { "type": "os", "key": "󰌽 os", "format": "{name} {arch}" },
+    { "type": "kernel", "key": "󰘚 kernel", "format": "{release}" },
+    { "type": "packages", "key": "󰏖 packages", "format": "{pacman} pacman" },
+    { "type": "uptime", "key": "󰅐 uptime" },
+    { "type": "shell", "key": "󱆃 shell" },
+    "break",
+
+    { "type": "custom", "format": "{#90}DESKTOP  ───────────────────────────────────────" },
+    { "type": "wm", "key": "󰖯 compositor", "format": "{pretty-name} {version}" },
+    { "type": "command", "key": "󰀻 quickshell", "text": "n=$(zenix-shell shell list 2>/dev/null | grep -c .); [ \"$n\" -gt 0 ] && echo \"zenix-shell · $n plugins\" || echo 'zenix-shell · not running'" },
+    { "type": "command", "key": "󰕰 bar", "text": "waybar --version 2>/dev/null | head -1 | awk '{print $1 \" \" $2}'" },
+    { "type": "terminal", "key": "󰆍 terminal" },
+    { "type": "terminalfont", "key": "󰛖 font" },
+    { "type": "display", "key": "󰍹 display", "compactType": "original-with-refresh-rate" },
+    { "type": "custom", "key": "󰸌 theme", "format": "Xcode Dark · macOS Sonoma" },
+    "break",
+
+    { "type": "custom", "format": "{#90}TOOLING  ───────────────────────────────────────" },
+    { "type": "command", "key": "󰕷 editor", "text": "nvim --version 2>/dev/null | head -1 | awk '{print \"neovim \" $2}'" },
+    { "type": "command", "key": "󰓩 multiplexer", "text": "tmux -V 2>/dev/null" },
+    { "type": "command", "key": "󰡨 containers", "text": "docker ps -q 2>/dev/null | grep -c . | awk '{print $1 \" running\"}'" },
+    { "type": "command", "key": "󰊢 dotfiles", "text": "d=$(dirname \"$(dirname \"$(readlink -f ~/.config/hypr/hyprland.lua)\")\"); git -C \"$d\" log -1 --format='%h · %cr' 2>/dev/null" },
+    "break",
+
+    { "type": "custom", "format": "{#90}HARDWARE  ──────────────────────────────────────" },
+    { "type": "cpu", "key": "󰻠 cpu", "format": "{name} ({cores-logical})" },
+    { "type": "gpu", "key": "󰢮 gpu", "format": "{name}" },
+    { "type": "memory", "key": "󰍛 memory" },
+    { "type": "disk", "key": "󰋊 disk", "folders": "/", "format": "{size-used} / {size-total} ({size-percentage})" },
+    { "type": "battery", "key": "󰂄 battery", "format": "{capacity} · {status}" },
+    "break",
+
+    { "type": "custom", "format": "{#90}PALETTE  ───────────────────────────────────────" },
+    { "type": "colors", "symbol": "block", "block": { "width": 5 } },
+    "break"
+  ]
+}

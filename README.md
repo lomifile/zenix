@@ -31,7 +31,7 @@ assumes Hyprland on Wayland.
 | `bin/zenix-shell` | the IPC wrapper every popup keybind calls |
 | `nvim/` | LazyVim config and the `xcode-zenix` colorscheme |
 | `waybar/` | bar config, style, and the module scripts |
-| `ghostty/`, `tmux/`, `lazygit/`, `fzf/`, `btop/` | terminal and TUI configs, all on the Xcode palette |
+| `ghostty/`, `tmux/`, `lazygit/`, `fzf/`, `btop/`, `fastfetch/` | terminal and TUI configs, all on the Xcode palette |
 | `wofi/` | the launcher, styled after Spotlight rather than the editor palette |
 | `zsh/` | `.zshrc`, plus `tmux-sessioniser.sh` and its config |
 | `cli/` | the `zenix` CLI (Python) |
@@ -113,6 +113,15 @@ directory listings match without either tool needing a theme of its own.
 The editor chrome is Sublime-shaped rather than Xcode-shaped — a flat status
 bar, tabs that sit on the editor background, a sidebar with no file icons — on
 the Xcode palette.
+
+`fastfetch/config.jsonc` reports the desktop rather than just the machine:
+alongside os, kernel and hardware it names the compositor, the bar, how many
+plugins zenix-shell is hosting, the editor, the multiplexer and the commit the
+dotfiles sit on — that last one read by resolving `~/.config/hypr/hyprland.lua`
+back to the checkout, so it works wherever the repo lives. Sections are ruled
+the way the popups rule theirs, every row carries a Nerd Font icon, and colours
+are ANSI indexes rather than hex so the terminal's own palette drives them —
+the closing block is that palette, all sixteen slots. `ff` in zsh is the alias.
 
 `btop/themes/xcode-zenix.theme` leaves `main_bg` empty so the meters sit on
 ghostty's own translucent background and Hyprland's blur, and takes its
