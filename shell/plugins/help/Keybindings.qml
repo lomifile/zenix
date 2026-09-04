@@ -74,6 +74,17 @@ QtObject {
       ]
     },
     {
+      title: "Waybar",
+      items: [
+        { keys: "click cpu", label: "btop, CPU preset" },
+        { keys: "click memory", label: "btop, memory and disks" },
+        { keys: "click clock", label: "Calendar and agenda" },
+        { keys: "click sound", label: "Sound popup" },
+        { keys: "click network", label: "Wi-Fi popup" },
+        { keys: "click bluetooth", label: "Bluetooth popup" }
+      ]
+    },
+    {
       title: "Containers popup",
       items: [
         { keys: "j / k", label: "Move selection" },

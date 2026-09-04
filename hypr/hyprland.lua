@@ -272,6 +272,7 @@ for _, spec in ipairs({
 	{ class = "^zenix\\.container-logs$", size = { 1100, 700 } },
 	{ class = "^zenix\\.container-shell$", size = { 1000, 620 } },
 	{ class = "^zenix\\.lazydocker$", size = { 1280, 800 } },
+	{ class = "^zenix\\.btop$", size = { 1280, 800 } },
 }) do
 	hl.window_rule({ match = { class = spec.class }, float = true })
 	hl.window_rule({ match = { class = spec.class }, center = true })

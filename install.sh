@@ -411,6 +411,8 @@ link_dotfiles() {
   # it is linked rather than generated: edits land in the repo by construction.
   link "$REPO/lazygit/config.yml" "$CONFIG/lazygit/config.yml"
 
+  link "$REPO/btop" "$CONFIG/btop"
+
   # read via $FZF_DEFAULT_OPTS_FILE, exported from zsh/.zshrc
   link "$REPO/fzf/fzfrc" "$CONFIG/fzf/fzfrc"
 

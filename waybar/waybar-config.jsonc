@@ -76,12 +76,14 @@
   "custom/cpu": {
     "exec": "~/.config/waybar/scripts/statbar.sh cpu",
     "interval": 2,
+    "on-click": "~/.config/waybar/scripts/btop.sh 1",
     "tooltip": false
   },
 
   "custom/memory": {
     "exec": "~/.config/waybar/scripts/statbar.sh memory",
     "interval": 3,
+    "on-click": "~/.config/waybar/scripts/btop.sh 2",
     "tooltip": false
   },
 

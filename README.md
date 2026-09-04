@@ -31,7 +31,7 @@ assumes Hyprland on Wayland.
 | `bin/zenix-shell` | the IPC wrapper every popup keybind calls |
 | `nvim/` | LazyVim config and the `xcode-zenix` colorscheme |
 | `waybar/` | bar config, style, and the module scripts |
-| `ghostty/`, `tmux/`, `lazygit/`, `fzf/` | terminal and TUI configs, all on the Xcode palette |
+| `ghostty/`, `tmux/`, `lazygit/`, `fzf/`, `btop/` | terminal and TUI configs, all on the Xcode palette |
 | `wofi/` | the launcher, styled after Spotlight rather than the editor palette |
 | `zsh/` | `.zshrc`, plus `tmux-sessioniser.sh` and its config |
 | `cli/` | the `zenix` CLI (Python) |
@@ -77,6 +77,7 @@ Popups, all served by the one Quickshell process:
 | `D` | Docker containers |
 | `Shift`+`H` | keybindings — every bind on this desktop, grouped |
 | click the waybar clock | calendar and today's agenda |
+| click the waybar cpu / memory meter | btop, on the matching preset |
 
 `SUPER`+`E` folds every tiled window on the workspace into one tabbed group —
 i3's tabbed layout. Tabs appear in a pill along the bottom of the monitor;
@@ -112,6 +113,17 @@ directory listings match without either tool needing a theme of its own.
 The editor chrome is Sublime-shaped rather than Xcode-shaped — a flat status
 bar, tabs that sit on the editor background, a sidebar with no file icons — on
 the Xcode palette.
+
+`btop/themes/xcode-zenix.theme` leaves `main_bg` empty so the meters sit on
+ghostty's own translucent background and Hyprland's blur, and takes its
+gradients from the macOS system colours the bar already uses — CPU green through
+amber to red, memory blue — so the meter you clicked and the box that opens are
+the same colour. `btop/btop.conf` is linked, not generated: btop rewrites the
+whole file when a setting changes in-app, so those edits land in the repo the
+way lazygit's do. `presets` there is what `waybar/scripts/btop.sh` selects
+between — preset 1 is CPU and processes, preset 2 memory, disks and processes.
+The script focuses an existing `zenix.btop` window instead of opening a second
+one, so clicking a meter twice does not stack terminals.
 
 ---
 
