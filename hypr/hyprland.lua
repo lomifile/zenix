@@ -205,6 +205,7 @@ hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.container
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.bluetooth"))
 hl.bind(mod .. " + W", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.wifi"))
 hl.bind(mod .. " + S", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.audio"))
+hl.bind(mod .. " + SHIFT + H", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.help"))
 
 hl.bind(mod .. " + left", hl.dsp.focus({ direction = "left" }))
 hl.bind(mod .. " + right", hl.dsp.focus({ direction = "right" }))
@@ -231,8 +232,8 @@ hl.bind("CTRL + right", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
-hl.bind("Print", hl.dsp.exec_cmd("zenix-screenshot screen"))
-hl.bind(mod .. " + SHIFT + S", hl.dsp.exec_cmd("zenix-screenshot region"))
+hl.bind(mod .. " + SHIFT + P", hl.dsp.exec_cmd("zenix-screenshot screen"))
+hl.bind(mod .. "+ SHIFT + S", hl.dsp.exec_cmd("zenix-screenshot region"))
 hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | wofi --dmenu | cliphist decode | wl-copy"))
 
 hl.bind(

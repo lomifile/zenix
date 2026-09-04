@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "zenix.help",
+  "name": "Keybindings",
+  "version": "1.0.0",
+  "author": "zenix",
+  "description": "Every keybinding on this desktop, grouped",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "Help.qml"
+  }
+}

@@ -29,6 +29,7 @@ shell/
     wifi/                       networks (SUPER + W, or the waybar icon)
     calendar/                   month and agenda (click the waybar clock)
     containers/                 Docker monitor (SUPER + D)
+    help/                       every keybinding, grouped (SUPER + SHIFT + H)
 ```
 
 ## Talking to it
@@ -412,3 +413,25 @@ form, so its logout entry had quietly stopped working.
 The hostname beside the title is read from `/etc/hostname` rather than
 `$HOSTNAME`, which is a shell variable and normally not exported to a process
 started by the compositor.
+
+## Keybindings
+
+`SUPER + SHIFT + H`. Every bind on the desktop in one card, grouped the way
+which-key groups them in Neovim: the chord on the left in boxed chips, what it
+does on the right, sections balanced across two columns.
+
+| Key | |
+|---|---|
+| `↑` `↓`, `j` `k`, `Ctrl-J` `Ctrl-K` | scroll |
+| `PgUp` `PgDn` | scroll by a screenful |
+| `g` / `G` | top / bottom |
+| `/` | filter by chord, action or group name |
+| `Esc` | clear the filter, then close |
+
+The list is written out in [`Keybindings.qml`](plugins/help/Keybindings.qml),
+not read from the compositor. `hyprctl binds` knows the chords but only the
+dispatcher behind them, so a generated list would say `exec_cmd` where the
+useful answer is "launcher" — and it would know nothing about the keys inside
+the popups, zsh or tmux, which are half of what this card is for. The cost is
+that a new bind has to be added in two places; the groups are ordered the same
+way as the binds in `hyprland.lua` to keep that a short diff.

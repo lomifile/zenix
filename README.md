@@ -75,6 +75,7 @@ Popups, all served by the one Quickshell process:
 | `B` | bluetooth |
 | `W` | Wi-Fi |
 | `D` | Docker containers |
+| `Shift`+`H` | keybindings — every bind on this desktop, grouped |
 | click the waybar clock | calendar and today's agenda |
 
 `SUPER`+`E` folds every tiled window on the workspace into one tabbed group —
