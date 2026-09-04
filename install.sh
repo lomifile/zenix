@@ -434,7 +434,10 @@ link_dotfiles() {
 # restores the upstream file, which is why this reapplies on every install
 # rather than being done once by hand.
 patch_tmux_theme() {
-  local dest="$HOME/.tmux/plugins/tokyo-night-tmux/src/themes.sh"
+  # TPM installs plugins under $XDG_CONFIG_HOME/tmux/plugins when tmux.conf
+  # itself lives at the XDG path (see tpm's own xdg_tmux_path check), which is
+  # where our tmux.conf is linked -- not the legacy ~/.tmux/plugins.
+  local dest="$CONFIG/tmux/plugins/tokyo-night-tmux/src/themes.sh"
   local theme="$REPO/tmux/themes.sh"
 
   if [[ ! -d "$(dirname "$dest")" ]]; then
