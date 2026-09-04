@@ -19,7 +19,7 @@
 --info=right
 --separator=─
 --scrollbar=│
---prompt='  '
+--prompt='󰍉  '
 --pointer=▍
 --marker=✓
 --highlight-line
