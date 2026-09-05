@@ -33,6 +33,7 @@ assumes Hyprland on Wayland.
 | `waybar/` | bar config, style, and the module scripts |
 | `ghostty/`, `tmux/`, `lazygit/`, `fzf/`, `btop/`, `fastfetch/` | terminal and TUI configs, all on the Xcode palette |
 | `wofi/` | the launcher, styled after Spotlight rather than the editor palette |
+| `qt6ct/` | dark palette for Qt apps; GTK apps get theirs from `hyprland.lua` |
 | `zsh/` | `.zshrc`, plus `tmux-sessioniser.sh` and its config |
 | `cli/` | the `zenix` CLI (Python) |
 | `sddm/`, `grub/` | greeter and bootloader themes |

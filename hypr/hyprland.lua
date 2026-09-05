@@ -41,6 +41,12 @@ hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 hl.env("MOZ_ENABLE_WAYLAND", "1")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
+-- GTK3 (and anything else that still honours the env var) gets forced dark
+-- here; GTK4/libadwaita and the portal-based apps (Chromium, Electron) read
+-- the gsettings color-scheme set below instead. Qt gets its dark palette
+-- from qt6ct.conf, installed alongside QT_QPA_PLATFORMTHEME above.
+hl.env("GTK_THEME", "Adwaita:dark")
+
 hl.on("hyprland.start", function()
 	reconfigure_monitors()
 	hl.exec_cmd("hyprpaper")
@@ -52,6 +58,9 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
+	hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme prefer-dark")
+	hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark")
+	hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark")
 end)
 
 hl.config({

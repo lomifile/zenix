@@ -417,6 +417,10 @@ link_dotfiles() {
   # read via $FZF_DEFAULT_OPTS_FILE, exported from zsh/.zshrc
   link "$REPO/fzf/fzfrc" "$CONFIG/fzf/fzfrc"
 
+  # forces a dark palette on Qt apps; GTK apps get theirs from GTK_THEME and
+  # gsettings, both set in hyprland.lua rather than a linked file.
+  link "$REPO/qt6ct/qt6ct.conf" "$CONFIG/qt6ct/qt6ct.conf"
+
   # tmux-sessionizer: the script goes on PATH under its conventional name, which
   # is also what Ctrl-F in zsh and prefix+f in tmux both call.
   link "$REPO/zsh/tmux-sessioniser.sh"     "$HOME/.local/bin/tmux-sessionizer"
