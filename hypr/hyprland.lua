@@ -32,6 +32,12 @@ end
 hl.on("monitor.layout_changed", reconfigure_monitors)
 hl.on("config.reloaded", reconfigure_monitors)
 
+-- Hyprland is launched by SDDM, before any shell rc file runs, so it never
+-- picks up the ~/.local/bin addition zsh makes -- every zenix-shell and
+-- zenix-screenshot exec_cmd bind fails to resolve and dies silently without
+-- this.
+hl.env("PATH", os.getenv("HOME") .. "/.local/bin:" .. os.getenv("PATH"))
+
 hl.env("HYPRCURSOR_THEME", "macOS-hypr")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "macOS")

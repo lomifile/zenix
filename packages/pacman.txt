@@ -150,6 +150,7 @@ gtk3
 gtklock
 
 # --- fonts (only the faces the configs name) ---
+ttf-jetbrains-mono-nerd
 ttf-zed-mono-nerd
 ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
