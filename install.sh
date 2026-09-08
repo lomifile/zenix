@@ -421,6 +421,8 @@ link_dotfiles() {
   # gsettings, both set in hyprland.lua rather than a linked file.
   link "$REPO/qt6ct/qt6ct.conf" "$CONFIG/qt6ct/qt6ct.conf"
 
+  link "$REPO/spotify/spotify-launcher.conf" "$CONFIG/spotify-launcher.conf"
+
   # tmux-sessionizer: the script goes on PATH under its conventional name, which
   # is also what Ctrl-F in zsh and prefix+f in tmux both call.
   link "$REPO/zsh/tmux-sessioniser.sh"     "$HOME/.local/bin/tmux-sessionizer"
