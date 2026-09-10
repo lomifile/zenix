@@ -285,14 +285,30 @@ return {
           expander_highlight = "NeoTreeExpander",
         },
         icon = {
-          folder_closed = "",
-          folder_open = "",
-          folder_empty = "",
-          default = "",
+          folder_closed = "󰉋",
+          folder_open = "󰝰",
+          folder_empty = "󰉖",
+          folder_empty_open = "󰷏",
+          default = "󰈔",
           highlight = "NeoTreeFileIcon",
           provider = function(icon, node)
-            icon.text = ""
-            icon.highlight = node.type == "directory" and "NeoTreeDirectoryIcon" or "NeoTreeFileIcon"
+            local ok, MiniIcons = pcall(require, "mini.icons")
+            if not ok then
+              icon.highlight = node.type == "directory" and "NeoTreeDirectoryIcon" or "NeoTreeFileIcon"
+              return icon
+            end
+            if node.type == "directory" then
+              local glyph, hl, is_default = MiniIcons.get("directory", node.name)
+              if not is_default then
+                icon.text = glyph
+              end
+              icon.highlight = hl or icon.highlight
+            else
+              local name = node.type == "terminal" and "terminal" or node.name
+              local glyph, hl = MiniIcons.get("file", name)
+              icon.text = glyph or icon.text
+              icon.highlight = hl or icon.highlight
+            end
             return icon
           end,
         },
@@ -300,15 +316,15 @@ return {
         name = { trailing_slash = false, use_git_status_colors = false },
         git_status = {
           symbols = {
-            added = "A",
-            modified = "M",
-            deleted = "D",
-            renamed = "R",
-            untracked = "?",
+            added = "✚",
+            modified = "●",
+            deleted = "✖",
+            renamed = "󰁕",
+            untracked = "",
             ignored = "",
             unstaged = "",
             staged = "",
-            conflict = "!",
+            conflict = "",
           },
         },
       },

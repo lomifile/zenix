@@ -486,6 +486,16 @@ local function build(c, opts)
     NeoTreeTabSeparatorActive = { fg = sidebar_bg, bg = sidebar_bg },
     NeoTreeTabSeparatorInactive = { fg = c.bg_chrome, bg = c.bg_chrome },
 
+    MiniIconsAzure = { fg = c.cyan },
+    MiniIconsBlue = { fg = c.steel },
+    MiniIconsCyan = { fg = c.mint },
+    MiniIconsGreen = { fg = c.teal },
+    MiniIconsGrey = { fg = c.comment },
+    MiniIconsOrange = { fg = c.orange },
+    MiniIconsPurple = { fg = c.lilac },
+    MiniIconsRed = { fg = c.salmon },
+    MiniIconsYellow = { fg = c.sand },
+
     TelescopeNormal = { fg = c.fg_dim, bg = float_bg },
     TelescopeBorder = { fg = c.fg, bg = float_bg },
     TelescopeTitle = { fg = c.fg, bg = float_bg, bold = true },
