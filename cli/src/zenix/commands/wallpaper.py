@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 from zenix.console import die, dim, header, info, ok, paint, warn
-from zenix.context import which
+from zenix.context import live_hypr_instance, which
 from zenix.repo import GREETER_SUFFIXES, IMAGE_SUFFIXES
 
 SDDM_THEME_DIR = Path("/usr/share/sddm/themes/zenix")
@@ -119,18 +119,27 @@ def apply_desktop(ctx, repo, name: str) -> None:
         info("hyprctl unavailable; the change lands at next login")
         return
 
+    signature = live_hypr_instance()
+    if signature is None and not ctx.dry_run:
+        info("hyprland is not running; the change lands at next login")
+        return
+
     # hyprpaper 0.8's IPC accepts only `wallpaper` and `listactive`; `preload`,
     # `unload` and `reload` all come back as "invalid hyprpaper request". 0.8
     # dropped `preload` from the config grammar too: wallpapers are a special
     # category keyed on monitor, and the old `preload =` / `wallpaper = ,path`
     # pair is silently ignored.
     #
-    # `wallpaper` loads the image itself, so one call is the whole job. hyprctl
-    # exits 1 on an invalid request, a bad path, or no running compositor.
-    failed = ctx.run(["hyprctl", "hyprpaper", "wallpaper", f",{live}"]) != 0
+    # `wallpaper` loads the image itself, so one call is the whole job. The
+    # signature goes in explicitly because the inherited one may name a dead
+    # session; see live_hypr_instance.
+    failed = ctx.run(
+        ["hyprctl", "hyprpaper", "wallpaper", f",{live}"],
+        env={"HYPRLAND_INSTANCE_SIGNATURE": signature} if signature else None,
+    ) != 0
 
     if failed:
-        info("hyprland is not running; the change lands at next login")
+        info("hyprpaper did not take the change; it lands at next login")
     else:
         ok("hyprpaper reloaded")
 

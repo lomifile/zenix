@@ -149,20 +149,42 @@ class ApplyDesktop(WallpaperCase):
         self.assertFalse(self.conf().exists())
         self.assertIn("$ write", cap.out)
 
+    def running(self, signature="sig_1"):
+        return mock.patch.object(wallpaper, "live_hypr_instance", return_value=signature)
+
     def test_hyprctl_is_asked_to_load_the_image_when_present(self):
-        with mock.patch.object(wallpaper, "which", return_value=True):
+        with mock.patch.object(wallpaper, "which", return_value=True), self.running():
             ctx = mock.Mock(dry_run=False, apply=True)
             ctx.run.return_value = 0
             capture(wallpaper.apply_desktop, ctx, self.repo, "desk.png")
         live = self.home / "Pictures" / "wallpaper" / "desk.png"
-        ctx.run.assert_called_once_with(["hyprctl", "hyprpaper", "wallpaper", f",{live}"])
+        ctx.run.assert_called_once_with(
+            ["hyprctl", "hyprpaper", "wallpaper", f",{live}"],
+            env={"HYPRLAND_INSTANCE_SIGNATURE": "sig_1"},
+        )
+
+    def test_the_live_signature_overrides_a_stale_inherited_one(self):
+        with mock.patch.object(wallpaper, "which", return_value=True), self.running("fresh"):
+            ctx = mock.Mock(dry_run=False, apply=True)
+            ctx.run.return_value = 0
+            capture(wallpaper.apply_desktop, ctx, self.repo, "desk.png")
+        self.assertEqual(
+            ctx.run.call_args.kwargs["env"], {"HYPRLAND_INSTANCE_SIGNATURE": "fresh"}
+        )
+
+    def test_no_live_compositor_skips_hyprctl_and_says_next_login(self):
+        with mock.patch.object(wallpaper, "which", return_value=True), self.running(None):
+            ctx = mock.Mock(dry_run=False, apply=True)
+            _, cap = capture(wallpaper.apply_desktop, ctx, self.repo, "desk.png")
+        ctx.run.assert_not_called()
+        self.assertIn("not running", cap.all)
 
     def test_a_failing_hyprctl_is_reported_as_landing_next_login(self):
-        with mock.patch.object(wallpaper, "which", return_value=True):
+        with mock.patch.object(wallpaper, "which", return_value=True), self.running():
             ctx = mock.Mock(dry_run=False, apply=True)
             ctx.run.return_value = 1
             _, cap = capture(wallpaper.apply_desktop, ctx, self.repo, "desk.png")
-        self.assertIn("not running", cap.all)
+        self.assertIn("next login", cap.all)
 
 
 class UpdateHyprlock(WallpaperCase):

@@ -28,7 +28,7 @@ AUR_EXTRA=()
 AUR_HELPER=
 # The image hyprpaper shows on the desktop, picked by name out of
 # assets/wallpaper/; SRC/DEST are filled in by resolve_wallpaper.
-WALLPAPER_NAME="azoc6k1g99mh1.png"
+WALLPAPER_NAME="japan-artistic-5120x2880-25406.jpg"
 WALLPAPER_SRC= WALLPAPER_DEST=
 # The greeter gets its own, picked by name out of assets/wallpaper/.
 GREETER_WALLPAPER_NAME="couple-bus-sunset.jpg"

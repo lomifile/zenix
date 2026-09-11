@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from zenix.console import die, header, info, ok
-from zenix.context import capture, which
+from zenix.context import capture, live_hypr_instance, which
 
 XKB_RULES = Path("/usr/share/X11/xkb/rules/base.lst")
 
@@ -99,10 +99,12 @@ def cmd_set(ctx, repo, args) -> None:
         info("repo updated; the running system was left alone")
         return
 
-    if which("hyprctl"):
-        ctx.run(["hyprctl", "keyword", "input:kb_layout", args.layout])
+    signature = live_hypr_instance()
+    if which("hyprctl") and (signature or ctx.dry_run):
+        env = {"HYPRLAND_INSTANCE_SIGNATURE": signature} if signature else None
+        ctx.run(["hyprctl", "keyword", "input:kb_layout", args.layout], env=env)
         if args.variant is not None:
-            ctx.run(["hyprctl", "keyword", "input:kb_variant", args.variant])
+            ctx.run(["hyprctl", "keyword", "input:kb_variant", args.variant], env=env)
         ok("hyprland reloaded")
 
     # Covers the TTY and any X11 session started later.
