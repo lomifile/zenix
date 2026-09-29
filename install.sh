@@ -1076,6 +1076,19 @@ enable_services() {
   fi
 
   run xdg-user-dirs-update || true
+
+  install_logind_conf
+}
+
+install_logind_conf() {
+  local f dest=/etc/systemd/logind.conf.d
+  run sudo install -d -m 755 "$dest"
+  for f in "$REPO"/systemd/logind.conf.d/*.conf; do
+    [[ -e "$f" ]] || continue
+    run sudo install -m 644 "$f" "$dest/$(basename "$f")"
+  done
+  run sudo systemctl kill -s HUP systemd-logind
+  ok "lid: hibernate on battery, ignored on AC or when docked"
 }
 
 # ---------------------------------------------------------------- summary ----

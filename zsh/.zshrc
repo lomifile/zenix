@@ -50,7 +50,7 @@ case ":$PATH:" in
 esac
 
 # --- pnpm ---
-export PNPM_HOME="/home/f/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
@@ -117,12 +117,3 @@ export FZF_CTRL_R_OPTS="
 "
 
 source <(fzf --zsh)
-
-
-# pnpm
-export PNPM_HOME="/home/f/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME/bin:"*) ;;
-  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
-esac
-# pnpm end
