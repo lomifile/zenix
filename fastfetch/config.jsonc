@@ -43,7 +43,7 @@
     { "type": "terminal", "key": "󰆍 terminal" },
     { "type": "terminalfont", "key": "󰛖 font" },
     { "type": "display", "key": "󰍹 display", "compactType": "original-with-refresh-rate" },
-    { "type": "custom", "key": "󰸌 theme", "format": "Xcode Dark · macOS Sonoma" },
+    { "type": "custom", "key": "󰸌 theme", "format": "Catppuccin Mocha" },
     "break",
 
     { "type": "custom", "format": "{#90}TOOLING  ───────────────────────────────────────" },

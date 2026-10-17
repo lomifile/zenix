@@ -1,4 +1,4 @@
-theme = xcode-zenix
+theme = catppuccin-mocha
 font-family = ZedMono Nerd Font
 
 # Add some nice looking padding

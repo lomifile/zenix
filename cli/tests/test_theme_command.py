@@ -25,6 +25,7 @@ class ThemeCase(RepoCase):
             mock.patch.object(theme, "which", return_value=False),
             mock.patch.object(theme, "capture", return_value=None),
             mock.patch.object(theme, "SDDM_THEME_DIR", self.home / "sddm"),
+            mock.patch.object(theme, "gtk_theme_installed", return_value=True),
         ):
             patcher.start()
             self.addCleanup(patcher.stop)
@@ -214,6 +215,29 @@ class CmdSet(ThemeCase):
             ctx = self.applying()
             _, cap = capture(theme.cmd_set, ctx, self.repo, self.args(name="fixture"))
         self.assertIn("btop is running", cap.all)
+
+    def test_a_failed_greeter_install_is_not_reported_as_success(self):
+        (self.root / "sddm" / "zenix").mkdir(parents=True)
+        (self.root / "sddm" / "zenix" / "theme.conf").write_text(
+            "[General]\n# >>> zenix theme <<<\nbackgroundColor=#000000\n"
+            "# >>> end zenix theme <<<\n"
+        )
+        (self.home / "sddm").mkdir()
+        ctx = mock.Mock(dry_run=False, apply=True)
+        ctx.run.return_value = 1          # e.g. sudo could not read a password
+        _, cap = capture(theme.cmd_set, ctx, self.repo, self.args(name="fixture"))
+        self.assertNotIn("greeter palette installed", cap.all)
+        self.assertIn("not installed", cap.all)
+
+    def test_a_missing_gtk_theme_is_flagged_before_it_bites(self):
+        # GTK_THEME is read at session start, so naming an uninstalled theme
+        # shows up only at next login -- too late to be useful.
+        with mock.patch.object(theme, "gtk_theme_installed", return_value=False), \
+             mock.patch.object(theme, "which", return_value=True):
+            ctx = self.applying()
+            _, cap = capture(theme.cmd_set, ctx, self.repo, self.args(name="fixture"))
+        self.assertIn("not installed", cap.all)
+        self.assertIn("Fixture-dark", cap.all)
 
     def test_the_gtk3_caveat_is_stated_rather_than_glossed(self):
         # GTK_THEME is set in the session and overrides gsettings for GTK3.

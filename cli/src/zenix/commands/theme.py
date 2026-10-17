@@ -186,7 +186,23 @@ def apply_qt6ct(ctx, repo) -> None:
     ok(f"{dest} written")
 
 
+GTK_THEME_DIRS = (Path("/usr/share/themes"), Path.home() / ".themes")
+
+
+def gtk_theme_installed(name: str) -> bool:
+    return any((d / name).is_dir() for d in GTK_THEME_DIRS)
+
+
 def apply_gsettings(ctx, t) -> None:
+    gtk = t.apps["gtk_theme"]
+    if not gtk_theme_installed(gtk) and not ctx.dry_run:
+        # hyprland.lua exports GTK_THEME, which GTK3 reads at session start and
+        # which overrides gsettings. Naming a theme that is not installed would
+        # not show up now -- it would drop every GTK3 app to the default light
+        # theme at next login, which is a nasty way to find out.
+        warn(f"GTK theme {gtk!r} is not installed — GTK3 apps will fall back")
+        warn("install it before logging out: yay -S catppuccin-gtk-theme-mocha")
+
     if not which("gsettings"):
         info("gsettings unavailable; GTK apps follow at next login")
         return
@@ -247,9 +263,12 @@ def apply_greeter(ctx, repo) -> None:
     if not src.is_file():
         return
     if SDDM_THEME_DIR.is_dir() or ctx.dry_run:
-        ctx.run(["sudo", "install", "-m", "644", str(src),
-                 str(SDDM_THEME_DIR / "theme.conf")])
-        ok("greeter palette installed")
+        failed = ctx.run(["sudo", "install", "-m", "644", str(src),
+                          str(SDDM_THEME_DIR / "theme.conf")]) != 0
+        if failed:
+            info("greeter palette not installed; it lands when install.sh next runs")
+        else:
+            ok("greeter palette installed")
     else:
         info(f"{SDDM_THEME_DIR} not present; run install.sh to deploy the theme")
 

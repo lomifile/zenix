@@ -51,7 +51,7 @@ hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 -- here; GTK4/libadwaita and the portal-based apps (Chromium, Electron) read
 -- the gsettings color-scheme set below instead. Qt gets its dark palette
 -- from qt6ct.conf, installed alongside QT_QPA_PLATFORMTHEME above.
-hl.env("GTK_THEME", "Adwaita:dark")
+hl.env("GTK_THEME", "catppuccin-mocha-blue-standard+default")
 
 hl.on("hyprland.start", function()
 	reconfigure_monitors()
@@ -65,18 +65,18 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme prefer-dark")
-	hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme Adwaita-dark")
+	hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme catppuccin-mocha-blue-standard+default")
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark")
 end)
 
 -- >>> zenix theme <<<
 local c = {
-	border_active_1 = "rgba(ffffffcc)",
-	border_active_2 = "rgba(ffffff55)",
-	border_inactive = "rgba(ffffff22)",
-	group_active = "rgba(0a84ffcc)",
-	group_inactive = "rgba(ffffff22)",
-	shadow = 0x40000000,
+	border_active_1 = "rgba(89b4facc)",
+	border_active_2 = "rgba(74c7eccc)",
+	border_inactive = "rgba(313244ff)",
+	group_active = "rgba(b4befecc)",
+	group_inactive = "rgba(313244ff)",
+	shadow = 0x4011111b,
 }
 -- >>> end zenix theme <<<
 

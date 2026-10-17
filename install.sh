@@ -36,7 +36,7 @@ GREETER_WALLPAPER_SRC= GREETER_WALLPAPER_DEST=
 # The colour theme every surface is generated from, picked by name out of
 # themes/. Written by `zenix theme set`; install.sh only reads it, because the
 # generated files are committed rather than built here.
-THEME_NAME="xcode-zenix"
+THEME_NAME="catppuccin-mocha"
 
 # ---------------------------------------------------------------- output ----
 

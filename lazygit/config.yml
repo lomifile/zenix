@@ -36,32 +36,32 @@ gui:
   # apart, and every inactive element stays comfortably legible.
   theme:
     activeBorderColor:
-      - '#6bdfff'
+      - '#89b4fa'
       - bold
     inactiveBorderColor:
-      - '#a3b1bf'
+      - '#bac2de'
     searchingActiveBorderColor:
-      - '#ffa14f'
+      - '#fab387'
       - bold
     optionsTextColor:
-      - '#a3b1bf'
+      - '#bac2de'
     # The palette's own selection colour: a quiet fill, not a saturated bar.
     selectedLineBgColor:
-      - '#414453'
+      - '#45475a'
     inactiveViewSelectedLineBgColor:
-      - '#393b44'
+      - '#313244'
     cherryPickedCommitFgColor:
-      - '#292a30'
+      - '#1e1e2e'
     cherryPickedCommitBgColor:
-      - '#dabaff'
+      - '#b4befe'
     markedBaseCommitFgColor:
-      - '#292a30'
+      - '#1e1e2e'
     markedBaseCommitBgColor:
-      - '#d9c97c'
+      - '#f9e2af'
     unstagedChangesColor:
-      - '#ff8170'
+      - '#f38ba8'
     defaultFgColor:
-      - '#dfdfe0'
+      - '#cdd6f4'
   commitLength:
     show: true
   showListFooter: true

@@ -43,11 +43,11 @@
       "weeks-pos": "left",
       "on-scroll": 1,
       "format": {
-        "months": "<span color='#f5f5f7'><b>{}</b></span>",
-        "days": "<span color='#f5f5f7'>{}</span>",
-        "weeks": "<span color='#8e8e93'>W{}</span>",
-        "weekdays": "<span color='#8e8e93'><b>{}</b></span>",
-        "today": "<span color='#0a84ff'><b>{}</b></span>"
+        "months": "<span color='#cdd6f4'><b>{}</b></span>",
+        "days": "<span color='#cdd6f4'>{}</span>",
+        "weeks": "<span color='#7f849c'>W{}</span>",
+        "weekdays": "<span color='#7f849c'><b>{}</b></span>",
+        "today": "<span color='#89b4fa'><b>{}</b></span>"
       }
     },
     // Spelled out rather than a bare `zenix-shell`: waybar inherits the

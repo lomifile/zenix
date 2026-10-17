@@ -9,14 +9,14 @@
  */
 
 /* >>> zenix theme <<< */
-@define-color wofi-bg rgba(30, 30, 30, 0.72);
-@define-color wofi-border rgba(255, 255, 255, 0.10);
-@define-color wofi-hairline rgba(255, 255, 255, 0.10);
-@define-color wofi-selected rgba(255, 255, 255, 0.14);
-@define-color wofi-fg #ffffff;
-@define-color wofi-text rgba(235, 235, 245, 0.85);
-@define-color wofi-placeholder rgba(235, 235, 245, 0.30);
-@define-color wofi-caret #0a84ff;
+@define-color wofi-bg rgba(30, 30, 46, 0.72);
+@define-color wofi-border rgba(205, 214, 244, 0.10);
+@define-color wofi-hairline rgba(205, 214, 244, 0.10);
+@define-color wofi-selected rgba(205, 214, 244, 0.14);
+@define-color wofi-fg #cdd6f4;
+@define-color wofi-text rgba(186, 194, 222, 0.85);
+@define-color wofi-placeholder rgba(166, 173, 200, 0.30);
+@define-color wofi-caret #89b4fa;
 /* >>> end zenix theme <<< */
 
 * {

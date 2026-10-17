@@ -1,17 +1,17 @@
 /* >>> zenix theme <<< */
-@define-color fg #f5f5f7;
-@define-color muted #98989d;
-@define-color grey #8e8e93;
-@define-color accent #0a84ff;
-@define-color on-accent #ffffff;
-@define-color good #30d158;
-@define-color warn #ff9f0a;
-@define-color bad #ff453a;
-@define-color pill-bg rgba(28, 28, 30, 0.55);
-@define-color pill-border rgba(255, 255, 255, 0.08);
-@define-color hover rgba(255, 255, 255, 0.1);
-@define-color tooltip-bg rgba(28, 28, 30, 0.96);
-@define-color tooltip-border rgba(255, 255, 255, 0.1);
+@define-color fg #cdd6f4;
+@define-color muted #a6adc8;
+@define-color grey #7f849c;
+@define-color accent #89b4fa;
+@define-color on-accent #11111b;
+@define-color good #a6e3a1;
+@define-color warn #fab387;
+@define-color bad #f38ba8;
+@define-color pill-bg rgba(30, 30, 46, 0.55);
+@define-color pill-border rgba(205, 214, 244, 0.08);
+@define-color hover rgba(205, 214, 244, 0.1);
+@define-color tooltip-bg rgba(30, 30, 46, 0.96);
+@define-color tooltip-border rgba(205, 214, 244, 0.1);
 /* >>> end zenix theme <<< */
 
 * {
