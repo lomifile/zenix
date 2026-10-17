@@ -167,7 +167,7 @@ Item {
               implicitWidth: actionLabel.implicitWidth + Style.gapWide * 2
               implicitHeight: 24
               radius: 12
-              color: actionHover.hovered ? Qt.rgba(1, 1, 1, 0.14) : Color.elevated
+              color: actionHover.hovered ? Color.washHover : Color.elevated
 
               Behavior on color {
                 ColorAnimation { duration: Style.fast }
@@ -207,7 +207,7 @@ Item {
       height: 20
       radius: 10
 
-      color: closeHover.hovered ? Qt.rgba(1, 1, 1, 0.22) : Qt.rgba(1, 1, 1, 0.12)
+      color: closeHover.hovered ? Color.washBold : Color.washBorder
       border.width: Style.border
       border.color: Color.border
 

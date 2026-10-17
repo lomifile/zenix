@@ -8,6 +8,17 @@
  * which turns that into the Sonoma vibrancy behind it.
  */
 
+/* >>> zenix theme <<< */
+@define-color wofi-bg rgba(30, 30, 30, 0.72);
+@define-color wofi-border rgba(255, 255, 255, 0.10);
+@define-color wofi-hairline rgba(255, 255, 255, 0.10);
+@define-color wofi-selected rgba(255, 255, 255, 0.14);
+@define-color wofi-fg #ffffff;
+@define-color wofi-text rgba(235, 235, 245, 0.85);
+@define-color wofi-placeholder rgba(235, 235, 245, 0.30);
+@define-color wofi-caret #0a84ff;
+/* >>> end zenix theme <<< */
+
 * {
   font-family: "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
   border: none;
@@ -15,10 +26,10 @@
 }
 
 window {
-  background-color: rgba(30, 30, 30, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background-color: @wofi-bg;
+  border: 1px solid @wofi-border;
   border-radius: 12px;
-  color: #ffffff;
+  color: @wofi-fg;
 }
 
 #outer-box {
@@ -30,24 +41,24 @@ window {
   background-color: transparent;
   background-image: none;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  border-bottom: 1px solid @wofi-hairline;
   border-radius: 0;
   box-shadow: none;
   padding: 16px 20px;
   font-size: 22px;
   font-weight: 400;
-  color: #ffffff;
-  caret-color: #0a84ff;
+  color: @wofi-fg;
+  caret-color: @wofi-caret;
 }
 
 #input:focus {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  border-bottom: 1px solid @wofi-hairline;
   box-shadow: none;
 }
 
 #input placeholder,
 #input selection {
-  color: rgba(235, 235, 245, 0.30);
+  color: @wofi-placeholder;
 }
 
 #scroll {
@@ -75,15 +86,15 @@ scrollbar,
 
 /* Spotlight's selected row is a translucent grey wash, not an accent fill */
 #entry:selected {
-  background-color: rgba(255, 255, 255, 0.14);
+  background-color: @wofi-selected;
 }
 
 #entry:selected #text {
-  color: #ffffff;
+  color: @wofi-fg;
 }
 
 #text {
-  color: rgba(235, 235, 245, 0.85);
+  color: @wofi-text;
   font-size: 14px;
   margin-left: 12px;
 }

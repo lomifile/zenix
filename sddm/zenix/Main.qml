@@ -28,6 +28,16 @@ Rectangle {
         readonly property color  fg:        config.textColor       || "#f5f5f7"
         readonly property color  dim:       config.dimTextColor    || "#98989d"
         readonly property color  accent:    config.accentColor     || "#0a84ff"
+        readonly property color  error:     config.errorColor      || "#ff453a"
+        readonly property color  popup:     config.popupColor      || "#2c2c2e"
+        // Progressive washes over the wallpaper, lightest first. Named by
+        // weight so one value can serve a fill and a hairline alike; on a
+        // light theme they arrive as dark-alpha instead.
+        readonly property color  washSoft:  config.washSoft        || "#14ffffff"
+        readonly property color  wash:      config.wash            || "#1affffff"
+        readonly property color  washBorder: config.washBorder     || "#1fffffff"
+        readonly property color  washHover: config.washHover       || "#24ffffff"
+        readonly property color  washStrong: config.washStrong     || "#29ffffff"
         readonly property string wallpaper: config.background      || ""
         readonly property real   dimming:   parseFloat(config.backgroundDimming || "0.55")
         readonly property int    clockSize: parseInt(config.clockFontSize || "86")
@@ -108,9 +118,9 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
             width: 88; height: 88
             radius: width / 2
-            color: Qt.rgba(1, 1, 1, 0.10)
+            color: cfg.wash
             border.width: 1
-            border.color: Qt.rgba(1, 1, 1, 0.16)
+            border.color: cfg.washStrong
 
             Text {
                 anchors.centerIn: parent
@@ -144,6 +154,8 @@ Rectangle {
             textRole: "name"
             currentIndex: userModel.lastIndex
             fg: cfg.fg; dim: cfg.dim; accent: cfg.accent
+            popupColor: cfg.popup; washSoft: cfg.washSoft
+            washHover: cfg.washHover; washBorder: cfg.washBorder
             fontFamily: cfg.fonts[0]
         }
 
@@ -153,9 +165,9 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
             width: 300; height: 46
             radius: 10
-            color: Qt.rgba(1, 1, 1, 0.08)
+            color: cfg.washSoft
             border.width: 2
-            border.color: password.activeFocus ? cfg.accent : Qt.rgba(1, 1, 1, 0.14)
+            border.color: password.activeFocus ? cfg.accent : cfg.washHover
 
             Behavior on border.color { ColorAnimation { duration: 120 } }
 
@@ -195,7 +207,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 32; height: 32
                 radius: width / 2
-                color: password.text.length > 0 ? cfg.accent : Qt.rgba(1, 1, 1, 0.10)
+                color: password.text.length > 0 ? cfg.accent : cfg.wash
                 visible: !busy.running
 
                 Behavior on color { ColorAnimation { duration: 120 } }
@@ -232,7 +244,7 @@ Rectangle {
             wrapMode: Text.WordWrap
             text: root.errorText !== "" ? root.errorText
                   : (keyboard.capsLock ? "Caps Lock is on" : "")
-            color: root.errorText !== "" ? "#ff453a" : cfg.dim
+            color: root.errorText !== "" ? cfg.error : cfg.dim
             font.family: cfg.fonts[0]
             font.pixelSize: 13
         }
@@ -260,6 +272,8 @@ Rectangle {
             textRole: "name"
             currentIndex: sessionModel.lastIndex
             fg: cfg.fg; dim: cfg.dim; accent: cfg.accent
+            popupColor: cfg.popup; washSoft: cfg.washSoft
+            washHover: cfg.washHover; washBorder: cfg.washBorder
             fontFamily: cfg.fonts[0]
         }
     }

@@ -468,7 +468,7 @@ local function build(c, opts)
     NeoTreeFileName = { fg = c.fg_dim },
     NeoTreeFileNameOpened = { fg = c.teal },
     NeoTreeFileIcon = { fg = c.comment },
-    NeoTreeIndentMarker = { fg = "#33353d" },
+    NeoTreeIndentMarker = { fg = c.indent_marker },
     NeoTreeExpander = { fg = c.comment },
     NeoTreeDotfile = { fg = c.gutter },
     NeoTreeGitAdded = { fg = c.teal },
@@ -560,7 +560,7 @@ local function build(c, opts)
     SnacksPickerInput = { fg = c.fg, bg = float_bg },
     SnacksPickerList = { fg = c.fg, bg = float_bg },
     SnacksPickerMatch = { fg = c.cyan, bold = true },
-    SnacksBackdrop = { bg = "#000000" },
+    SnacksBackdrop = { bg = c.backdrop },
     SnacksDashboardHeader = { fg = c.cyan },
     SnacksDashboardDesc = { fg = c.fg },
     SnacksDashboardKey = { fg = c.orange },
@@ -626,11 +626,11 @@ function M.load()
   if vim.g.colors_name then
     vim.cmd("hi clear")
   end
-  vim.o.termguicolors = true
-  vim.o.background = "dark"
-  vim.g.colors_name = "zenix"
-
   local c = require("zenix.palette")
+
+  vim.o.termguicolors = true
+  vim.o.background = c.background
+  vim.g.colors_name = "zenix"
   terminal(c)
 
   local editor_bg = M.options.transparent and "NONE" or c.bg

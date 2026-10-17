@@ -25,12 +25,12 @@ Rectangle {
   clip: true
 
   color: active
-    ? Qt.rgba(1, 1, 1, 0.16)
-    : (hover.hovered ? Qt.rgba(1, 1, 1, 0.07) : "transparent")
+    ? Color.washStrong
+    : (hover.hovered ? Color.washDim : "transparent")
   opacity: dimmed && !active ? 0.5 : 1
 
   border.width: active ? Style.border : 0
-  border.color: Qt.rgba(1, 1, 1, 0.16)
+  border.color: Color.washStrong
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }

@@ -15,6 +15,7 @@
 
 TRANSPARENT_THEME="$(tmux show-option -gv @tokyo-night-tmux_transparent)"
 
+# >>> zenix theme <<<
 declare -A THEME=(
   ["background"]="#292a30"
   ["foreground"]="#dfdfe0"
@@ -42,6 +43,7 @@ declare -A THEME=(
   ["ghred"]="#ff8170"
   ["ghyellow"]="#ffa14f"
 )
+# >>> end zenix theme <<<
 
 if [ "${TRANSPARENT_THEME}" == 1 ]; then
   THEME["background"]="default"

@@ -23,9 +23,10 @@ class Parser(unittest.TestCase):
 
     def test_every_command_module_is_wired_in(self):
         text = self.parser.format_help()
-        for name in ("status", "wallpaper", "keyboard", "timezone", "webapp", "agenda"):
+        for name in ("status", "theme", "wallpaper", "keyboard", "timezone", "webapp",
+                     "agenda"):
             self.assertIn(name, text)
-        self.assertEqual(len(MODULES), 6)
+        self.assertEqual(len(MODULES), 7)
 
     def test_a_command_is_required(self):
         with self.assertRaises(SystemExit):
@@ -36,7 +37,7 @@ class Parser(unittest.TestCase):
             capture(self.parse, ["nonsense"])
 
     def test_a_command_needing_an_action_is_rejected_without_one(self):
-        for command in ("wallpaper", "keyboard", "timezone", "webapp", "agenda"):
+        for command in ("theme", "wallpaper", "keyboard", "timezone", "webapp", "agenda"):
             with self.subTest(command=command):
                 with self.assertRaises(SystemExit):
                     capture(self.parse, [command])
@@ -51,7 +52,9 @@ class Parser(unittest.TestCase):
         self.assertEqual(args.repo, "/x")
 
     def test_every_subcommand_binds_a_handler(self):
-        for argv in (["status"], ["wallpaper", "list"], ["wallpaper", "current"],
+        for argv in (["status"], ["theme", "list"], ["theme", "current"],
+                     ["theme", "show", "x"], ["theme", "set", "x"],
+                     ["wallpaper", "list"], ["wallpaper", "current"],
                      ["wallpaper", "set", "x.png"], ["keyboard", "list"],
                      ["keyboard", "current"], ["keyboard", "set", "us"],
                      ["timezone", "list"], ["timezone", "current"],

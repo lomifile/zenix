@@ -19,7 +19,7 @@ Rectangle {
   implicitHeight: 96
   radius: 18
 
-  color: selected ? Qt.rgba(1, 1, 1, 0.10) : (hover.hovered ? Qt.rgba(1, 1, 1, 0.05) : "transparent")
+  color: selected ? Color.wash : (hover.hovered ? Color.washFaint : "transparent")
   border.width: selected ? 1 : 0
   border.color: selected ? tint : "transparent"
 

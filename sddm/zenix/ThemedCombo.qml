@@ -7,9 +7,15 @@ import QtQuick.Controls
 ComboBox {
     id: control
 
+    // Supplied by Main.qml from theme.conf -- the defaults are only so the
+    // component still renders if it is ever used on its own.
     property color fg: "#f5f5f7"
     property color dim: "#98989d"
     property color accent: "#0a84ff"
+    property color popupColor: "#2c2c2e"
+    property color washSoft: "#14ffffff"
+    property color washHover: "#24ffffff"
+    property color washBorder: "#1fffffff"
     property string fontFamily: "Inter"
 
     implicitHeight: 30
@@ -18,9 +24,9 @@ ComboBox {
 
     background: Rectangle {
         radius: 7
-        color: Qt.rgba(1, 1, 1, control.hovered ? 0.14 : 0.08)
+        color: control.hovered ? control.washHover : control.washSoft
         border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.14)
+        border.color: control.washHover
         Behavior on color { ColorAnimation { duration: 100 } }
     }
 
@@ -50,9 +56,9 @@ ComboBox {
 
         background: Rectangle {
             radius: 8
-            color: "#2c2c2e"
+            color: control.popupColor
             border.width: 1
-            border.color: Qt.rgba(1, 1, 1, 0.12)
+            border.color: control.washBorder
         }
 
         contentItem: ListView {

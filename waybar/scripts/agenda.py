@@ -21,6 +21,13 @@ ICON = "\U000f00ed"          # nf-md-calendar_month, as used elsewhere in the ba
 MAX_ROWS = 8
 STALE_AFTER = 45 * 60        # the timer runs every 5 min; 45 means something broke
 
+# Pango span colours. Written by `zenix theme set`, which is why they are
+# constants rather than inline in the f-strings below.
+# >>> zenix theme <<<
+DIM = "#98989d"
+ALERT = "#ff453a"
+# >>> end zenix theme <<<
+
 
 def cache_path() -> Path:
     base = os.environ.get("XDG_CACHE_HOME") or (Path.home() / ".cache")
@@ -54,20 +61,20 @@ def tooltip(events: list[dict], error: str | None, age: float | None) -> str:
     lines = [f"<b>{escape(today)}</b>", ""]
 
     if error:
-        lines.append(f"<span foreground='#98989d'>{escape(error)}</span>")
+        lines.append(f"<span foreground='{DIM}'>{escape(error)}</span>")
     elif not events:
-        lines.append("<span foreground='#98989d'>No events today</span>")
+        lines.append(f"<span foreground='{DIM}'>No events today</span>")
     else:
         for e in events[:MAX_ROWS]:
             when = escape(e.get("time") or "All day")
             title = escape(e.get("title", ""))
-            lines.append(f"<span foreground='#98989d'>{when:>8}</span>   {title}")
+            lines.append(f"<span foreground='{DIM}'>{when:>8}</span>   {title}")
         if len(events) > MAX_ROWS:
             more = len(events) - MAX_ROWS
-            lines.append(f"<span foreground='#98989d'>+{more} more</span>")
+            lines.append(f"<span foreground='{DIM}'>+{more} more</span>")
 
     if age is not None and age > STALE_AFTER:
-        lines += ["", f"<span foreground='#ff453a'>last updated {age / 60:.0f} min ago</span>"]
+        lines += ["", f"<span foreground='{ALERT}'>last updated {age / 60:.0f} min ago</span>"]
 
     return "\n".join(lines)
 

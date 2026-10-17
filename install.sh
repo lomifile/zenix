@@ -33,6 +33,10 @@ WALLPAPER_SRC= WALLPAPER_DEST=
 # The greeter gets its own, picked by name out of assets/wallpaper/.
 GREETER_WALLPAPER_NAME="couple-bus-sunset.jpg"
 GREETER_WALLPAPER_SRC= GREETER_WALLPAPER_DEST=
+# The colour theme every surface is generated from, picked by name out of
+# themes/. Written by `zenix theme set`; install.sh only reads it, because the
+# generated files are committed rather than built here.
+THEME_NAME="xcode-zenix"
 
 # ---------------------------------------------------------------- output ----
 

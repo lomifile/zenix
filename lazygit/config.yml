@@ -45,7 +45,7 @@ gui:
       - bold
     optionsTextColor:
       - '#a3b1bf'
-    # Xcode's own selection colour: a quiet fill, not a saturated bar.
+    # The palette's own selection colour: a quiet fill, not a saturated bar.
     selectedLineBgColor:
       - '#414453'
     inactiveViewSelectedLineBgColor:

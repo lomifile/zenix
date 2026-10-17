@@ -25,6 +25,7 @@
 --highlight-line
 --cycle
 
+# >>> zenix theme <<<
 # bg:-1 keeps the terminal's own background, so fzf inherits ghostty's
 # transparency instead of painting an opaque rectangle over it.
 --color=fg:#a3b1bf,bg:-1,hl:#6bdfff
@@ -34,3 +35,4 @@
 --color=spinner:#dabaff,header:#7f8c98,label:#a3b1bf
 --color=query:#dfdfe0,scrollbar:#393b44,gutter:-1
 --color=preview-fg:#a3b1bf,preview-bg:-1,preview-border:#393b44
+# >>> end zenix theme <<<

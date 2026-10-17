@@ -69,14 +69,25 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark")
 end)
 
+-- >>> zenix theme <<<
+local c = {
+	border_active_1 = "rgba(ffffffcc)",
+	border_active_2 = "rgba(ffffff55)",
+	border_inactive = "rgba(ffffff22)",
+	group_active = "rgba(0a84ffcc)",
+	group_inactive = "rgba(ffffff22)",
+	shadow = 0x40000000,
+}
+-- >>> end zenix theme <<<
+
 hl.config({
 	general = {
 		gaps_in = 6,
 		gaps_out = { top = 4, right = 8, bottom = 8, left = 8 },
 		border_size = 2,
 		col = {
-			active_border = { colors = { "rgba(ffffffcc)", "rgba(ffffff55)" }, angle = 45 },
-			inactive_border = "rgba(ffffff22)",
+			active_border = { colors = { c.border_active_1, c.border_active_2 }, angle = 45 },
+			inactive_border = c.border_inactive,
 		},
 		resize_on_border = true,
 		allow_tearing = false,
@@ -92,7 +103,7 @@ hl.config({
 			enabled = true,
 			range = 25,
 			render_power = 3,
-			color = 0x40000000,
+			color = c.shadow,
 		},
 		blur = {
 			enabled = true,
@@ -108,8 +119,8 @@ hl.config({
 
 	group = {
 		col = {
-			border_active = "rgba(0a84ffcc)",
-			border_inactive = "rgba(ffffff22)",
+			border_active = c.group_active,
+			border_inactive = c.group_inactive,
 		},
 		groupbar = { enabled = false },
 	},
