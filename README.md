@@ -6,10 +6,13 @@ one repo and installed by one script.
 Every surface — editor, terminal, bar, launcher, popups, lock screen, greeter —
 is painted from one named theme, switched with `zenix theme set`. Five ship:
 the four Catppuccin flavours and `xcode-zenix`, the original Xcode Dark and
-macOS Sonoma pairing. Most configs are symlinks back into this checkout, so a
-change made on the machine is a change made to the repo — the few that cannot
-be are generated or patched instead, and
-[How installing works](#how-installing-works) says which and why.
+macOS Sonoma pairing. The terminal and everything in it is opaque; the bar,
+the launcher and the popups stay translucent over the compositor's blur.
+
+Most configs are symlinks back into this checkout, so a change made on the
+machine is a change made to the repo — the few that cannot be are generated or
+patched instead, and [How installing works](#how-installing-works) says which
+and why.
 
 ```
 ./install.sh              # full install
@@ -188,11 +191,9 @@ the way the popups rule theirs, every row carries a Nerd Font icon, and colours
 are ANSI indexes rather than hex so the terminal's own palette drives them —
 the closing block is that palette, all sixteen slots. `ff` in zsh is the alias.
 
-`btop/themes/<theme>.theme` leaves `main_bg` empty so the meters sit on
-ghostty's own translucent background and Hyprland's blur, and takes its
-gradients from the same roles the bar's meters use — CPU green through
-amber to red, memory blue — so the meter you clicked and the box that opens are
-the same colour. `btop/btop.conf` is linked, not generated: btop rewrites the
+`btop/themes/<theme>.theme` takes its gradients from the same roles the bar's
+meters use — CPU green through amber to red, memory blue — so the meter you
+clicked and the box that opens are the same colour. `btop/btop.conf` is linked, not generated: btop rewrites the
 whole file when a setting changes in-app, so those edits land in the repo the
 way lazygit's do. `presets` there is what `waybar/scripts/btop.sh` selects
 between — preset 1 is CPU and processes, preset 2 memory, disks and processes.

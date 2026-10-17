@@ -1,5 +1,5 @@
--- Transparent background: ghostty runs at background-opacity = 0.85 over the
--- compositor's blur, so the editor, the sidebars and the floats all hand their
--- background back to the terminal and read through to the desktop.
-require("zenix").setup({ transparent = true })
+-- Opaque: ghostty runs at background-opacity = 1, so the editor, the sidebars
+-- and the floats paint their own background from the palette rather than
+-- handing it back to the terminal.
+require("zenix").setup({ transparent = false })
 require("zenix").load()

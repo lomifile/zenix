@@ -281,8 +281,21 @@ class Renderers(RepoCase):
         for i, colour in enumerate(FIXTURE_THEME["terminal"]["palette"]):
             self.assertIn(f"palette = {i}={colour}", out)
 
-    def test_btop_keeps_main_bg_empty_for_the_terminal_transparency(self):
-        self.assertIn('theme[main_bg]=""', theme.render_btop_theme(self.theme()))
+    def test_btop_paints_its_own_background(self):
+        # It used to leave main_bg empty so the meters sat on ghostty's
+        # translucency; the terminal is opaque now, so btop fills it itself.
+        out = theme.render_btop_theme(self.theme())
+        self.assertIn(f'theme[main_bg]="{FIXTURE_THEME["editor"]["bg"]}"', out)
+        self.assertNotIn('theme[main_bg]=""', out)
+
+    def test_fzf_does_not_inherit_the_terminal_background(self):
+        out = theme.rewrite_fzf(
+            "# >>> zenix theme <<<\nold\n# >>> end zenix theme <<<\n", self.theme()
+        )
+        self.assertNotIn("bg:-1", out)
+        self.assertNotIn("gutter:-1", out)
+        self.assertNotIn("preview-bg:-1", out)
+        self.assertIn(f"bg:{FIXTURE_THEME['editor']['bg']}", out)
 
     def test_btop_shares_its_meter_colours_with_the_bar(self):
         # The README's rule: the meter you click and the box it opens are the

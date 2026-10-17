@@ -1,4 +1,4 @@
-theme[main_bg]=""
+theme[main_bg]="#1e1e2e"
 theme[main_fg]="#cdd6f4"
 theme[title]="#cdd6f4"
 theme[hi_fg]="#89b4fa"

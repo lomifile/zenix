@@ -203,9 +203,7 @@ def render_btop_theme(t: Theme) -> str:
         return [f'theme[{prefix}_{n}]="{c}"' for n, c in zip(names_, stops)]
 
     out = [
-        # main_bg stays empty so the meters sit on ghostty's translucency
-        # rather than painting an opaque rectangle over the desktop.
-        'theme[main_bg]=""',
+        f'theme[main_bg]="{e["bg"]}"',
         f'theme[main_fg]="{e["fg"]}"',
         f'theme[title]="{d["foreground"]}"',
         f'theme[hi_fg]="{d["accent"]}"',
@@ -385,15 +383,14 @@ def rewrite_fzf(text: str, t: Theme) -> str:
     e = t.editor
     body = "\n".join(
         [
-            "# bg:-1 keeps the terminal's own background, so fzf inherits ghostty's",
-            "# transparency instead of painting an opaque rectangle over it.",
-            f"--color=fg:{e['fg_dim']},bg:-1,hl:{e['cyan']}",
+            f"--color=fg:{e['fg_dim']},bg:{e['bg']},hl:{e['cyan']}",
             f"--color=fg+:{e['fg']},bg+:{e['bg_sel']},hl+:{e['cyan']}",
             f"--color=info:{e['comment']},border:{e['bg_panel']},separator:{e['bg_panel']}",
             f"--color=prompt:{e['cyan']},pointer:{e['teal']},marker:{e['orange']}",
             f"--color=spinner:{e['lilac']},header:{e['comment']},label:{e['fg_dim']}",
-            f"--color=query:{e['fg']},scrollbar:{e['bg_panel']},gutter:-1",
-            f"--color=preview-fg:{e['fg_dim']},preview-bg:-1,preview-border:{e['bg_panel']}",
+            f"--color=query:{e['fg']},scrollbar:{e['bg_panel']},gutter:{e['bg']}",
+            f"--color=preview-fg:{e['fg_dim']},preview-bg:{e['bg']},"
+            f"preview-border:{e['bg_panel']}",
         ]
     )
     return replace_block(text, "hash", body, what="fzf/fzfrc")
