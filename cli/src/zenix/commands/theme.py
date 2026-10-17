@@ -69,7 +69,7 @@ def cmd_show(ctx, repo, args) -> None:
             continue
         print(f"\n  {paint('1', section)}")
         for key, value in values.items():
-            if key == "comment":
+            if key.startswith("_"):
                 continue
             print(f"    {key:<22} {value}")
 

@@ -3,7 +3,7 @@
     "name": "xcode-zenix",
     "label": "Xcode Dark \u00b7 macOS Sonoma",
     "background": "dark",
-    "comment": "The original zenix palette: Xcode Dark for the editor and TUI family, Apple's macOS Sonoma dark-mode system colours for the compositor, bar, greeter and popups. Every value here was extracted from the hand-written configs, so selecting this theme reproduces them byte for byte."
+    "_comment": "The original zenix palette: Xcode Dark for the editor and TUI family, Apple's macOS Sonoma dark-mode system colours for the compositor, bar, greeter and popups. Every value here was extracted from the hand-written configs, so selecting this theme reproduces them byte for byte."
   },
   "editor": {
     "bg": "#292a30",
@@ -41,7 +41,7 @@
     "blue": "#6bdfff"
   },
   "terminal": {
-    "comment": "Slots mapped the Xcode way: teal in 2, mint in 10. Drives ghostty, and through it eza, fd, bat, fastfetch and every TUI without a theme of its own.",
+    "_comment": "Slots mapped the Xcode way: teal in 2, mint in 10. Drives ghostty, and through it eza, fd, bat, fastfetch and every TUI without a theme of its own.",
     "palette": [
       "#414453",
       "#ff8170",
@@ -87,7 +87,7 @@
     "status_bad": "#ff453a"
   },
   "washes": {
-    "comment": "White laid over whatever is behind, by weight. These are lifts, not colours -- the cards are blurred by hl.layer_rule and opaque surfaces would destroy that. On a light theme they arrive as dark-alpha instead.",
+    "_comment": "White laid over whatever is behind, by weight. These are lifts, not colours -- the cards are blurred by hl.layer_rule and opaque surfaces would destroy that. On a light theme they arrive as dark-alpha instead.",
     "faint": "#0dffffff",
     "dim": "#12ffffff",
     "soft": "#14ffffff",
@@ -98,7 +98,7 @@
     "bold": "#38ffffff"
   },
   "css": {
-    "comment": "Spelled exactly as the stylesheets spell them -- decimal rgba() for GTK. These become @define-color declarations in waybar-style.css and wofi/style.css.",
+    "_comment": "Spelled exactly as the stylesheets spell them -- decimal rgba() for GTK. These become @define-color declarations in waybar-style.css and wofi/style.css.",
     "pill_bg": "rgba(28, 28, 30, 0.55)",
     "pill_border": "rgba(255, 255, 255, 0.08)",
     "hover": "rgba(255, 255, 255, 0.1)",
@@ -113,7 +113,7 @@
     "wofi_placeholder": "rgba(235, 235, 245, 0.30)"
   },
   "hypr": {
-    "comment": "Packed-hex rgba() and an ARGB literal for the shadow -- hyprland's own spellings. The borders are white-alpha rather than a palette colour: a neutral highlight over any wallpaper.",
+    "_comment": "Packed-hex rgba() and an ARGB literal for the shadow -- hyprland's own spellings. The borders are white-alpha rather than a palette colour: a neutral highlight over any wallpaper.",
     "border_active_1": "rgba(ffffffcc)",
     "border_active_2": "rgba(ffffff55)",
     "border_inactive": "rgba(ffffff22)",
@@ -122,7 +122,7 @@
     "shadow": "0x40000000"
   },
   "hyprlock": {
-    "comment": "Mixed spellings on purpose: hyprlock takes decimal rgba() for the background fallback and packed hex everywhere else. `placeholder` is Pango markup inside the config, so its `#` is doubled to survive hyprlang's comment parsing.",
+    "_comment": "Mixed spellings on purpose: hyprlock takes decimal rgba() for the background fallback and packed hex everywhere else. `placeholder` is Pango markup inside the config, so its `#` is doubled to survive hyprlang's comment parsing.",
     "bg": "rgba(28, 28, 30, 1.0)",
     "outer": "rgba(0a84ffee)",
     "inner": "rgba(1c1c1eee)",
@@ -132,7 +132,7 @@
     "date": "rgba(98989dff)"
   },
   "sddm": {
-    "comment": "Keys read by Main.qml and ThemedCombo.qml through SDDM's `config` object. The washes are the white-alpha fills the QML used to carry inline.",
+    "_comment": "Keys read by Main.qml and ThemedCombo.qml through SDDM's `config` object. The washes are the white-alpha fills the QML used to carry inline.",
     "backgroundColor": "#1c1c1e",
     "textColor": "#f5f5f7",
     "dimTextColor": "#98989d",
@@ -141,7 +141,7 @@
     "popupColor": "#2c2c2e"
   },
   "waybar": {
-    "comment": "Pango markup colours: the clock's calendar in waybar-config.jsonc and the agenda script's own spans.",
+    "_comment": "Pango markup colours: the clock's calendar in waybar-config.jsonc and the agenda script's own spans.",
     "cal_fg": "#f5f5f7",
     "cal_dim": "#8e8e93",
     "cal_today": "#0a84ff",
@@ -149,7 +149,7 @@
     "agenda_alert": "#ff453a"
   },
   "btop_ramps": {
-    "comment": "btop draws each meter as a three-stop gradient. These are hand-tuned darkenings of the end colour rather than anything derivable, so they are stored rather than computed. free/download share a ramp, as do cached/upload.",
+    "_comment": "btop draws each meter as a three-stop gradient. These are hand-tuned darkenings of the end colour rather than anything derivable, so they are stored rather than computed. free/download share a ramp, as do cached/upload.",
     "green": [
       "#1c5e2f",
       "#25994a",
@@ -185,7 +185,7 @@
     "bar_fg": "#f5f5f7"
   },
   "apps": {
-    "comment": "Theme *names*, not colours. `qt_scheme` is an absolute path when it names one of qt6ct's own schemes, or a bare theme name when the palette ships in qt6ct/colors/.",
+    "_comment": "Theme *names*, not colours. `qt_scheme` is an absolute path when it names one of qt6ct's own schemes, or a bare theme name when the palette ships in qt6ct/colors/.",
     "gtk_theme": "Adwaita-dark",
     "gtk_env": "Adwaita:dark",
     "icon_theme": "Papirus-Dark",

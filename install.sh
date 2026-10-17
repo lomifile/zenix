@@ -382,9 +382,12 @@ link_dotfiles() {
   link "$REPO/wofi/config"                "$CONFIG/wofi/config"
   link "$REPO/wofi/style.css"             "$CONFIG/wofi/style.css"
 
-  # ghostty 1.2+ reads config.ghostty; `theme =` names a file under themes/
-  link "$REPO/ghostty/config.ghostty"       "$CONFIG/ghostty/config.ghostty"
-  link "$REPO/ghostty/themes/xcode-zenix"   "$CONFIG/ghostty/themes/xcode-zenix"
+  # ghostty 1.2+ reads config.ghostty; `theme =` names a file under themes/.
+  # The directory is linked rather than one theme inside it, so every theme in
+  # the repo is available and that one line is the only thing selecting between
+  # them.
+  link "$REPO/ghostty/config.ghostty"  "$CONFIG/ghostty/config.ghostty"
+  link "$REPO/ghostty/themes"          "$CONFIG/ghostty/themes"
 
   # nvim goes in whole so lazy-lock.json stays under version control
   link "$REPO/nvim" "$CONFIG/nvim"
@@ -421,9 +424,11 @@ link_dotfiles() {
   # read via $FZF_DEFAULT_OPTS_FILE, exported from zsh/.zshrc
   link "$REPO/fzf/fzfrc" "$CONFIG/fzf/fzfrc"
 
-  # forces a dark palette on Qt apps; GTK apps get theirs from GTK_THEME and
-  # gsettings, both set in hyprland.lua rather than a linked file.
-  link "$REPO/qt6ct/qt6ct.conf" "$CONFIG/qt6ct/qt6ct.conf"
+  # Carries the Qt palette; GTK apps get theirs from GTK_THEME and gsettings,
+  # both set in hyprland.lua rather than a linked file. qt6ct.conf itself is
+  # generated rather than linked (see write_qt6ct_conf); the colour schemes
+  # `zenix theme` writes are linked as a directory so all of them are present.
+  link "$REPO/qt6ct/colors" "$CONFIG/qt6ct/colors"
 
   link "$REPO/spotify/spotify-launcher.conf" "$CONFIG/spotify-launcher.conf"
 
@@ -433,10 +438,34 @@ link_dotfiles() {
   link "$REPO/zsh/tmux-sessionizer.conf"   "$CONFIG/tmux-sessionizer/tmux-sessionizer.conf"
 
   write_zshenv
+  write_qt6ct_conf
   patch_tmux_theme
   write_hyprpaper_conf
   write_hyprlock_conf
   install_wallpaper
+}
+
+# Generated rather than linked: qt6ct resolves color_scheme_path as an absolute
+# path and expands neither ~ nor $HOME, so the repo copy carries a __HOME__
+# placeholder instead of one machine's username. `zenix theme set` writes the
+# live file the same way.
+write_qt6ct_conf() {
+  local dest="$CONFIG/qt6ct/qt6ct.conf"
+  local src="$REPO/qt6ct/qt6ct.conf"
+
+  [[ -f "$src" ]] || { warn "missing in repo, skipping: $src"; return; }
+
+  # Earlier installs linked this file; a link would send the placeholder back
+  # into the repo the first time anything wrote through it.
+  [[ -L "$dest" ]] && run rm -f "$dest"
+
+  run mkdir -p "$CONFIG/qt6ct"
+  if (( DRY_RUN )); then
+    printf '    %s$ write %s%s\n' "$DIM" "$dest" "$N"
+  else
+    sed -e "s|__HOME__|$HOME|g" "$src" > "$dest"
+  fi
+  ok "~/.config/qt6ct/qt6ct.conf written"
 }
 
 # tokyo-night-tmux hardcodes four palettes and has no option for a custom one,

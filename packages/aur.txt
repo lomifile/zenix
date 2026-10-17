@@ -7,3 +7,13 @@ bruno-bin
 mongodb-compass-bin
 
 gcalcli
+
+# Catppuccin: the GTK themes (each package ships all 14 accents, so the one
+# named in themes/<name>.json is present without building anything) and the
+# recoloured Papirus folders. papirus-folders-catppuccin-git provides and
+# conflicts with papirus-folders, so it is the only one of the two listed.
+catppuccin-gtk-theme-mocha
+catppuccin-gtk-theme-macchiato
+catppuccin-gtk-theme-frappe
+catppuccin-gtk-theme-latte
+papirus-folders-catppuccin-git

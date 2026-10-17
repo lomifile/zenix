@@ -561,7 +561,7 @@ SDDM_WASHES = (
 
 
 def rewrite_sddm_theme_conf(text: str, t: Theme) -> str:
-    pairs = [(k, v) for k, v in t.sddm.items() if k != "comment"]
+    pairs = [(k, v) for k, v in t.sddm.items() if not k.startswith("_")]
     pairs += [(key, t.washes[rung]) for key, rung in SDDM_WASHES]
     body = "\n".join(f"{k}={v}" for k, v in pairs)
     return replace_block(text, "hash", body, what="sddm/zenix/theme.conf")
@@ -696,17 +696,30 @@ def qt_scheme_path(t: Theme) -> str:
     return f"{HOME_PLACEHOLDER}/.config/qt6ct/colors/{t.name}.conf"
 
 
+def selectable_files(repo) -> dict[Path, str]:
+    """One file per theme, for the apps that select a theme by name.
+
+    All of them are written, not just the active one, so ghostty/themes/,
+    btop/themes/ and qt6ct/colors/ are always complete -- install.sh links
+    those as directories, and a half-populated one means the selector line can
+    name a file that is not there.
+    """
+    out: dict[Path, str] = {}
+    for name in names(repo):
+        t = load(repo, name)
+        out[repo.root / "ghostty" / "themes" / t.name] = render_ghostty_theme(t)
+        out[repo.root / "btop" / "themes" / f"{t.name}.theme"] = render_btop_theme(t)
+        if generates_qt_colors(t):
+            out[repo.root / "qt6ct" / "colors" / f"{t.name}.conf"] = render_qt6ct_colors(t)
+    return out
+
+
 def generated_files(t: Theme, repo) -> dict[Path, str]:
-    """Every file written outright, as {path: text}."""
-    out = {
-        repo.root / "ghostty" / "themes" / t.name: render_ghostty_theme(t),
-        repo.root / "btop" / "themes" / f"{t.name}.theme": render_btop_theme(t),
+    """The files that hold only the *active* theme, written outright."""
+    return {
         repo.root / "nvim" / "lua" / "zenix" / "palette.lua": render_nvim_palette(t),
         repo.root / "shell" / "Commons" / "Color.qml": render_shell_color(t),
     }
-    if generates_qt_colors(t):
-        out[repo.root / "qt6ct" / "colors" / f"{t.name}.conf"] = render_qt6ct_colors(t)
-    return out
 
 
 # (path, rewriter) for every file whose text is preserved around the change.
@@ -754,6 +767,7 @@ def rewritten_files(t: Theme, repo) -> dict[Path, str]:
 
 def plan(t: Theme, repo) -> dict[Path, str]:
     """Everything `zenix theme set` would write, as {path: text}."""
-    files = generated_files(t, repo)
+    files = selectable_files(repo)
+    files.update(generated_files(t, repo))
     files.update(rewritten_files(t, repo))
     return files

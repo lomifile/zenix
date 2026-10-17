@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from zenix import theme as gen
+from zenix.commands.theme import THEME_VAR
 from zenix.commands.timezone import live_zone
 from zenix.commands.wallpaper import DESKTOP_VAR, GREETER_VAR, SDDM_THEME_DIR
 from zenix.console import header, info, paint
@@ -28,6 +30,21 @@ def cmd_status(ctx, repo, args) -> None:
         _row(label, name, missing)
     deployed = SDDM_THEME_DIR / "background.png"
     _row("greeter@", "installed" if deployed.is_file() else "not deployed", f"  ({deployed})")
+
+    print(f"\n  {paint('1', 'theme')}")
+    name = repo.read_shell_var(THEME_VAR)
+    _row("name", name or paint("31", "unset"))
+    if name in gen.names(repo):
+        t = gen.load(repo, name)
+        files = gen.plan(t, repo)
+        fresh = sum(1 for p, text in files.items() if p.is_file() and p.read_text() == text)
+        drift = "" if fresh == len(files) else paint("33", "  run `zenix theme set`")
+        _row("palette", f"{t.label} · {t.meta['background']}")
+        _row("surfaces", f"{fresh}/{len(files)} in sync", drift)
+    elif name:
+        _row("palette", paint("31", f"themes/{name}.json is missing"))
+    conf = SDDM_THEME_DIR / "theme.conf"
+    _row("greeter@", "installed" if conf.is_file() else "not deployed", f"  ({conf})")
 
     print(f"\n  {paint('1', 'keyboard')}")
     _row("hyprland", repo.read_lua_field("kb_layout"),
