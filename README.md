@@ -3,11 +3,13 @@
 A macOS-flavoured Arch Linux desktop — Hyprland, Quickshell, Neovim — kept in
 one repo and installed by one script.
 
-The editor, terminal, status bars, picker and git UI all share one palette
-(Xcode Dark); the compositor's own surfaces follow macOS Sonoma. Most configs
-are symlinks back into this checkout, so a change made on the machine is a
-change made to the repo — the few that cannot be are generated or patched
-instead, and [How installing works](#how-installing-works) says which and why.
+Every surface — editor, terminal, bar, launcher, popups, lock screen, greeter —
+is painted from one named theme, switched with `zenix theme set`. Five ship:
+the four Catppuccin flavours and `xcode-zenix`, the original Xcode Dark and
+macOS Sonoma pairing. Most configs are symlinks back into this checkout, so a
+change made on the machine is a change made to the repo — the few that cannot
+be are generated or patched instead, and
+[How installing works](#how-installing-works) says which and why.
 
 ```
 ./install.sh              # full install
@@ -29,7 +31,8 @@ assumes Hyprland on Wayland.
 | `hypr/` | `hyprland.lua`, hypridle, hyprlock, hyprpaper |
 | `shell/` | zenix-shell — one Quickshell process hosting every popup |
 | `bin/zenix-shell` | the IPC wrapper every popup keybind calls |
-| `nvim/` | LazyVim config and the `xcode-zenix` colorscheme |
+| `themes/` | one JSON per theme — the source every surface is generated from |
+| `nvim/` | LazyVim config and the `zenix` colorscheme |
 | `waybar/` | bar config, style, and the module scripts |
 | `ghostty/`, `tmux/`, `lazygit/`, `fzf/`, `btop/`, `fastfetch/` | terminal and TUI configs, all on the Xcode palette |
 | `wofi/` | the launcher, styled after Spotlight rather than the editor palette |
@@ -94,26 +97,87 @@ In zsh: `Ctrl`+`F` opens the tmux sessionizer, `Ctrl`+`A` attaches a session,
 
 ## The theme
 
-One palette, Xcode Dark, applied everywhere:
+One palette, named in `themes/`, applied to every surface at once:
 
 ```
-background #292a30   keywords #ff7ab2   strings  #ff8170   numbers  #d9c97c
-foreground #dfdfe0   comments #7f8c98   preproc  #ffa14f   selected #414453
+zenix theme list                      # the five, current one tagged
+zenix theme current                   # and whether every surface agrees
+zenix theme set catppuccin-mocha
+zenix theme show catppuccin-latte     # the resolved palette, role by role
 ```
 
-`nvim/lua/xcode-zenix/` is a colorscheme written for this repo rather than a
-plugin. It reproduces the part most ports skip: Xcode colours identifiers in
-three tiers by origin — a type you declared, a type from your project, a type
-from a framework — which is mapped onto Neovim's LSP semantic tokens, so it
-behaves like Xcode rather than merely looking like it.
+| | |
+|---|---|
+| `catppuccin-mocha` | the default — darkest flavour, blue accent |
+| `catppuccin-macchiato`, `catppuccin-frappe` | the same, one and two steps lighter |
+| `catppuccin-latte` | the light flavour |
+| `xcode-zenix` | the original: Xcode Dark for the editor, macOS Sonoma for the desktop |
 
-The terminal carries the same sixteen ANSI colours, which is what makes the rest
-fall into place: `eza` and `fd` colour through those slots, so `fzf` previews and
-directory listings match without either tool needing a theme of its own.
+A theme file is the *only* place a colour is written by hand. Everything else
+is generated from it, one of four ways depending on how much the target file
+carries besides colour: written outright when it is nothing but palette
+(`ghostty/themes/`, `btop/themes/`, `qt6ct/colors/`, nvim's palette module,
+`shell/Commons/Color.qml`); only the region between `>>> zenix theme <<<`
+markers when there is layout worth keeping (both GTK stylesheets, as
+`@define-color` declarations the rules then reference; `hyprland.lua`;
+`fzfrc`; `tmux/themes.sh`; the greeter's `theme.conf`; the agenda script);
+anchored on structure where the app rewrites the file and drops comments
+(`lazygit/config.yml`); or a single selector line the app reads for itself
+(ghostty, btop, qt6ct, fastfetch, and the `gsettings` calls in
+`hyprland.lua`). The roles are the names the repo already used, so nothing was
+invented to fit — `themes/xcode-zenix.json` is the old hand-written values
+extracted verbatim, and selecting it reproduces them byte for byte. That is
+also the test: `zenix theme set xcode-zenix` must leave `git diff` empty.
+
+Generated output is committed, so `install.sh` only ever links it — the
+generator is `zenix theme set` and nothing else. Apps that select a theme by
+name get a file for *every* theme, so those directories are always complete.
+
+```
+background #1e1e2e   keywords #f5c2e7   strings  #f38ba8   numbers  #f9e2af
+foreground #cdd6f4   comments #6c7086   preproc  #fab387   selected #45475a
+```
+
+Three mappings are judgement calls rather than lookups, and are commented
+where they are made. `on_accent` is the one that matters: Sonoma's accent is a
+dark blue carrying white text, and every Catppuccin blue is light and cannot —
+leave it white and waybar's active workspace pill measures 2.1:1. The
+white-alpha overlays become a ladder of eight tinted to each flavour's text
+colour; they stay *alpha* rather than taking Catppuccin's opaque surfaces,
+because the shell's cards are blurred by the layer rule in `hyprland.lua` and
+an opaque fill would throw that away. And a focused window border, which was a
+macOS white hairline with no analogue here, becomes a blue-to-sapphire
+gradient, with group borders on lavender so a grouped window stays
+distinguishable from a merely focused one.
+
+`themes/make-catppuccin.py` is a dev-time tool, not part of the CLI: it maps
+the upstream Catppuccin palettes onto these roles and writes the four flavour
+files, so changing the accent is one constant rather than 4 × 40 values.
+`--check` fails if the committed files have drifted from it.
+
+Two themes need packages: the GTK theme (`catppuccin-gtk-theme-*`, one per
+flavour, each shipping all fourteen accents) and the recoloured Papirus
+folders. Both are in `packages/aur.txt`. `zenix theme set` warns if the GTK
+theme a theme names is not installed, because `GTK_THEME` is read at session
+start — an uninstalled name shows up as every GTK3 app falling back to a light
+theme at next login rather than as an error now.
+
+`nvim/lua/zenix/` is a colorscheme written for this repo rather than a plugin.
+It reproduces the part most ports skip: Xcode colours identifiers in three
+tiers by origin — a type you declared, a type from your project, a type from a
+framework — which is mapped onto Neovim's LSP semantic tokens, so it behaves
+like Xcode rather than merely looking like it. That structure is the palette's,
+not Xcode's, so it survives the switch: under Catppuccin the three tiers are
+blue, teal and lavender.
+
+The terminal carries the same sixteen ANSI colours, which is what makes the
+rest fall into place: `eza` and `fd` colour through those slots, so `fzf`
+previews and directory listings match without either tool needing a theme of
+its own. The Catppuccin themes use Catppuccin's own slot mapping rather than
+Xcode's, because that is what those ports are tuned for.
 
 The editor chrome is Sublime-shaped rather than Xcode-shaped — a flat status
-bar, tabs that sit on the editor background, a sidebar with no file icons — on
-the Xcode palette.
+bar, tabs that sit on the editor background, a sidebar with no file icons.
 
 `fastfetch/config.jsonc` reports the desktop rather than just the machine:
 alongside os, kernel and hardware it names the compositor, the bar, how many
@@ -124,9 +188,9 @@ the way the popups rule theirs, every row carries a Nerd Font icon, and colours
 are ANSI indexes rather than hex so the terminal's own palette drives them —
 the closing block is that palette, all sixteen slots. `ff` in zsh is the alias.
 
-`btop/themes/xcode-zenix.theme` leaves `main_bg` empty so the meters sit on
+`btop/themes/<theme>.theme` leaves `main_bg` empty so the meters sit on
 ghostty's own translucent background and Hyprland's blur, and takes its
-gradients from the macOS system colours the bar already uses — CPU green through
+gradients from the same roles the bar's meters use — CPU green through
 amber to red, memory blue — so the meter you clicked and the box that opens are
 the same colour. `btop/btop.conf` is linked, not generated: btop rewrites the
 whole file when a setting changes in-app, so those edits land in the repo the

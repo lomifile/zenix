@@ -1,7 +1,7 @@
 # zenix
 
-CLI for the parts of the [zenix](..) setup that change often: wallpapers, the
-keyboard layout, the SDDM background and the timezone.
+CLI for the parts of the [zenix](..) setup that change often: the colour
+theme, wallpapers, the keyboard layout, the SDDM background and the timezone.
 
 Every command writes the **repo** first and only then touches the running
 system. The repo is what `install.sh` rebuilds a machine from, so a change
@@ -9,6 +9,10 @@ applied live but not written back would be lost on the next rebuild.
 
 ```
 zenix status                          # what is configured where, repo vs live
+zenix theme list                      # the themes in themes/, current one tagged
+zenix theme current                   # and whether every surface agrees
+zenix theme show NAME                 # the resolved palette, role by role
+zenix theme set NAME                  # repaint every surface
 zenix wallpaper list
 zenix wallpaper set NAME [--greeter]  # a name in assets/wallpaper/, or a path
 zenix keyboard list [FILTER]
@@ -19,6 +23,31 @@ zenix timezone set ZONE
 
 `-n/--dry-run` changes nothing; `--no-apply` writes the repo but leaves the
 running system alone.
+
+## Themes
+
+`zenix theme set` is the only thing that writes a generated config. It reads
+one `themes/<name>.json` and renders every surface from it — see
+[The theme](../README.md#the-theme) for how each file is handled — then tells
+the daemons that can take the change live.
+
+Most configs are symlinks into the repo, so writing the repo *is* writing the
+live config; the apply step is mostly reloads. What cannot be done to a running
+process is reported rather than claimed: ghostty picks up `theme =` for new
+windows only, nvim/lazygit/fzf/btop on next launch, and the greeter and the
+GTK3 session at next login.
+
+Three things are worth knowing because they bite silently:
+
+- **btop rewrites `btop.conf` when it exits**, so quitting a btop that was open
+  during a switch puts the old `color_theme` back. The command warns if one is
+  running.
+- **`GTK_THEME` beats gsettings for GTK3**, and it is set in `hyprland.lua` at
+  session start. So the gsettings call is live for GTK4 and portal apps but
+  cosmetic for GTK3 until next login — and if the theme it names is not
+  installed, that next login is when you would find out. The command checks.
+- **The folder colour is global system state**, not a per-theme file, so every
+  theme names one explicitly and switching back restores it.
 
 ## Finding the repo
 
