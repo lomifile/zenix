@@ -1,4 +1,4 @@
-local c = require("xcode-zenix.palette")
+local c = require("zenix.palette")
 
 local function bar(fg, gui)
   return { fg = fg, bg = c.bg_chrome, gui = gui }

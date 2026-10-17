@@ -628,9 +628,9 @@ function M.load()
   end
   vim.o.termguicolors = true
   vim.o.background = "dark"
-  vim.g.colors_name = "xcode-zenix"
+  vim.g.colors_name = "zenix"
 
-  local c = require("xcode-zenix.palette")
+  local c = require("zenix.palette")
   terminal(c)
 
   local editor_bg = M.options.transparent and "NONE" or c.bg

@@ -1,12 +1,12 @@
 local function palette()
-  return require("xcode-zenix.palette")
+  return require("zenix.palette")
 end
 
 return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "xcode-zenix",
+      colorscheme = "zenix",
     },
   },
   {
@@ -61,7 +61,7 @@ return {
       end
 
       opts.options = vim.tbl_deep_extend("force", opts.options or {}, {
-        theme = "xcode-zenix",
+        theme = "zenix",
         section_separators = "",
         component_separators = "",
         globalstatus = true,
