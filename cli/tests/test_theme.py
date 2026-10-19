@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -150,6 +151,26 @@ class RewriteLazygit(unittest.TestCase):
         t = theme.Theme("fixture", json.loads(json.dumps(FIXTURE_THEME)))
         once = theme.rewrite_lazygit(self.config(), t)
         self.assertEqual(once, theme.rewrite_lazygit(once, t))
+
+    def test_theme_keys_lazygit_owns_survive(self):
+        t = theme.Theme("fixture", json.loads(json.dumps(FIXTURE_THEME)))
+        config = self.config().replace(
+            "  commitLength:\n",
+            "    authorColors:\n"
+            "      alice: '#ff0000'\n"
+            "    branchColorPatterns: {}\n"
+            "  commitLength:\n",
+        )
+        out = theme.rewrite_lazygit(config, t)
+        self.assertIn(
+            "    authorColors:\n"
+            "      alice: '#ff0000'\n"
+            "    branchColorPatterns: {}\n"
+            "  commitLength:\n",
+            out,
+        )
+        self.assertNotIn("#oldold", out)
+        self.assertEqual(out, theme.rewrite_lazygit(out, t))
 
     def test_a_config_without_a_theme_block_is_refused(self):
         t = theme.Theme("fixture", json.loads(json.dumps(FIXTURE_THEME)))
@@ -328,6 +349,13 @@ class Renderers(RepoCase):
         for name in ("washFaint", "washDim", "washSoft", "wash", "washBorder",
                      "washHover", "washStrong", "washBold"):
             self.assertIn(f"property color {name}:", out)
+
+    def test_no_color_qml_property_reads_as_a_signal_handler(self):
+        out = theme.render_shell_color(self.theme())
+        names = re.findall(r"property color (\w+):", out)
+        self.assertTrue(names)
+        for name in names:
+            self.assertIsNone(re.match(r"on[A-Z]", name), name)
 
     def test_the_qt_scheme_has_twenty_one_roles_in_three_groups(self):
         out = theme.render_qt6ct_colors(self.theme())

@@ -290,7 +290,7 @@ QtObject {{
   // Text and glyphs that sit *on* an accent fill. Not always white: on a light
   // accent -- any of the Catppuccin blues -- white reads as a smudge, so this
   // flips to the darkest surface instead.
-  readonly property color onAccent: "{d['on_accent']}"
+  readonly property color accentForeground: "{d['on_accent']}"
 
   // Overlay washes, lightest first. Named by weight rather than by use so one
   // value can serve a fill and a hairline alike. They stay alpha rather than
@@ -642,6 +642,18 @@ def rewrite_lazygit(text: str, t: Theme) -> str:
     m = pat.search(text)
     if not m:
         die("lazygit/config.yml has no `  theme:` block; the CLI and the config are out of sync")
+
+    owned = {key for key, _, _ in LAZYGIT_THEME_KEYS}
+    keep = False
+    for line in m.group(0).splitlines():
+        entry = re.match(r"^    (\w+):", line)
+        if entry:
+            keep = entry.group(1) not in owned
+        elif not line.startswith("      "):
+            keep = False
+        if keep:
+            lines.append(line)
+
     return text[: m.start()] + "\n".join(lines) + "\n" + text[m.end():]
 
 

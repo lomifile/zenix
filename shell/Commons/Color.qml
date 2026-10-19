@@ -30,7 +30,7 @@ QtObject {
   // Text and glyphs that sit *on* an accent fill. Not always white: on a light
   // accent -- any of the Catppuccin blues -- white reads as a smudge, so this
   // flips to the darkest surface instead.
-  readonly property color onAccent: "#11111b"
+  readonly property color accentForeground: "#11111b"
 
   // Overlay washes, lightest first. Named by weight rather than by use so one
   // value can serve a fill and a hairline alike. They stay alpha rather than
