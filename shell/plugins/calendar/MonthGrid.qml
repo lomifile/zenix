@@ -64,7 +64,7 @@ Item {
           // stays as narrow as the grid under it.
           text: Qt.locale().dayName((index + 1) % 7, Locale.ShortFormat)
             .charAt(0).toUpperCase()
-          color: Color.faint
+          color: Theme.faint
           font.family: Style.font.family
           font.pixelSize: Style.font.small
           font.weight: Font.DemiBold
@@ -94,15 +94,15 @@ Item {
           width: root.cell - 4
           height: root.cell - 4
           radius: width / 2
-          color: modelData.isToday ? Color.red : "transparent"
+          color: modelData.isToday ? Theme.red : "transparent"
         }
 
         Text {
           anchors.centerIn: parent
           text: modelData.day
           color: modelData.isToday
-            ? Color.foreground
-            : (modelData.inMonth ? Color.foreground : Color.faint)
+            ? Theme.foreground
+            : (modelData.inMonth ? Theme.foreground : Theme.faint)
           font.family: Style.font.family
           font.pixelSize: Style.font.body
           font.weight: modelData.isToday ? Font.DemiBold : Font.Normal

@@ -158,7 +158,7 @@ Item {
 
         Text {
           text: "Keybindings"
-          color: Color.foreground
+          color: Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.title
           font.weight: Font.DemiBold
@@ -170,7 +170,7 @@ Item {
           text: root.filtering
             ? root.total + (root.total === 1 ? " match" : " matches")
             : "SUPER unless a key says otherwise"
-          color: Color.muted
+          color: Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.small
         }
@@ -186,14 +186,14 @@ Item {
 
         Text {
           text: "/"
-          color: Color.accent
+          color: Theme.accent
           font.family: Style.font.mono
           font.pixelSize: Style.font.body
         }
 
         Text {
           text: root.filter.length > 0 ? root.filter : "filter by key or action"
-          color: root.filter.length > 0 ? Color.foreground : Color.faint
+          color: root.filter.length > 0 ? Theme.foreground : Theme.faint
           font.family: Style.font.family
           font.pixelSize: Style.font.body
           elide: Text.ElideRight
@@ -204,7 +204,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       Item {
@@ -216,7 +216,7 @@ Item {
           anchors.centerIn: parent
           visible: root.groups.length === 0
           text: "Nothing matches “" + root.filter + "”"
-          color: Color.muted
+          color: Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.body
         }
@@ -270,7 +270,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       RowLayout {
@@ -289,7 +289,7 @@ Item {
 
         Text {
           text: root.total + " binds"
-          color: Color.faint
+          color: Theme.faint
           font.family: Style.font.mono
           font.pixelSize: Style.font.small
         }

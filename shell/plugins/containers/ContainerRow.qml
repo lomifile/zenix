@@ -19,7 +19,7 @@ Rectangle {
 
   implicitHeight: 46
   radius: Style.rowRadius
-  color: selected ? Color.selection : (hover.hovered ? Color.elevated : "transparent")
+  color: selected ? Theme.selection : (hover.hovered ? Theme.elevated : "transparent")
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }
@@ -28,19 +28,19 @@ Rectangle {
   // Dead and exited both mean "not running", but only one of them is a
   // failure, so they do not get the same color.
   readonly property color stateColor: {
-    if (row.busy) return Color.amber
+    if (row.busy) return Theme.amber
     switch (container.state) {
     case "running":
-      if (container.health === "unhealthy") return Color.amber
-      return Color.green
+      if (container.health === "unhealthy") return Theme.amber
+      return Theme.green
     case "restarting":
     case "removing":
     case "paused":
-      return Color.amber
+      return Theme.amber
     case "dead":
-      return Color.red
+      return Theme.red
     default:
-      return Color.grey
+      return Theme.grey
     }
   }
 
@@ -78,7 +78,7 @@ Rectangle {
 
       Text {
         text: row.container.name
-        color: Color.foreground
+        color: Theme.foreground
         font.family: Style.font.family
         font.pixelSize: Style.font.body
         elide: Text.ElideRight
@@ -91,7 +91,7 @@ Rectangle {
         text: row.busy
           ? row.container.image + "  ·  " + row.container.state + "ing…"
           : row.container.image + "  ·  " + row.container.status
-        color: Color.muted
+        color: Theme.muted
         font.family: Style.font.family
         font.pixelSize: Style.font.small
         elide: Text.ElideMiddle
@@ -101,7 +101,7 @@ Rectangle {
 
     Text {
       text: row.container.ports
-      color: Color.faint
+      color: Theme.faint
       font.family: Style.font.mono
       font.pixelSize: Style.font.small
       horizontalAlignment: Text.AlignRight
@@ -112,7 +112,7 @@ Rectangle {
 
     Text {
       text: row.container.cpu
-      color: Color.muted
+      color: Theme.muted
       font.family: Style.font.mono
       font.pixelSize: Style.font.small
       horizontalAlignment: Text.AlignRight
@@ -122,7 +122,7 @@ Rectangle {
 
     Text {
       text: row.container.mem
-      color: Color.muted
+      color: Theme.muted
       font.family: Style.font.mono
       font.pixelSize: Style.font.small
       horizontalAlignment: Text.AlignRight

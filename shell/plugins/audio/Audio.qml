@@ -184,7 +184,7 @@ Item {
 
         Text {
           text: "Sound"
-          color: Color.foreground
+          color: Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.title
           font.weight: Font.DemiBold
@@ -202,7 +202,7 @@ Item {
             return sink.description + "  ·  "
               + (sink.mute ? "muted" : audio.volumeOf(sink) + "%")
           }
-          color: audio.lastActionError.length > 0 ? Color.red : Color.muted
+          color: audio.lastActionError.length > 0 ? Theme.red : Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.small
           elide: Text.ElideRight
@@ -220,14 +220,14 @@ Item {
 
         Text {
           text: "/"
-          color: Color.accent
+          color: Theme.accent
           font.family: Style.font.mono
           font.pixelSize: Style.font.body
         }
 
         Text {
           text: root.filter.length > 0 ? root.filter : "filter by device name"
-          color: root.filter.length > 0 ? Color.foreground : Color.faint
+          color: root.filter.length > 0 ? Theme.foreground : Theme.faint
           font.family: Style.font.family
           font.pixelSize: Style.font.body
           elide: Text.ElideRight
@@ -238,7 +238,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       ListView {
@@ -312,7 +312,7 @@ Item {
           if (audio.error.length > 0) return audio.error
           return "No audio devices.  Is pipewire running?"
         }
-        color: audio.error.length > 0 ? Color.red : Color.faint
+        color: audio.error.length > 0 ? Theme.red : Theme.faint
         font.family: Style.font.family
         font.pixelSize: Style.font.body
         wrapMode: Text.WordWrap
@@ -321,7 +321,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       RowLayout {

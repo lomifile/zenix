@@ -19,7 +19,7 @@ Item {
 
     Text {
       text: root.label
-      color: Color.faint
+      color: Theme.faint
       font.family: Style.font.family
       font.pixelSize: Style.font.small
       font.weight: Font.DemiBold
@@ -30,12 +30,12 @@ Item {
     Rectangle {
       Layout.fillWidth: true
       implicitHeight: 1
-      color: Color.separator
+      color: Theme.separator
     }
 
     Text {
       text: root.trailing
-      color: Color.faint
+      color: Theme.faint
       font.family: Style.font.family
       font.pixelSize: Style.font.small
     }

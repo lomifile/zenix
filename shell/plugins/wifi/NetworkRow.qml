@@ -18,24 +18,24 @@ Rectangle {
 
   implicitHeight: 46
   radius: Style.rowRadius
-  color: selected ? Color.selection : (hover.hovered ? Color.elevated : "transparent")
+  color: selected ? Theme.selection : (hover.hovered ? Theme.elevated : "transparent")
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }
   }
 
   readonly property color stateColor: {
-    if (row.busy) return Color.amber
-    if (network.active) return Color.green
-    if (network.known) return Color.grey
-    return Color.faint
+    if (row.busy) return Theme.amber
+    if (network.active) return Theme.green
+    if (network.known) return Theme.grey
+    return Theme.faint
   }
 
   // Signal is a percentage from NetworkManager, not dBm.
   readonly property color signalColor: {
-    if (network.signal >= 60) return Color.muted
-    if (network.signal >= 35) return Color.amber
-    return Color.red
+    if (network.signal >= 60) return Theme.muted
+    if (network.signal >= 35) return Theme.amber
+    return Theme.red
   }
 
   HoverHandler {
@@ -65,7 +65,7 @@ Rectangle {
 
       Text {
         text: row.network.ssid
-        color: Color.foreground
+        color: Theme.foreground
         font.family: Style.font.family
         font.pixelSize: Style.font.body
         elide: Text.ElideRight
@@ -81,7 +81,7 @@ Rectangle {
           bits.push(row.network.secured ? row.network.security : "open")
           return bits.join("  ·  ")
         }
-        color: Color.muted
+        color: Theme.muted
         font.family: Style.font.family
         font.pixelSize: Style.font.small
         elide: Text.ElideRight
@@ -93,7 +93,7 @@ Rectangle {
     // worth spotting, so the absence of a lock is the signal.
     Text {
       text: row.network.secured ? "" : ""
-      color: Color.faint
+      color: Theme.faint
       font.family: Style.font.mono
       font.pixelSize: Style.font.small
       Layout.alignment: Qt.AlignVCenter

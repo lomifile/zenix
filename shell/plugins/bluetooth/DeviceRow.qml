@@ -18,18 +18,18 @@ Rectangle {
 
   implicitHeight: 46
   radius: Style.rowRadius
-  color: selected ? Color.selection : (hover.hovered ? Color.elevated : "transparent")
+  color: selected ? Theme.selection : (hover.hovered ? Theme.elevated : "transparent")
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }
   }
 
   readonly property color stateColor: {
-    if (row.busy) return Color.amber
-    if (device.connected) return Color.green
-    if (device.paired) return Color.grey
+    if (row.busy) return Theme.amber
+    if (device.connected) return Theme.green
+    if (device.paired) return Theme.grey
     // Seen in a scan but never paired: not a failure, just not yours yet.
-    return Color.faint
+    return Theme.faint
   }
 
   // bluez reports a freedesktop icon name; this is only for the label under
@@ -80,7 +80,7 @@ Rectangle {
 
       Text {
         text: row.device.name
-        color: Color.foreground
+        color: Theme.foreground
         font.family: Style.font.family
         font.pixelSize: Style.font.body
         elide: Text.ElideRight
@@ -95,7 +95,7 @@ Rectangle {
           if (row.device.paired && !row.device.trusted) bits.push("untrusted")
           return bits.join("  ·  ")
         }
-        color: Color.muted
+        color: Theme.muted
         font.family: Style.font.family
         font.pixelSize: Style.font.small
         elide: Text.ElideRight
@@ -107,11 +107,11 @@ Rectangle {
     Text {
       text: row.device.battery.length > 0 ? row.device.battery + "%" : ""
       color: {
-        if (row.device.battery.length === 0) return Color.faint
+        if (row.device.battery.length === 0) return Theme.faint
         var level = parseInt(row.device.battery)
-        if (level <= 15) return Color.red
-        if (level <= 30) return Color.amber
-        return Color.muted
+        if (level <= 15) return Theme.red
+        if (level <= 30) return Theme.amber
+        return Theme.muted
       }
       font.family: Style.font.mono
       font.pixelSize: Style.font.small

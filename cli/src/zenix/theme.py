@@ -256,7 +256,7 @@ def render_nvim_palette(t: Theme) -> str:
     return "\n".join(out)
 
 
-def render_shell_color(t: Theme) -> str:
+def render_shell_theme(t: Theme) -> str:
     d, w = t.desktop, t.washes
     return f"""pragma Singleton
 
@@ -727,7 +727,7 @@ def generated_files(t: Theme, repo) -> dict[Path, str]:
     """The files that hold only the *active* theme, written outright."""
     return {
         repo.root / "nvim" / "lua" / "zenix" / "palette.lua": render_nvim_palette(t),
-        repo.root / "shell" / "Commons" / "Color.qml": render_shell_color(t),
+        repo.root / "shell" / "Commons" / "Theme.qml": render_shell_theme(t),
     }
 
 

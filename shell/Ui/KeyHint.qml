@@ -19,13 +19,13 @@ Row {
     width: Math.max(18, keyText.implicitWidth + Style.gap)
     height: 16
     radius: 4
-    color: Color.elevated
+    color: Theme.elevated
 
     Text {
       id: keyText
       anchors.centerIn: parent
       text: root.key
-      color: Color.muted
+      color: Theme.muted
       font.family: Style.font.mono
       font.pixelSize: Style.font.small
     }
@@ -34,7 +34,7 @@ Row {
   Text {
     anchors.verticalCenter: parent.verticalCenter
     text: root.label
-    color: Color.faint
+    color: Theme.faint
     font.family: Style.font.family
     font.pixelSize: Style.font.small
   }

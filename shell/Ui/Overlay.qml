@@ -76,7 +76,7 @@ Item {
 
     Rectangle {
       anchors.fill: parent
-      color: Color.scrim
+      color: Theme.scrim
       opacity: root.opened ? 1 : 0
       Behavior on opacity {
         NumberAnimation { duration: Style.fast; easing.type: Easing.OutQuad }
@@ -95,10 +95,10 @@ Item {
       height: root.cardHeight
       anchors.centerIn: parent
 
-      color: Color.background
+      color: Theme.background
       radius: Style.radius
       border.width: Style.border
-      border.color: Color.border
+      border.color: Theme.border
       clip: true
 
       opacity: root.opened ? 1 : 0

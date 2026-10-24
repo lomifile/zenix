@@ -8,7 +8,7 @@ import qs.Commons
 Item {
   id: root
 
-  property color dotColor: Color.grey
+  property color dotColor: Theme.grey
   property bool pulsing: false
   property int diameter: 8
 

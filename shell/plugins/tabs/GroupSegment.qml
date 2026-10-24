@@ -19,7 +19,7 @@ RowLayout {
     implicitWidth: 1
     Layout.preferredHeight: 16
     Layout.alignment: Qt.AlignVCenter
-    color: Color.separator
+    color: Theme.separator
   }
 
   Repeater {

@@ -104,7 +104,7 @@ class CmdSet(ThemeCase):
         self.assertTrue((self.root / "ghostty" / "themes" / "fixture").is_file())
         self.assertTrue((self.root / "btop" / "themes" / "fixture.theme").is_file())
         self.assertTrue((self.root / "nvim" / "lua" / "zenix" / "palette.lua").is_file())
-        self.assertTrue((self.root / "shell" / "Commons" / "Color.qml").is_file())
+        self.assertTrue((self.root / "shell" / "Commons" / "Theme.qml").is_file())
 
     def test_records_the_choice_in_install_sh(self):
         make_theme(self.root, "other")

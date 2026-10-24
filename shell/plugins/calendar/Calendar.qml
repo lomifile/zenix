@@ -99,7 +99,7 @@ Item {
 
         Text {
           text: month.title
-          color: Color.foreground
+          color: Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.title
           font.weight: Font.DemiBold
@@ -119,7 +119,7 @@ Item {
             return "updated " + agenda.ageMinutes + " min ago"
           }
           color: agenda.error.length > 0 && !agenda.refreshing
-            ? Color.red : Color.faint
+            ? Theme.red : Theme.faint
           font.family: Style.font.family
           font.pixelSize: Style.font.small
           elide: Text.ElideRight
@@ -145,7 +145,7 @@ Item {
         Rectangle {
           Layout.fillHeight: true
           implicitWidth: 1
-          color: Color.separator
+          color: Theme.separator
         }
 
         // --- today's agenda ----------------------------------------------
@@ -157,7 +157,7 @@ Item {
 
           Text {
             text: "Today"
-            color: Color.foreground
+            color: Theme.foreground
             font.family: Style.font.family
             font.pixelSize: Style.font.body
             font.weight: Font.DemiBold
@@ -165,7 +165,7 @@ Item {
 
           Text {
             text: root.today.toLocaleDateString(Qt.locale(), "dddd, dd MMMM")
-            color: Color.muted
+            color: Theme.muted
             font.family: Style.font.family
             font.pixelSize: Style.font.small
             Layout.bottomMargin: Style.gap
@@ -191,7 +191,7 @@ Item {
                 Layout.minimumHeight: 28
                 implicitWidth: 3
                 radius: 2
-                color: Color.accent
+                color: Theme.accent
               }
 
               ColumnLayout {
@@ -201,14 +201,14 @@ Item {
                 Text {
                   text: modelData.time && modelData.time.length > 0
                     ? modelData.time : "All day"
-                  color: Color.muted
+                  color: Theme.muted
                   font.family: Style.font.family
                   font.pixelSize: Style.font.small
                 }
 
                 Text {
                   text: modelData.title
-                  color: Color.foreground
+                  color: Theme.foreground
                   font.family: Style.font.family
                   font.pixelSize: Style.font.body
                   wrapMode: Text.WordWrap
@@ -226,7 +226,7 @@ Item {
             text: agenda.error.length > 0
               ? "Nothing to show"
               : "No events today"
-            color: Color.faint
+            color: Theme.faint
             font.family: Style.font.family
             font.pixelSize: Style.font.body
             Layout.fillWidth: true
@@ -238,7 +238,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       // --- footer ----------------------------------------------------------

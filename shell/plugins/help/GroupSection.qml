@@ -19,7 +19,7 @@ ColumnLayout {
 
     Text {
       text: root.title
-      color: Color.faint
+      color: Theme.faint
       font.family: Style.font.family
       font.pixelSize: Style.font.small
       font.weight: Font.DemiBold
@@ -30,7 +30,7 @@ ColumnLayout {
     Rectangle {
       Layout.fillWidth: true
       implicitHeight: 1
-      color: Color.separator
+      color: Theme.separator
     }
   }
 

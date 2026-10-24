@@ -120,7 +120,7 @@ A theme file is the *only* place a colour is written by hand. Everything else
 is generated from it, one of four ways depending on how much the target file
 carries besides colour: written outright when it is nothing but palette
 (`ghostty/themes/`, `btop/themes/`, `qt6ct/colors/`, nvim's palette module,
-`shell/Commons/Color.qml`); only the region between `>>> zenix theme <<<`
+`shell/Commons/Theme.qml`); only the region between `>>> zenix theme <<<`
 markers when there is layout worth keeping (both GTK stylesheets, as
 `@define-color` declarations the rules then reference; `hyprland.lua`;
 `fzfrc`; `tmux/themes.sh`; the greeter's `theme.conf`; the agenda script);

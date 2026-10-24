@@ -341,17 +341,17 @@ class Renderers(RepoCase):
             self.assertIn(f"  {role} = ", out)
 
     def test_color_qml_spells_translucent_roles_with_their_alpha(self):
-        out = theme.render_shell_color(self.theme())
+        out = theme.render_shell_theme(self.theme())
         self.assertIn(f'background: "{FIXTURE_THEME["desktop"]["card"]}"', out)
 
     def test_color_qml_exposes_the_whole_wash_ladder(self):
-        out = theme.render_shell_color(self.theme())
+        out = theme.render_shell_theme(self.theme())
         for name in ("washFaint", "washDim", "washSoft", "wash", "washBorder",
                      "washHover", "washStrong", "washBold"):
             self.assertIn(f"property color {name}:", out)
 
     def test_no_color_qml_property_reads_as_a_signal_handler(self):
-        out = theme.render_shell_color(self.theme())
+        out = theme.render_shell_theme(self.theme())
         names = re.findall(r"property color (\w+):", out)
         self.assertTrue(names)
         for name in names:

@@ -19,7 +19,7 @@ Rectangle {
   implicitHeight: 96
   radius: 18
 
-  color: selected ? Color.wash : (hover.hovered ? Color.washFaint : "transparent")
+  color: selected ? Theme.wash : (hover.hovered ? Theme.washFaint : "transparent")
   border.width: selected ? 1 : 0
   border.color: selected ? tint : "transparent"
 
@@ -64,7 +64,7 @@ Rectangle {
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
       text: tile.action.label
-      color: tile.selected ? Color.foreground : Color.faint
+      color: tile.selected ? Theme.foreground : Theme.faint
       font.family: Style.font.family
       font.pixelSize: Style.font.small
       font.weight: tile.selected ? Font.DemiBold : Font.Normal

@@ -36,15 +36,15 @@ Item {
             width: Math.max(18, chip.implicitWidth + Style.gap)
             height: 17
             radius: 4
-            color: Color.elevated
+            color: Theme.elevated
             border.width: Style.border
-            border.color: Color.separator
+            border.color: Theme.separator
 
             Text {
               id: chip
               anchors.centerIn: parent
               text: parent.modelData
-              color: Color.foreground
+              color: Theme.foreground
               font.family: Style.font.mono
               font.pixelSize: Style.font.small
             }
@@ -56,7 +56,7 @@ Item {
     Text {
       Layout.fillWidth: true
       text: root.label
-      color: Color.muted
+      color: Theme.muted
       font.family: Style.font.family
       font.pixelSize: Style.font.body
       elide: Text.ElideRight

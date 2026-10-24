@@ -25,12 +25,12 @@ Rectangle {
   clip: true
 
   color: active
-    ? Color.washStrong
-    : (hover.hovered ? Color.washDim : "transparent")
+    ? Theme.washStrong
+    : (hover.hovered ? Theme.washDim : "transparent")
   opacity: dimmed && !active ? 0.5 : 1
 
   border.width: active ? Style.border : 0
-  border.color: Color.washStrong
+  border.color: Theme.washStrong
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }
@@ -62,7 +62,7 @@ Rectangle {
       width: tab.dotSize
       height: tab.dotSize
       radius: tab.dotSize / 2
-      color: Color.green
+      color: Theme.green
       visible: tab.active
     }
 
@@ -74,8 +74,8 @@ Rectangle {
 
       text: tab.model.title
       color: tab.active
-        ? Color.foreground
-        : (hover.hovered ? Color.muted : Color.faint)
+        ? Theme.foreground
+        : (hover.hovered ? Theme.muted : Theme.faint)
       font.family: Style.font.family
       font.pixelSize: Style.font.small
       font.weight: tab.active ? Font.DemiBold : Font.Normal

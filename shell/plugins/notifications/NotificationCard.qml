@@ -35,9 +35,9 @@ Item {
     implicitHeight: layout.implicitHeight + Style.pad * 2
 
     radius: 18
-    color: Color.background
+    color: Theme.background
     border.width: Style.border
-    border.color: Color.border
+    border.color: Theme.border
 
     opacity: card.shown ? 1 : 0
     scale: card.shown ? 1 : 0.94
@@ -79,7 +79,7 @@ Item {
         implicitWidth: 38
         implicitHeight: 38
         radius: 9
-        color: card.iconSource.length > 0 ? "transparent" : Color.elevated
+        color: card.iconSource.length > 0 ? "transparent" : Theme.elevated
 
         IconImage {
           anchors.fill: parent
@@ -92,7 +92,7 @@ Item {
           anchors.centerIn: parent
           visible: card.iconSource.length === 0
           text: card.service.label(card.notification).charAt(0).toUpperCase()
-          color: Color.muted
+          color: Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.title
           font.weight: Font.DemiBold
@@ -110,7 +110,7 @@ Item {
 
           Text {
             text: card.service.label(card.notification)
-            color: Color.muted
+            color: Theme.muted
             font.family: Style.font.family
             font.pixelSize: Style.font.small
             elide: Text.ElideRight
@@ -119,7 +119,7 @@ Item {
 
           Text {
             text: card.service.relativeTime(card.notification)
-            color: Color.faint
+            color: Theme.faint
             font.family: Style.font.family
             font.pixelSize: Style.font.small
           }
@@ -128,7 +128,7 @@ Item {
         Text {
           visible: text.length > 0
           text: card.notification.summary
-          color: Color.foreground
+          color: Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.body
           font.weight: Font.DemiBold
@@ -141,7 +141,7 @@ Item {
         Text {
           visible: text.length > 0
           text: card.notification.body
-          color: Color.muted
+          color: Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.small
           textFormat: Text.StyledText
@@ -167,7 +167,7 @@ Item {
               implicitWidth: actionLabel.implicitWidth + Style.gapWide * 2
               implicitHeight: 24
               radius: 12
-              color: actionHover.hovered ? Color.washHover : Color.elevated
+              color: actionHover.hovered ? Theme.washHover : Theme.elevated
 
               Behavior on color {
                 ColorAnimation { duration: Style.fast }
@@ -185,7 +185,7 @@ Item {
                 id: actionLabel
                 anchors.centerIn: parent
                 text: modelData.text
-                color: Color.foreground
+                color: Theme.foreground
                 font.family: Style.font.family
                 font.pixelSize: Style.font.small
               }
@@ -207,9 +207,9 @@ Item {
       height: 20
       radius: 10
 
-      color: closeHover.hovered ? Color.washBold : Color.washBorder
+      color: closeHover.hovered ? Theme.washBold : Theme.washBorder
       border.width: Style.border
-      border.color: Color.border
+      border.color: Theme.border
 
       opacity: hover.hovered ? 1 : 0
       visible: opacity > 0
@@ -232,7 +232,7 @@ Item {
       Text {
         anchors.centerIn: parent
         text: "✕"
-        color: Color.foreground
+        color: Theme.foreground
         font.family: Style.font.family
         font.pixelSize: 10
       }

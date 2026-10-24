@@ -19,17 +19,17 @@ Rectangle {
 
   implicitHeight: 60
   radius: Style.rowRadius
-  color: selected ? Color.selection : (hover.hovered ? Color.elevated : "transparent")
+  color: selected ? Theme.selection : (hover.hovered ? Theme.elevated : "transparent")
 
   Behavior on color {
     ColorAnimation { duration: Style.fast }
   }
 
   readonly property color stateColor: {
-    if (row.busy) return Color.amber
-    if (row.device.mute) return Color.red
-    if (row.isDefault) return Color.green
-    return Color.faint
+    if (row.busy) return Theme.amber
+    if (row.device.mute) return Theme.red
+    if (row.isDefault) return Theme.green
+    return Theme.faint
   }
 
   readonly property string detail: {
@@ -72,7 +72,7 @@ Rectangle {
 
         Text {
           text: row.device.description
-          color: Color.foreground
+          color: Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.body
           elide: Text.ElideRight
@@ -81,7 +81,7 @@ Rectangle {
 
         Text {
           text: row.detail
-          color: Color.muted
+          color: Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.small
         }
@@ -93,7 +93,7 @@ Rectangle {
 
         Text {
           text: row.device.mute ? "󰝟" : (row.volume === 0 ? "󰕿" : (row.volume < 50 ? "󰖀" : "󰕾"))
-          color: row.device.mute ? Color.red : Color.muted
+          color: row.device.mute ? Theme.red : Theme.muted
           font.family: Style.font.mono
           font.pixelSize: Style.font.body
 
@@ -112,7 +112,7 @@ Rectangle {
 
         Text {
           text: row.volume + "%"
-          color: row.device.mute ? Color.faint : Color.muted
+          color: row.device.mute ? Theme.faint : Theme.muted
           font.family: Style.font.mono
           font.pixelSize: Style.font.small
           horizontalAlignment: Text.AlignRight

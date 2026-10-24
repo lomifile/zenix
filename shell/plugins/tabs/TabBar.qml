@@ -69,9 +69,9 @@ Item {
           height: root.barHeight
           radius: height / 2
 
-          color: Color.background
+          color: Theme.background
           border.width: Style.border
-          border.color: Color.border
+          border.color: Theme.border
 
           opacity: scope.present ? 1 : 0
           scale: scope.present ? 1 : 0.96

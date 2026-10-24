@@ -25,15 +25,15 @@ Item {
     width: parent.width
     height: 4
     radius: 2
-    color: Color.elevated
+    color: Theme.elevated
 
     Rectangle {
       width: parent.width * Math.max(0, Math.min(100, root.value)) / 100
       height: parent.height
       radius: parent.radius
       color: root.muted
-        ? Color.grey
-        : (root.highlighted ? Color.accent : Color.muted)
+        ? Theme.grey
+        : (root.highlighted ? Theme.accent : Theme.muted)
 
       Behavior on color {
         ColorAnimation { duration: Style.fast }
@@ -50,7 +50,7 @@ Item {
     anchors.verticalCenter: parent.verticalCenter
     x: (track.width * Math.max(0, Math.min(100, root.value)) / 100) - width / 2
 
-    color: root.muted ? Color.grey : Color.foreground
+    color: root.muted ? Theme.grey : Theme.foreground
     opacity: root.highlighted || area.pressed || area.containsMouse ? 1 : 0
 
     Behavior on opacity {

@@ -185,7 +185,7 @@ Item {
 
         Text {
           text: "Containers"
-          color: Color.foreground
+          color: Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.title
           font.weight: Font.DemiBold
@@ -202,7 +202,7 @@ Item {
             if (!docker.ready) return "checking…"
             return docker.runningCount + " running · " + docker.stoppedCount + " stopped"
           }
-          color: docker.lastActionError.length > 0 ? Color.red : Color.muted
+          color: docker.lastActionError.length > 0 ? Theme.red : Theme.muted
           font.family: Style.font.family
           font.pixelSize: Style.font.small
           elide: Text.ElideRight
@@ -224,14 +224,14 @@ Item {
 
         Text {
           text: "/"
-          color: Color.accent
+          color: Theme.accent
           font.family: Style.font.mono
           font.pixelSize: Style.font.body
         }
 
         Text {
           text: root.filter.length > 0 ? root.filter : "filter by name or image"
-          color: root.filter.length > 0 ? Color.foreground : Color.faint
+          color: root.filter.length > 0 ? Theme.foreground : Theme.faint
           font.family: Style.font.family
           font.pixelSize: Style.font.body
           elide: Text.ElideRight
@@ -240,7 +240,7 @@ Item {
 
         Text {
           text: root.rows.length + " of " + docker.containers.length
-          color: Color.faint
+          color: Theme.faint
           font.family: Style.font.mono
           font.pixelSize: Style.font.small
         }
@@ -249,7 +249,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       // --- list -----------------------------------------------------------
@@ -302,7 +302,7 @@ Item {
                 if (root.filter.length > 0) return "Nothing matches “" + root.filter + "”"
                 return "No containers"
               }
-              color: Color.muted
+              color: Theme.muted
               font.family: Style.font.family
               font.pixelSize: Style.font.body
               horizontalAlignment: Text.AlignHCenter
@@ -316,7 +316,7 @@ Item {
                   ? "docker ps came back empty"
                   : "")
               visible: text.length > 0
-              color: Color.faint
+              color: Theme.faint
               font.family: Style.font.mono
               font.pixelSize: Style.font.small
               horizontalAlignment: Text.AlignHCenter
@@ -330,7 +330,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       // --- footer ---------------------------------------------------------

@@ -20,7 +20,7 @@ Item {
       glyph: "󰌾",
       key: Qt.Key_L,
       confirm: false,
-      tint: Color.accent,
+      tint: Theme.accent,
       command: ["hyprlock"],
     },
     {
@@ -29,7 +29,7 @@ Item {
       glyph: "󰍃",
       key: Qt.Key_O,
       confirm: true,
-      tint: Color.amber,
+      tint: Theme.amber,
       command: ["hyprctl", "dispatch", "hl.dsp.exit()"],
     },
     {
@@ -38,7 +38,7 @@ Item {
       glyph: "󰒲",
       key: Qt.Key_S,
       confirm: false,
-      tint: Color.accent,
+      tint: Theme.accent,
       command: ["systemctl", "suspend"],
     },
     {
@@ -47,7 +47,7 @@ Item {
       glyph: "󰜉",
       key: Qt.Key_R,
       confirm: true,
-      tint: Color.yellow,
+      tint: Theme.yellow,
       command: ["systemctl", "reboot"],
     },
     {
@@ -56,7 +56,7 @@ Item {
       glyph: "󰐥",
       key: Qt.Key_P,
       confirm: true,
-      tint: Color.red,
+      tint: Theme.red,
       command: ["systemctl", "poweroff"],
     },
   ]
@@ -162,7 +162,7 @@ Item {
 
         Text {
           text: root.armed ? root.current.label + "?" : "Session"
-          color: root.armed ? root.current.tint : Color.foreground
+          color: root.armed ? root.current.tint : Theme.foreground
           font.family: Style.font.family
           font.pixelSize: Style.font.title
           font.weight: Font.DemiBold
@@ -176,7 +176,7 @@ Item {
 
         Text {
           text: root.armed ? "this cannot be undone" : root.who
-          color: Color.faint
+          color: Theme.faint
           font.family: Style.font.family
           font.pixelSize: Style.font.small
           elide: Text.ElideRight
@@ -211,7 +211,7 @@ Item {
       Rectangle {
         Layout.fillWidth: true
         implicitHeight: 1
-        color: Color.separator
+        color: Theme.separator
       }
 
       RowLayout {
