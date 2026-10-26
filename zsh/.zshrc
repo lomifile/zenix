@@ -30,8 +30,7 @@ alias v='nvim'
 # the same name would shadow the script, so it was removed rather than renamed.
 # Search paths live in zsh/tmux-sessionizer.conf.
 
-tmux-attach-session() {
-  tmux ls
+tmux-attach-session() { tmux ls
   echo -n 'Attach session: '
   read session
   tmux attach -t "$session"
@@ -70,7 +69,7 @@ export VIRTUAL_ENV_DISABLE_PROMPT=true
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="dstufft"
-plugins=(git eza fzf golang node pip python rust)
+plugins=(git eza fzf golang node nvm pip python rust)
 
 source $ZSH/oh-my-zsh.sh
 
