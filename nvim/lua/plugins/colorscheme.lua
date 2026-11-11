@@ -67,7 +67,7 @@ return {
         globalstatus = true,
         disabled_filetypes = {
           statusline = { "dashboard", "alpha", "snacks_dashboard" },
-          winbar = { "dashboard", "alpha", "snacks_dashboard", "trouble", "toggleterm" },
+          winbar = { "dashboard", "alpha", "snacks_dashboard", "trouble", "toggleterm", "snacks_terminal", "terminal" },
         },
       })
 
