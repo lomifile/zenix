@@ -17,3 +17,6 @@ catppuccin-gtk-theme-macchiato
 catppuccin-gtk-theme-frappe
 catppuccin-gtk-theme-latte
 papirus-folders-catppuccin-git
+
+tokyonight-gtk-theme-git
+nordic-theme

@@ -465,12 +465,22 @@ class ShippedThemes(unittest.TestCase):
         cls._home_patch.stop()
         cls._home.cleanup()
 
-    def test_the_four_catppuccin_flavours_and_the_original_are_present(self):
+    def test_every_shipped_theme_is_present(self):
         self.assertEqual(
             set(self.names),
             {"xcode-zenix", "catppuccin-mocha", "catppuccin-macchiato",
-             "catppuccin-frappe", "catppuccin-latte"},
+             "catppuccin-frappe", "catppuccin-latte", "tokyonight-night",
+             "tokyonight-storm", "nord"},
         )
+
+    def test_generated_theme_files_match_their_generator(self):
+        import subprocess
+        import sys
+        proc = subprocess.run(
+            [sys.executable, str(REAL / "themes" / "make-themes.py"), "--check"],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
 
     def test_every_theme_declares_exactly_the_same_roles(self):
         # Set equality both ways: a missing role leaves a surface on the old

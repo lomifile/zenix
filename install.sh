@@ -796,13 +796,14 @@ build_python_project() {
   fi
 
   if command -v pipx >/dev/null || (( DRY_RUN )); then
-    run pipx install --force "${pipx_args[@]}" "${wheel:-$dir}" \
+    run pipx uninstall "$binary" >/dev/null 2>&1 || true
+    run env UV_NO_CACHE=1 PIP_NO_CACHE_DIR=1 pipx install --force "${pipx_args[@]}" "${wheel:-$dir}" \
       || { FAILED+=("$binary (pipx)"); return 1; }
   else
     warn "pipx missing; installing $binary into a venv under ~/.local/share"
     local venv="$HOME/.local/share/$binary"
     run python3 -m venv "${pipx_args[@]}" "$venv"
-    run "$venv/bin/pip" install --quiet "$wheel"
+    run "$venv/bin/pip" install --quiet --force-reinstall --no-cache-dir "$wheel"
     run mkdir -p "$HOME/.local/bin"
     run ln -sfn "$venv/bin/$binary" "$HOME/.local/bin/$binary"
   fi
@@ -843,8 +844,8 @@ verify_sddm_theme() {
 # launch nothing. Declaring --app=<url> here instead keeps them reproducible,
 # and --class= gives the window an app_id that hyprland rules can match.
 # The waybar agenda module reads a cache; this is what refreshes it.
-install_agenda_timer() {
-  step "Installing the agenda timer"
+install_user_units() {
+  step "Installing the user units (agenda timer, night light)"
 
   local src="$REPO/systemd"
   if [[ ! -d "$src" ]]; then
@@ -865,6 +866,9 @@ install_agenda_timer() {
   # Populate the cache now so the bar is not blank until the first firing.
   run systemctl --user start zenix-agenda.service || true
   ok "agenda cache refreshes every 5 minutes"
+
+  run systemctl --user try-restart zenix-nightlight.service || true
+  ok "night light scheduler installed; Hyprland starts it at login"
 }
 
 install_webapps() {
@@ -1011,11 +1015,13 @@ install_cli() {
   fi
 
   if command -v pipx >/dev/null || (( DRY_RUN )); then
-    run pipx install --force "${wheel:-$REPO/cli}" || FAILED+=("zenix cli (pipx)")
+    run pipx uninstall zenix >/dev/null 2>&1 || true
+    run env UV_NO_CACHE=1 PIP_NO_CACHE_DIR=1 pipx install --force "${wheel:-$REPO/cli}" \
+      || FAILED+=("zenix cli (pipx)")
   else
     warn "pipx missing; installing into a venv at ~/.local/share/zenix instead"
     run python3 -m venv "$HOME/.local/share/zenix"
-    run "$HOME/.local/share/zenix/bin/pip" install --quiet "$wheel"
+    run "$HOME/.local/share/zenix/bin/pip" install --quiet --force-reinstall --no-cache-dir "$wheel"
     run mkdir -p "$HOME/.local/bin"
     run ln -sfn "$HOME/.local/share/zenix/bin/zenix" "$HOME/.local/bin/zenix"
   fi
@@ -1189,7 +1195,7 @@ main() {
   if (( DO_SHELL ));    then setup_shell;     else skip "shell setup skipped"; fi
   if (( DO_SDDM ));     then install_sddm_theme; else skip "sddm theme skipped"; fi
   if (( DO_TOOLS ));    then install_user_tools; else skip "user tooling skipped"; fi
-  if (( DO_WEBAPPS )); then install_webapps; install_agenda_timer;
+  if (( DO_WEBAPPS )); then install_webapps; install_user_units;
                        else skip "web apps skipped"; fi
   if (( DO_GRUB ));    then install_grub_theme; else skip "grub theme skipped"; fi
   if (( DO_CLI ));      then install_cli;        else skip "cli skipped"; fi

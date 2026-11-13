@@ -202,7 +202,7 @@ def apply_gsettings(ctx, t) -> None:
         # not show up now -- it would drop every GTK3 app to the default light
         # theme at next login, which is a nasty way to find out.
         warn(f"GTK theme {gtk!r} is not installed — GTK3 apps will fall back")
-        warn("install it before logging out: yay -S catppuccin-gtk-theme-mocha")
+        warn("install it before logging out; its package is listed in packages/aur.txt")
 
     if not which("gsettings"):
         info("gsettings unavailable; GTK apps follow at next login")

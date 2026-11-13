@@ -121,6 +121,7 @@ hypridle
 hyprlock
 hyprpolkitagent
 hyprsunset
+libnotify
 polkit
 waybar
 wofi
@@ -200,6 +201,7 @@ nodejs
 npm
 rustup
 jdk-openjdk
+python
 python-pip
 python-pipx
 python-gobject

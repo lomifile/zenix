@@ -4,8 +4,9 @@ A macOS-flavoured Arch Linux desktop — Hyprland, Quickshell, Neovim — kept i
 one repo and installed by one script.
 
 Every surface — editor, terminal, bar, launcher, popups, lock screen, greeter —
-is painted from one named theme, switched with `zenix theme set`. Five ship:
-the four Catppuccin flavours and `xcode-zenix`, the original Xcode Dark and
+is painted from one named theme, switched with `zenix theme set`. Eight ship:
+the four Catppuccin flavours, Tokyo Night (`tokyonight-night`,
+`tokyonight-storm`), `nord`, and `xcode-zenix`, the original Xcode Dark and
 macOS Sonoma pairing. The terminal and everything in it is opaque; the bar,
 the launcher and the popups stay translucent over the compositor's blur.
 
@@ -112,7 +113,7 @@ In zsh: `Ctrl`+`F` opens the tmux sessionizer, `Ctrl`+`A` attaches a session,
 One palette, named in `themes/`, applied to every surface at once:
 
 ```
-zenix theme list                      # the five, current one tagged
+zenix theme list                      # the eight, current one tagged
 zenix theme current                   # and whether every surface agrees
 zenix theme set catppuccin-mocha
 zenix theme show catppuccin-latte     # the resolved palette, role by role
@@ -162,13 +163,16 @@ macOS white hairline with no analogue here, becomes a blue-to-sapphire
 gradient, with group borders on lavender so a grouped window stays
 distinguishable from a merely focused one.
 
-`themes/make-catppuccin.py` is a dev-time tool, not part of the CLI: it maps
-the upstream Catppuccin palettes onto these roles and writes the four flavour
-files, so changing the accent is one constant rather than 4 × 40 values.
-`--check` fails if the committed files have drifted from it.
+`themes/make-themes.py` is a dev-time tool, not part of the CLI: it maps the
+upstream Catppuccin, Tokyo Night and Nord palettes onto these roles and writes
+their files. Every palette is spelled in Catppuccin's role names, so one
+mapping paints all seven and changing the accent is one constant rather than
+7 × 40 values. `--check` fails if the committed files have drifted from it.
+To add a theme, give its palette those role names and add it to `specs()`.
 
-Two themes need packages: the GTK theme (`catppuccin-gtk-theme-*`, one per
-flavour, each shipping all fourteen accents) and the recoloured Papirus
+Themes need packages: the GTK theme (`catppuccin-gtk-theme-*`, one per
+flavour, each shipping all fourteen accents; `tokyonight-gtk-theme-git`,
+shared by both Tokyo Night variants; `nordic-theme`) and the recoloured Papirus
 folders. Both are in `packages/aur.txt`. `zenix theme set` warns if the GTK
 theme a theme names is not installed, because `GTK_THEME` is read at session
 start — an uninstalled name shows up as every GTK3 app falling back to a light
