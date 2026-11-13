@@ -41,7 +41,9 @@ QtObject {
         { keys: "SUPER + ⏎", label: "Terminal (ghostty)" },
         { keys: "SUPER + Space", label: "Launcher (wofi)" },
         { keys: "SUPER + ⇧ + E", label: "File manager" },
-        { keys: "SUPER + L", label: "Lock screen" }
+        { keys: "SUPER + L", label: "Lock screen" },
+        { keys: "CTRL + ⇧ + F5", label: "Refresh displays" },
+        { keys: "SUPER + N", label: "Night light on / off" }
       ]
     },
     {

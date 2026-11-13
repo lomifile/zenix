@@ -44,8 +44,8 @@ class Status(RepoCase):
     def test_present_wallpapers_are_not_flagged(self):
         self.assertNotIn("MISSING", self.run_status())
 
-    def test_an_unset_variable_does_not_crash(self):
-        self.repo.install_sh.write_text("#!/usr/bin/env bash\n")
+    def test_an_unset_key_does_not_crash(self):
+        self.repo.zenix_json.write_text("{}\n")
         self.assertIn("MISSING", self.run_status())
 
     def test_reports_whether_the_greeter_background_is_deployed(self):

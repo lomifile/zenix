@@ -120,6 +120,7 @@ hyprpaper
 hypridle
 hyprlock
 hyprpolkitagent
+hyprsunset
 polkit
 waybar
 wofi

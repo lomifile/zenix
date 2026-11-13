@@ -15,10 +15,11 @@ def which(name: str) -> bool:
     return shutil.which(name) is not None
 
 
-def capture(cmd: list[str]) -> str | None:
+def capture(cmd: list[str], env: dict[str, str] | None = None) -> str | None:
     """Run a command for its output, returning None if it is unavailable."""
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True)
+        proc = subprocess.run(cmd, capture_output=True, text=True,
+                              env={**os.environ, **env} if env else None)
     except (FileNotFoundError, PermissionError):
         return None
     return proc.stdout.strip() if proc.returncode == 0 else None

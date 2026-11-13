@@ -275,15 +275,13 @@ class CmdSet(WallpaperCase):
     def test_writes_the_repo_variable_first(self):
         (self.repo.wallpaper_dir / "other.png").write_bytes(b"x")
         capture(wallpaper.cmd_set, self.no_apply, self.repo, self.args("other.png"))
-        self.assertIn('WALLPAPER_NAME="other.png"', self.install_sh())
+        self.assertEqual(self.config()["wallpaper"]["desktop"], "other.png")
 
     def test_greeter_writes_the_greeter_variable(self):
         (self.repo.wallpaper_dir / "other.jpg").write_bytes(b"x")
         capture(wallpaper.cmd_set, self.no_apply, self.repo,
                 self.args("other.jpg", greeter=True))
-        text = self.install_sh()
-        self.assertIn('GREETER_WALLPAPER_NAME="other.jpg"', text)
-        self.assertIn('WALLPAPER_NAME="desk.png"', text)
+        self.assertEqual(self.config()["wallpaper"], {"desktop": "desk.png", "greeter": "other.jpg"})
 
     def test_no_apply_stops_before_touching_the_system(self):
         _, cap = capture(wallpaper.cmd_set, self.no_apply, self.repo, self.args("desk.png"))
@@ -294,7 +292,7 @@ class CmdSet(WallpaperCase):
         src = self.tmp / "new.png"
         src.write_bytes(b"payload")
         capture(wallpaper.cmd_set, self.no_apply, self.repo, self.args(str(src)))
-        self.assertIn('WALLPAPER_NAME="new.png"', self.install_sh())
+        self.assertEqual(self.config()["wallpaper"]["desktop"], "new.png")
         self.assertTrue((self.repo.wallpaper_dir / "new.png").is_file())
 
     def test_applying_reaches_the_desktop(self):
@@ -302,14 +300,14 @@ class CmdSet(WallpaperCase):
         self.assertTrue((self.home / ".config" / "hypr" / "hyprpaper.conf").is_file())
 
     def test_an_unknown_name_changes_nothing(self):
-        before = self.install_sh()
+        before = self.repo.zenix_json.read_text()
         with self.assertRaises(ZenixError):
             capture(wallpaper.cmd_set, self.no_apply, self.repo, self.args("nope.png"))
-        self.assertEqual(self.install_sh(), before)
+        self.assertEqual(self.repo.zenix_json.read_text(), before)
 
     def test_dry_run_touches_neither_repo_nor_system(self):
         _, cap = capture(wallpaper.cmd_set, self.dry, self.repo, self.args("greet.jpg"))
-        self.assertIn('WALLPAPER_NAME="desk.png"', self.install_sh())
+        self.assertEqual(self.config()["wallpaper"]["greeter"], "greet.jpg")
         self.assertFalse((self.home / ".config").exists())
         self.assertIn("$ write", cap.out)
 

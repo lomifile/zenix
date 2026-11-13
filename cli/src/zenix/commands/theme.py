@@ -5,10 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from zenix import theme as gen
+from zenix.config import Config
 from zenix.console import die, dim, header, info, ok, paint, warn
 from zenix.context import capture, live_hypr_instance, which
 
-THEME_VAR = "THEME_NAME"
+THEME_KEY = "theme"
 
 SDDM_THEME_DIR = Path("/usr/share/sddm/themes/zenix")
 TMUX_PLUGIN_THEME = Path("tmux/plugins/tokyo-night-tmux/src/themes.sh")
@@ -42,7 +43,7 @@ def config_dir() -> Path:
 
 
 def selected(repo) -> str | None:
-    return repo.read_shell_var(THEME_VAR)
+    return Config.load(repo).get(THEME_KEY)
 
 
 def cmd_list(ctx, repo, args) -> None:
@@ -76,7 +77,7 @@ def cmd_show(ctx, repo, args) -> None:
 
 # Each row of `zenix theme current`: the file that actually drives a surface,
 # and how to read the theme name out of it. A surface that disagrees with
-# THEME_NAME is drift -- a half-finished `theme set`, a `git checkout`, or btop
+# zenix.json's theme is drift -- a half-finished `theme set`, a `git checkout`, or btop
 # having rewritten its own config -- and is worth naming rather than hiding.
 def surface_selectors(repo, t) -> list[tuple[str, str | None, str]]:
     def read(path: Path, needle: str) -> str | None:
@@ -101,7 +102,7 @@ def cmd_current(ctx, repo, args) -> None:
     header("Current theme")
     name = selected(repo)
     if not name:
-        warn(f"{THEME_VAR} is not set in install.sh")
+        warn(f"{THEME_KEY} is not set in zenix.json")
         return
 
     t = gen.load(repo, name)
@@ -135,7 +136,7 @@ def cmd_current(ctx, repo, args) -> None:
     if live:
         info(f"live gtk theme  {live.strip().strip(chr(39))}")
     if drift:
-        warn(f"{drift} surface(s) disagree with {THEME_VAR}")
+        warn(f"{drift} surface(s) disagree with zenix.json {THEME_KEY}")
 
 
 # -- applying ----------------------------------------------------------------
@@ -243,6 +244,16 @@ def apply_waybar(ctx) -> None:
         info("waybar is not running; the style lands when it starts")
 
 
+def apply_shell(ctx) -> None:
+    if not which("zenix-shell"):
+        info("zenix-shell unavailable; the shell palette lands at next login")
+        return
+    if ctx.run(["zenix-shell", "shell", "reload"]) == 0:
+        ok("zenix-shell reloaded")
+    else:
+        info("zenix-shell did not reload; restart it or log out to pick up the palette")
+
+
 def apply_hyprland(ctx) -> None:
     if not which("hyprctl"):
         info("hyprctl unavailable; borders land at next login")
@@ -252,7 +263,7 @@ def apply_hyprland(ctx) -> None:
         info("hyprland is not running; borders land at next login")
         return
     env = {"HYPRLAND_INSTANCE_SIGNATURE": signature} if signature else None
-    if ctx.run(["hyprctl", "reload"], env=env) == 0:
+    if ctx.run(["hyprctl", "reload", "config-only"], env=env) == 0:
         ok("hyprland reloaded")
     else:
         info("hyprland did not take the reload; it lands at next login")
@@ -301,8 +312,8 @@ def cmd_set(ctx, repo, args) -> None:
         written += 1
     ok(f"{written} file(s) written, {len(files) - written} already current")
 
-    repo.set_shell_var(ctx, THEME_VAR, t.name)
-    ok(f"install.sh: {THEME_VAR}={t.name}")
+    Config.load(repo).set(ctx, THEME_KEY, t.name)
+    ok(f"zenix.json: {THEME_KEY}={t.name}")
 
     if not ctx.apply:
         info("repo updated; the running system was left alone")
@@ -313,6 +324,7 @@ def cmd_set(ctx, repo, args) -> None:
     apply_qt6ct(ctx, repo)
     apply_tmux(ctx, repo)
     apply_waybar(ctx)
+    apply_shell(ctx)
     apply_hyprland(ctx)
     apply_gsettings(ctx, t)
     apply_papirus(ctx, t)

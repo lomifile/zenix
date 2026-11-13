@@ -26,11 +26,11 @@
 --cycle
 
 # >>> zenix theme <<<
---color=fg:#bac2de,bg:#1e1e2e,hl:#89b4fa
---color=fg+:#cdd6f4,bg+:#45475a,hl+:#89b4fa
---color=info:#6c7086,border:#313244,separator:#313244
---color=prompt:#89b4fa,pointer:#a6e3a1,marker:#fab387
---color=spinner:#b4befe,header:#6c7086,label:#bac2de
---color=query:#cdd6f4,scrollbar:#313244,gutter:#1e1e2e
---color=preview-fg:#bac2de,preview-bg:#1e1e2e,preview-border:#313244
+--color=fg:#b8c0e0,bg:#24273a,hl:#8aadf4
+--color=fg+:#cad3f5,bg+:#494d64,hl+:#8aadf4
+--color=info:#6e738d,border:#363a4f,separator:#363a4f
+--color=prompt:#8aadf4,pointer:#a6da95,marker:#f5a97f
+--color=spinner:#b7bdf8,header:#6e738d,label:#b8c0e0
+--color=query:#cad3f5,scrollbar:#363a4f,gutter:#24273a
+--color=preview-fg:#b8c0e0,preview-bg:#24273a,preview-border:#363a4f
 # >>> end zenix theme <<<

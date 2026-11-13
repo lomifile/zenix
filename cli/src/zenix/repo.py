@@ -59,6 +59,7 @@ class Repo:
     def __init__(self, root: Path) -> None:
         self.root = root
         self.install_sh = root / "install.sh"
+        self.zenix_json = root / "zenix.json"
         self.hyprland_lua = root / "hypr" / "hyprland.lua"
         self.archinstall = root / "user_configuration.json"
         self.wallpaper_dir = root / "assets" / "wallpaper"
@@ -73,20 +74,6 @@ class Repo:
             for p in self.wallpaper_dir.iterdir()
             if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES
         )
-
-    # -- install.sh --------------------------------------------------------
-
-    def read_shell_var(self, name: str) -> str | None:
-        pat = re.compile(rf'^{re.escape(name)}="([^"]*)"', re.M)
-        m = pat.search(self.install_sh.read_text())
-        return m.group(1) if m else None
-
-    def set_shell_var(self, ctx, name: str, value: str) -> None:
-        text = self.install_sh.read_text()
-        pat = re.compile(rf'^({re.escape(name)}=)"[^"]*"', re.M)
-        if not pat.search(text):
-            die(f"{name}= not found in install.sh; the CLI and the script are out of sync")
-        ctx.write(self.install_sh, pat.sub(rf'\g<1>"{value}"', text, count=1))
 
     # -- hyprland.lua ------------------------------------------------------
 

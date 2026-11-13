@@ -22,6 +22,7 @@ import json
 import re
 from pathlib import Path
 
+from zenix.config import Config
 from zenix.console import die
 
 THEMES_DIRNAME = "themes"
@@ -419,11 +420,28 @@ def rewrite_tmux(text: str, t: Theme) -> str:
     return replace_block(text, "hash", "\n".join(lines), what="tmux/themes.sh")
 
 
-def rewrite_waybar_css(text: str, t: Theme) -> str:
+BAR_DEFAULTS = {"opacity": 0.7, "height": 32}
+
+
+def bar_settings(bar: dict | None) -> dict:
+    merged = {**BAR_DEFAULTS, **(bar or {})}
+    merged["opacity"] = min(1.0, max(0.0, float(merged["opacity"])))
+    merged["height"] = int(merged["height"])
+    return merged
+
+
+def bar_background(t: Theme, opacity: float) -> str:
+    r, g, b = _channels(t.desktop["surface"])
+    return f"rgba({r}, {g}, {b}, {round(opacity, 3)})"
+
+
+def rewrite_waybar_css(text: str, t: Theme, bar: dict | None = None) -> str:
     d, css = t.desktop, t.css
+    settings = bar_settings(bar)
     body = "\n".join(
         f"@define-color {k} {v};"
         for k, v in (
+            ("bar-bg", bar_background(t, settings["opacity"])),
             ("fg", d["foreground"]),
             ("muted", d["muted"]),
             ("grey", d["grey"]),
@@ -585,9 +603,11 @@ def rewrite_agenda_script(text: str, t: Theme) -> str:
     return replace_block(text, "hash", body, what="waybar/scripts/agenda.py")
 
 
-def rewrite_waybar_config(text: str, t: Theme) -> str:
+def rewrite_waybar_config(text: str, t: Theme, bar: dict | None = None) -> str:
     """The clock's calendar carries Pango markup, so its colours are inline."""
     w = t.waybar
+    text = set_key(text, r'^\s*"height":\s*(\d+),', str(bar_settings(bar)["height"]),
+                   what="waybar/waybar-config.jsonc")
     for key, role in (
         ("months", "cal_fg"),
         ("days", "cal_fg"),
@@ -735,8 +755,6 @@ def generated_files(t: Theme, repo) -> dict[Path, str]:
 REWRITES = (
     (("fzf", "fzfrc"), rewrite_fzf),
     (("tmux", "themes.sh"), rewrite_tmux),
-    (("waybar", "waybar-style.css"), rewrite_waybar_css),
-    (("waybar", "waybar-config.jsonc"), rewrite_waybar_config),
     (("waybar", "scripts", "agenda.py"), rewrite_agenda_script),
     (("wofi", "style.css"), rewrite_wofi_css),
     (("hypr", "hyprland.lua"), rewrite_hyprland_lua),
@@ -745,6 +763,22 @@ REWRITES = (
     (("lazygit", "config.yml"), rewrite_lazygit),
     (("grub", "theme", "theme.txt"), rewrite_grub_theme),
 )
+
+
+BAR_REWRITES = (
+    (("waybar", "waybar-style.css"), rewrite_waybar_css),
+    (("waybar", "waybar-config.jsonc"), rewrite_waybar_config),
+)
+
+
+def bar_files(t: Theme, repo) -> dict[Path, str]:
+    bar = Config.load(repo).get("waybar", {})
+    out: dict[Path, str] = {}
+    for parts, fn in BAR_REWRITES:
+        path = repo.root.joinpath(*parts)
+        if path.is_file():
+            out[path] = fn(path.read_text(), t, bar)
+    return out
 
 
 def rewritten_files(t: Theme, repo) -> dict[Path, str]:
@@ -759,6 +793,7 @@ def rewritten_files(t: Theme, repo) -> dict[Path, str]:
         if not path.is_file():
             continue
         out[path] = fn(path.read_text(), t)
+    out.update(bar_files(t, repo))
 
     selectors = (
         (("ghostty", "config.ghostty"), lambda s: set_ghostty_selector(s, t.name)),

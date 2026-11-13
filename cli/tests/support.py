@@ -9,6 +9,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest import mock
 
 _SRC = str(Path(__file__).resolve().parent.parent / "src")
 if _SRC not in sys.path:
@@ -20,10 +21,14 @@ from zenix.repo import Repo  # noqa: E402
 INSTALL_SH = """#!/usr/bin/env bash
 set -euo pipefail
 
-WALLPAPER_NAME="desk.png"
-GREETER_WALLPAPER_NAME="greet.jpg"
-THEME_NAME="fixture"
 """
+
+ZENIX_JSON = {
+    "theme": "fixture",
+    "wallpaper": {"desktop": "desk.png", "greeter": "greet.jpg"},
+    "display": {"laptop": "eDP-1", "laptop_when_docked": "off", "scale": "auto", "monitors": {}},
+    "waybar": {"opacity": 0.7, "height": 32},
+}
 
 # Carries the theme block and the four app-theme lines as well as the input
 # table: a repo without them is one the generator will (correctly) refuse to
@@ -285,6 +290,7 @@ def make_repo(root: Path, *, wallpapers=("desk.png", "greet.jpg"),
     (root / "packages").mkdir(parents=True, exist_ok=True)
     (root / "packages" / "pacman.txt").write_text("hyprland\n")
     (root / "install.sh").write_text(INSTALL_SH)
+    (root / "zenix.json").write_text(json.dumps(ZENIX_JSON, indent=2) + "\n")
 
     (root / "hypr").mkdir(exist_ok=True)
     (root / "hypr" / "hyprland.lua").write_text(HYPRLAND_LUA)
@@ -333,6 +339,10 @@ class RepoCase(unittest.TestCase):
         self.repo = make_repo(self.tmp / "repo")
         self.root = self.repo.root
 
+        home_patch = mock.patch.object(Path, "home", return_value=self.home)
+        home_patch.start()
+        self.addCleanup(home_patch.stop)
+
         self.live = Context()
         self.no_apply = Context(no_apply=True)
         self.dry = Context(dry_run=True)
@@ -342,6 +352,9 @@ class RepoCase(unittest.TestCase):
 
     def lua(self) -> str:
         return self.repo.hyprland_lua.read_text()
+
+    def config(self) -> dict:
+        return json.loads(self.repo.zenix_json.read_text())
 
     def install_sh(self) -> str:
         return self.repo.install_sh.read_text()

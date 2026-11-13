@@ -2,7 +2,10 @@
 
 from zenix.commands import (
     agenda,
+    config,
+    display,
     keyboard,
+    nightlight,
     status,
     theme,
     timezone,
@@ -10,6 +13,6 @@ from zenix.commands import (
     webapp,
 )
 
-MODULES = (status, theme, wallpaper, keyboard, timezone, webapp, agenda)
+MODULES = (status, config, display, nightlight, theme, wallpaper, keyboard, timezone, webapp, agenda)
 
 __all__ = ["MODULES"]

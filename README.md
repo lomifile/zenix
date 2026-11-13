@@ -46,6 +46,7 @@ assumes Hyprland on Wayland.
 | `systemd/` | the agenda fetch timer |
 | `webapps/` | `.desktop` entries wrapping sites as apps |
 | `assets/wallpaper/` | wallpapers, the source of truth for desktop and greeter |
+| `zenix.json` | zenix settings (theme, wallpapers, displays, bar, night light); `~/.config/zenix/config.json` overrides it per machine |
 | `user_configuration.json` | archinstall answers, so a reinstall starts from the same base |
 
 Three directories have their own README with the reasoning behind them:
@@ -72,6 +73,14 @@ Hyprland, `SUPER` as the modifier.
 | drag / right-drag | move / resize |
 | `Print` | screenshot to clipboard, `Shift`+`S` for a region |
 | `Shift`+`V` | clipboard history |
+
+`Ctrl`+`Shift`+`F5` (no `SUPER`) refreshes the displays: external monitors
+first, the laptop panel only when nothing external is connected
+(`zenix display refresh`).
+`SUPER`+`N` toggles the night light (`zenix nightlight`), which otherwise
+follows the `nightlight` schedule in `zenix.json`: fixed times (`mode:
+custom`), sunset to sunrise from `latitude`/`longitude` (`mode: sun`), or
+`off`.
 
 Popups, all served by the one Quickshell process:
 

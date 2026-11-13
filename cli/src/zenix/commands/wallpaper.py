@@ -6,14 +6,15 @@ import re
 import shutil
 from pathlib import Path
 
+from zenix.config import Config
 from zenix.console import die, dim, header, info, ok, paint, warn
 from zenix.context import live_hypr_instance, which
 from zenix.repo import GREETER_SUFFIXES, IMAGE_SUFFIXES
 
 SDDM_THEME_DIR = Path("/usr/share/sddm/themes/zenix")
 
-DESKTOP_VAR = "WALLPAPER_NAME"
-GREETER_VAR = "GREETER_WALLPAPER_NAME"
+DESKTOP_KEY = "wallpaper.desktop"
+GREETER_KEY = "wallpaper.greeter"
 
 
 def add_parser(sub) -> None:
@@ -37,8 +38,9 @@ def cmd_list(ctx, repo, args) -> None:
         warn("none found")
         return
 
-    desktop = repo.read_shell_var(DESKTOP_VAR)
-    greeter = repo.read_shell_var(GREETER_VAR)
+    cfg = Config.load(repo)
+    desktop = cfg.get(DESKTOP_KEY)
+    greeter = cfg.get(GREETER_KEY)
     width = max(len(p.name) for p in entries)
 
     for p in entries:
@@ -55,8 +57,9 @@ def cmd_list(ctx, repo, args) -> None:
 
 def cmd_current(ctx, repo, args) -> None:
     header("Current wallpapers")
-    info(f"desktop: {repo.read_shell_var(DESKTOP_VAR)}")
-    info(f"greeter: {repo.read_shell_var(GREETER_VAR)}")
+    cfg = Config.load(repo)
+    info(f"desktop: {cfg.get(DESKTOP_KEY)}")
+    info(f"greeter: {cfg.get(GREETER_KEY)}")
 
 
 def resolve(repo, name: str, *, greeter: bool) -> Path:
@@ -185,9 +188,9 @@ def cmd_set(ctx, repo, args) -> None:
     if (repo.wallpaper_dir / name).is_file():
         src = repo.wallpaper_dir / name
 
-    var = GREETER_VAR if args.greeter else DESKTOP_VAR
-    repo.set_shell_var(ctx, var, name)
-    ok(f"install.sh: {var}={name}")
+    key = GREETER_KEY if args.greeter else DESKTOP_KEY
+    Config.load(repo).set(ctx, key, name)
+    ok(f"zenix.json: {key}={name}")
 
     if not ctx.apply:
         info("repo updated; the running system was left alone")

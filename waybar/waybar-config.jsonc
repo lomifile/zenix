@@ -1,12 +1,13 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 36,
+  "height": 32,
   "spacing": 0,
-  "margin-top": 6,
+  "exclusive": true,
+  "margin-top": 0,
   "margin-bottom": 0,
-  "margin-left": 12,
-  "margin-right": 12,
+  "margin-left": 0,
+  "margin-right": 0,
 
   "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
@@ -43,11 +44,11 @@
       "weeks-pos": "left",
       "on-scroll": 1,
       "format": {
-        "months": "<span color='#cdd6f4'><b>{}</b></span>",
-        "days": "<span color='#cdd6f4'>{}</span>",
-        "weeks": "<span color='#7f849c'>W{}</span>",
-        "weekdays": "<span color='#7f849c'><b>{}</b></span>",
-        "today": "<span color='#89b4fa'><b>{}</b></span>"
+        "months": "<span color='#cad3f5'><b>{}</b></span>",
+        "days": "<span color='#cad3f5'>{}</span>",
+        "weeks": "<span color='#8087a2'>W{}</span>",
+        "weekdays": "<span color='#8087a2'><b>{}</b></span>",
+        "today": "<span color='#8aadf4'><b>{}</b></span>"
       }
     },
     // Spelled out rather than a bare `zenix-shell`: waybar inherits the

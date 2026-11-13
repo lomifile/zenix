@@ -92,8 +92,8 @@ class CmdCurrent(ThemeCase):
         self.assertIn("out of date", cap.all)
         self.assertIn("palette.lua", cap.all)
 
-    def test_an_unset_variable_says_so(self):
-        self.repo.install_sh.write_text("#!/usr/bin/env bash\n")
+    def test_an_unset_key_says_so(self):
+        self.repo.zenix_json.write_text("{}\n")
         _, cap = capture(theme.cmd_current, self.no_apply, self.repo, self.args())
         self.assertIn("not set", cap.all)
 
@@ -106,22 +106,33 @@ class CmdSet(ThemeCase):
         self.assertTrue((self.root / "nvim" / "lua" / "zenix" / "palette.lua").is_file())
         self.assertTrue((self.root / "shell" / "Commons" / "Theme.qml").is_file())
 
-    def test_records_the_choice_in_install_sh(self):
+    def test_records_the_choice_in_zenix_json(self):
         make_theme(self.root, "other")
+        before = self.install_sh()
         capture(theme.cmd_set, self.no_apply, self.repo, self.args(name="other"))
-        self.assertIn('THEME_NAME="other"', self.install_sh())
+        self.assertEqual(self.config()["theme"], "other")
+        self.assertEqual(self.install_sh(), before)
 
-    def test_the_neighbouring_variables_survive(self):
+    def test_the_neighbouring_keys_survive(self):
         make_theme(self.root, "other")
         capture(theme.cmd_set, self.no_apply, self.repo, self.args(name="other"))
-        self.assertIn('WALLPAPER_NAME="desk.png"', self.install_sh())
-        self.assertIn('GREETER_WALLPAPER_NAME="greet.jpg"', self.install_sh())
+        self.assertEqual(self.config()["wallpaper"], {"desktop": "desk.png", "greeter": "greet.jpg"})
+        self.assertEqual(self.config()["waybar"]["opacity"], 0.7)
+
+    def test_a_local_override_is_not_written_by_theme_set(self):
+        local = self.home / ".config" / "zenix" / "config.json"
+        local.parent.mkdir(parents=True)
+        local.write_text('{"theme": "fixture"}\n')
+        make_theme(self.root, "other")
+        capture(theme.cmd_set, self.no_apply, self.repo, self.args(name="other"))
+        self.assertEqual(local.read_text(), '{"theme": "fixture"}\n')
+        self.assertEqual(self.config()["theme"], "other")
 
     def test_an_unknown_theme_is_refused_and_changes_nothing(self):
         with self.assertRaises(ZenixError) as caught:
             capture(theme.cmd_set, self.no_apply, self.repo, self.args(name="nope"))
         self.assertIn("fixture", str(caught.exception))
-        self.assertIn('THEME_NAME="fixture"', self.install_sh())
+        self.assertEqual(self.config()["theme"], "fixture")
 
     def test_is_idempotent(self):
         capture(theme.cmd_set, self.no_apply, self.repo, self.args(name="fixture"))
@@ -150,7 +161,16 @@ class CmdSet(ThemeCase):
             capture(theme.cmd_set, ctx, self.repo, self.args(name="fixture"))
         called = [c.args[0] for c in ctx.run.call_args_list]
         self.assertIn(["pkill", "-SIGUSR2", "waybar"], called)
-        self.assertIn(["hyprctl", "reload"], called)
+        self.assertIn(["hyprctl", "reload", "config-only"], called)
+        self.assertIn(["zenix-shell", "shell", "reload"], called)
+
+    def test_the_shell_reload_is_reported_when_it_fails(self):
+        with mock.patch.object(theme, "which", return_value=True), \
+             mock.patch.object(theme, "live_hypr_instance", return_value="sig"):
+            ctx = self.applying()
+            ctx.run.side_effect = lambda cmd, env=None: 1 if cmd[0] == "zenix-shell" else 0
+            _, cap = capture(theme.cmd_set, ctx, self.repo, self.args(name="fixture"))
+        self.assertIn("zenix-shell did not reload", cap.all)
 
     def test_the_hyprland_reload_uses_the_live_signature(self):
         # A tmux server outliving a session hands down a dead signature.
@@ -159,7 +179,7 @@ class CmdSet(ThemeCase):
             ctx = self.applying()
             capture(theme.cmd_set, ctx, self.repo, self.args(name="fixture"))
         reload_call = next(c for c in ctx.run.call_args_list
-                           if c.args[0] == ["hyprctl", "reload"])
+                           if c.args[0] == ["hyprctl", "reload", "config-only"])
         self.assertEqual(reload_call.kwargs["env"],
                          {"HYPRLAND_INSTANCE_SIGNATURE": "fresh"})
 

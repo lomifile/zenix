@@ -24,8 +24,8 @@ STALE_AFTER = 45 * 60        # the timer runs every 5 min; 45 means something br
 # Pango span colours. Written by `zenix theme set`, which is why they are
 # constants rather than inline in the f-strings below.
 # >>> zenix theme <<<
-DIM = "#a6adc8"
-ALERT = "#f38ba8"
+DIM = "#a5adcb"
+ALERT = "#ed8796"
 # >>> end zenix theme <<<
 
 

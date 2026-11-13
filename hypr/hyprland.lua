@@ -1,36 +1,44 @@
+local display = { laptop = "eDP-1", rules = {} }
+local display_ok, display_saved = pcall(dofile, os.getenv("HOME") .. "/.config/zenix/display.lua")
+if display_ok and type(display_saved) == "table" then
+	display = display_saved
+end
+
+local function external_connected()
+	for _, m in ipairs(hl.get_monitors()) do
+		if m.name ~= display.laptop then
+			return true
+		end
+	end
+	return false
+end
+
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+
+local docked = external_connected()
+local saved_rules = display.rules or {}
+for _, rule in ipairs(saved_rules) do
+	if not (rule.disabled and not docked) then
+		hl.monitor(rule)
+	end
+end
+if #saved_rules == 0 and docked then
+	hl.monitor({ output = display.laptop, disabled = true })
+end
 
 local terminal = "ghostty"
 local fileManager = "thunar"
 local menu = "pkill -x wofi || wofi --show drun"
 
-local LAPTOP = "eDP-1"
-
-local applied_state = nil
-
-local function reconfigure_monitors()
-	local has_external = false
-	for _, m in ipairs(hl.get_monitors()) do
-		if m.name ~= LAPTOP then
-			has_external = true
-		end
+local function refresh_displays()
+	if #hl.get_monitors() == 0 then
+		hl.monitor({ output = display.laptop, mode = "preferred", position = "auto", scale = "auto" })
 	end
-
-	local wanted = has_external and "off" or "on"
-	if wanted == applied_state then
-		return
-	end
-	applied_state = wanted
-
-	if has_external then
-		hl.monitor({ output = LAPTOP, disabled = true })
-	else
-		hl.monitor({ output = LAPTOP, mode = "preferred", position = "auto", scale = "auto" })
-	end
+	hl.exec_cmd("zenix display refresh --auto")
 end
 
-hl.on("monitor.layout_changed", reconfigure_monitors)
-hl.on("config.reloaded", reconfigure_monitors)
+hl.on("monitor.layout_changed", refresh_displays)
+hl.on("config.reloaded", refresh_displays)
 
 -- Hyprland is launched by SDDM, before any shell rc file runs, so it never
 -- picks up the ~/.local/bin addition zsh makes -- every zenix-shell and
@@ -51,39 +59,41 @@ hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 -- here; GTK4/libadwaita and the portal-based apps (Chromium, Electron) read
 -- the gsettings color-scheme set below instead. Qt gets its dark palette
 -- from qt6ct.conf, installed alongside QT_QPA_PLATFORMTHEME above.
-hl.env("GTK_THEME", "catppuccin-mocha-blue-standard+default")
+hl.env("GTK_THEME", "catppuccin-macchiato-blue-standard+default")
 
 hl.on("hyprland.start", function()
-	reconfigure_monitors()
+	refresh_displays()
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("waybar")
 	hl.exec_cmd('qs -p "$HOME/.config/zenix/shell"')
 	hl.exec_cmd("systemctl --user start hyprpolkitagent")
 	hl.exec_cmd("hypridle")
+	hl.exec_cmd("hyprsunset")
+	hl.exec_cmd("systemctl --user restart zenix-nightlight.service")
 	hl.exec_cmd("nm-applet --indicator")
 	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme prefer-dark")
-	hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme catppuccin-mocha-blue-standard+default")
+	hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme catppuccin-macchiato-blue-standard+default")
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark")
 end)
 
 -- >>> zenix theme <<<
 local c = {
-	border_active_1 = "rgba(89b4facc)",
-	border_active_2 = "rgba(74c7eccc)",
-	border_inactive = "rgba(313244ff)",
-	group_active = "rgba(b4befecc)",
-	group_inactive = "rgba(313244ff)",
-	shadow = 0x4011111b,
+	border_active_1 = "rgba(8aadf4cc)",
+	border_active_2 = "rgba(7dc4e4cc)",
+	border_inactive = "rgba(363a4fff)",
+	group_active = "rgba(b7bdf8cc)",
+	group_inactive = "rgba(363a4fff)",
+	shadow = 0x40181926,
 }
 -- >>> end zenix theme <<<
 
 hl.config({
 	general = {
 		gaps_in = 6,
-		gaps_out = { top = 4, right = 8, bottom = 8, left = 8 },
+		gaps_out = { top = 8, right = 8, bottom = 8, left = 8 },
 		border_size = 2,
 		col = {
 			active_border = { colors = { c.border_active_1, c.border_active_2 }, angle = 45 },
@@ -225,6 +235,8 @@ hl.bind(mod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+hl.bind("CTRL + SHIFT + F5", hl.dsp.exec_cmd("zenix display refresh"))
+hl.bind(mod .. " + N", hl.dsp.exec_cmd("zenix nightlight toggle"))
 
 hl.bind(mod .. " + M", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.power"))
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("zenix-shell shell toggle zenix.containers"))
@@ -305,5 +317,6 @@ for _, spec in ipairs({
 	hl.window_rule({ match = { class = spec.class }, size = spec.size })
 end
 
+hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
 hl.layer_rule({ match = { namespace = "wofi" }, blur = true, ignore_alpha = 0.4 })
 hl.layer_rule({ match = { namespace = "^zenix-" }, blur = true, ignore_alpha = 0.4 })

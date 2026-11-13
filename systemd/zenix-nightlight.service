@@ -1,0 +1,9 @@
+[Unit]
+Description=zenix night light scheduler (drives hyprsunset)
+Documentation=https://github.com/lomifile/zenix
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/zenix nightlight daemon
+Restart=on-failure
+RestartSec=5

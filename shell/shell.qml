@@ -168,5 +168,10 @@ ShellRoot {
       registry.rescan()
       return "ok"
     }
+
+    function reload(): string {
+      Quickshell.reload(false)
+      return "ok"
+    }
   }
 }

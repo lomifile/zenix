@@ -23,10 +23,10 @@ class Parser(unittest.TestCase):
 
     def test_every_command_module_is_wired_in(self):
         text = self.parser.format_help()
-        for name in ("status", "theme", "wallpaper", "keyboard", "timezone", "webapp",
-                     "agenda"):
+        for name in ("status", "config", "display", "nightlight", "theme", "wallpaper", "keyboard", "timezone",
+                     "webapp", "agenda"):
             self.assertIn(name, text)
-        self.assertEqual(len(MODULES), 7)
+        self.assertEqual(len(MODULES), 10)
 
     def test_a_command_is_required(self):
         with self.assertRaises(SystemExit):

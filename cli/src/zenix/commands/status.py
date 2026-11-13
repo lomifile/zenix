@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from zenix import theme as gen
-from zenix.commands.theme import THEME_VAR
+from zenix.commands.theme import THEME_KEY
 from zenix.commands.timezone import live_zone
-from zenix.commands.wallpaper import DESKTOP_VAR, GREETER_VAR, SDDM_THEME_DIR
+from zenix.commands.wallpaper import DESKTOP_KEY, GREETER_KEY, SDDM_THEME_DIR
+from zenix.config import Config
 from zenix.console import header, info, paint
 
 
@@ -19,20 +20,21 @@ def _row(label: str, value: object, note: str = "") -> None:
 
 def cmd_status(ctx, repo, args) -> None:
     data, _ = repo.load_archinstall()
+    cfg = Config.load(repo)
 
     header("zenix")
     info(f"repo: {repo.root}")
 
     print(f"\n  {paint('1', 'wallpaper')}")
-    for label, var in (("desktop", DESKTOP_VAR), ("greeter", GREETER_VAR)):
-        name = repo.read_shell_var(var)
+    for label, key in (("desktop", DESKTOP_KEY), ("greeter", GREETER_KEY)):
+        name = cfg.get(key)
         missing = "" if (repo.wallpaper_dir / (name or "")).is_file() else paint("31", "  MISSING")
         _row(label, name, missing)
     deployed = SDDM_THEME_DIR / "background.png"
     _row("greeter@", "installed" if deployed.is_file() else "not deployed", f"  ({deployed})")
 
     print(f"\n  {paint('1', 'theme')}")
-    name = repo.read_shell_var(THEME_VAR)
+    name = cfg.get(THEME_KEY)
     _row("name", name or paint("31", "unset"))
     if name in gen.names(repo):
         t = gen.load(repo, name)

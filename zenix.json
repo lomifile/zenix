@@ -1,0 +1,27 @@
+{
+  "theme": "catppuccin-macchiato",
+  "wallpaper": {
+    "desktop": "japan-artistic-5120x2880-25406.jpg",
+    "greeter": "couple-bus-sunset.jpg"
+  },
+  "display": {
+    "laptop": "eDP-1",
+    "laptop_when_docked": "off",
+    "scale": "auto",
+    "monitors": {}
+  },
+  "waybar": {
+    "opacity": 0.7,
+    "height": 32
+  },
+  "nightlight": {
+    "mode": "custom",
+    "day_temp": 6500,
+    "night_temp": 4500,
+    "start": "20:00",
+    "end": "07:00",
+    "transition_minutes": 30,
+    "latitude": 45.81,
+    "longitude": 15.98
+  }
+}

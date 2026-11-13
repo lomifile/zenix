@@ -11,7 +11,7 @@
 title-text: ""
 
 desktop-image: "background.png"
-desktop-color: "#11111b"
+desktop-color: "#181926"
 
 terminal-font: "Inter Regular 16"
 terminal-left: "8%"
@@ -21,8 +21,8 @@ terminal-height: "78%"
 terminal-border: "0"
 
 message-font: "Inter Regular 16"
-message-color: "#cdd6f4"
-message-bg-color: "#11111b"
+message-color: "#cad3f5"
+message-bg-color: "#181926"
 
 # ---- the entries ----
 
@@ -33,8 +33,8 @@ message-bg-color: "#11111b"
     height = 46%
 
     item_font           = "Inter Regular 20"
-    item_color          = "#a6adc8"
-    selected_item_color = "#cdd6f4"
+    item_color          = "#a5adcb"
+    selected_item_color = "#cad3f5"
 
     # tall rows so each icon has room to breathe, the way the Startup
     # Manager spaces its disks
@@ -61,7 +61,7 @@ message-bg-color: "#11111b"
     width        = 240
     height       = 3
     text         = ""
-    bg_color     = "#313244"
-    fg_color     = "#cdd6f4"
-    border_color = "#313244"
+    bg_color     = "#363a4f"
+    fg_color     = "#cad3f5"
+    border_color = "#363a4f"
 }

@@ -6,6 +6,8 @@ import json
 import re
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest import mock
 
 from tests.support import FIXTURE_THEME, RepoCase, make_theme
 
@@ -386,16 +388,82 @@ class Renderers(RepoCase):
         self.assertFalse(any("grub" in str(p) for p in files))
 
 
+WAYBAR_CSS = "/* >>> zenix theme <<< */\nold\n/* >>> end zenix theme <<< */\n"
+WAYBAR_JSONC = """{
+  "height": 36,
+  "clock": {
+    "calendar": {
+      "format": {
+        "months": "<span color='#000000'><b>{}</b></span>",
+        "days": "<span color='#000000'>{}</span>",
+        "weeks": "<span color='#000000'>W{}</span>",
+        "weekdays": "<span color='#000000'><b>{}</b></span>",
+        "today": "<span color='#000000'><b>{}</b></span>"
+      }
+    }
+  }
+}
+"""
+
+
+class WaybarBar(RepoCase):
+    def theme(self):
+        return theme.load(self.repo, "fixture")
+
+    def test_bar_background_is_the_surface_at_the_configured_opacity(self):
+        out = theme.rewrite_waybar_css(WAYBAR_CSS, self.theme(), {"opacity": 1.0})
+        self.assertIn("@define-color bar-bg rgba(72, 56, 56, 1.0);", out)
+
+    def test_bar_opacity_defaults_to_seventy_percent(self):
+        out = theme.rewrite_waybar_css(WAYBAR_CSS, self.theme())
+        self.assertIn("@define-color bar-bg rgba(72, 56, 56, 0.7);", out)
+
+    def test_bar_opacity_is_clamped(self):
+        out = theme.rewrite_waybar_css(WAYBAR_CSS, self.theme(), {"opacity": 3})
+        self.assertIn("rgba(72, 56, 56, 1.0);", out)
+
+    def test_bar_height_comes_from_config(self):
+        out = theme.rewrite_waybar_config(WAYBAR_JSONC, self.theme(), {"height": 28})
+        self.assertIn('"height": 28,', out)
+
+    def test_theme_plan_keeps_the_configured_opacity(self):
+        (self.root / "waybar").mkdir(exist_ok=True)
+        (self.root / "waybar" / "waybar-style.css").write_text(WAYBAR_CSS)
+        cfg = json.loads(self.repo.zenix_json.read_text())
+        cfg["waybar"]["opacity"] = 0.85
+        self.repo.zenix_json.write_text(json.dumps(cfg))
+        files = theme.plan(self.theme(), self.repo)
+        css = files[self.root / "waybar" / "waybar-style.css"]
+        self.assertIn("@define-color bar-bg rgba(72, 56, 56, 0.85);", css)
+
+    def test_local_override_of_opacity_wins(self):
+        (self.root / "waybar").mkdir(exist_ok=True)
+        (self.root / "waybar" / "waybar-style.css").write_text(WAYBAR_CSS)
+        local = self.home / ".config" / "zenix" / "config.json"
+        local.parent.mkdir(parents=True)
+        local.write_text('{"waybar": {"opacity": 1}}')
+        css = theme.plan(self.theme(), self.repo)[self.root / "waybar" / "waybar-style.css"]
+        self.assertIn("rgba(72, 56, 56, 1.0);", css)
+
+
 @real_only
 class ShippedThemes(unittest.TestCase):
     """Invariants every theme in themes/ has to satisfy."""
 
     @classmethod
     def setUpClass(cls):
+        cls._home = TemporaryDirectory()
+        cls._home_patch = mock.patch.object(Path, "home", return_value=Path(cls._home.name))
+        cls._home_patch.start()
         cls.repo = Repo(REAL)
         cls.names = theme.names(cls.repo)
         cls.themes = {n: theme.load(cls.repo, n) for n in cls.names}
         cls.reference = cls.themes["xcode-zenix"]
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._home_patch.stop()
+        cls._home.cleanup()
 
     def test_the_four_catppuccin_flavours_and_the_original_are_present(self):
         self.assertEqual(
@@ -492,7 +560,7 @@ class ShippedThemes(unittest.TestCase):
         If this fails, either someone hand-edited a generated file or a
         renderer drifted -- and `zenix theme set` would quietly revert them.
         """
-        name = self.repo.read_shell_var("THEME_NAME")
+        name = json.loads(self.repo.zenix_json.read_text())["theme"]
         self.assertIn(name, self.names)
         for path, text in theme.plan(self.themes[name], self.repo).items():
             with self.subTest(path=str(path.relative_to(REAL))):

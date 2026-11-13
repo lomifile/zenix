@@ -100,6 +100,7 @@ class FindRepo(RepoCase):
 class Paths(RepoCase):
     def test_points_at_the_files_the_cli_edits(self):
         self.assertEqual(self.repo.install_sh, self.root / "install.sh")
+        self.assertEqual(self.repo.zenix_json, self.root / "zenix.json")
         self.assertEqual(self.repo.hyprland_lua, self.root / "hypr" / "hyprland.lua")
         self.assertEqual(self.repo.archinstall, self.root / "user_configuration.json")
         self.assertEqual(self.repo.wallpaper_dir, self.root / "assets" / "wallpaper")
@@ -126,40 +127,6 @@ class Wallpapers(RepoCase):
         self.assertIn(".webp", IMAGE_SUFFIXES)
         self.assertNotIn(".webp", GREETER_SUFFIXES)
         self.assertTrue(GREETER_SUFFIXES < IMAGE_SUFFIXES)
-
-
-class ShellVar(RepoCase):
-    def test_reads_a_quoted_assignment(self):
-        self.assertEqual(self.repo.read_shell_var("WALLPAPER_NAME"), "desk.png")
-        self.assertEqual(self.repo.read_shell_var("GREETER_WALLPAPER_NAME"), "greet.jpg")
-
-    def test_unknown_var_is_none(self):
-        self.assertIsNone(self.repo.read_shell_var("NOPE"))
-
-    def test_an_indented_assignment_is_not_the_top_level_one(self):
-        self.repo.install_sh.write_text('  INDENTED="x"\n')
-        self.assertIsNone(self.repo.read_shell_var("INDENTED"))
-
-    def test_set_replaces_only_the_value(self):
-        self.repo.set_shell_var(self.no_apply, "WALLPAPER_NAME", "new.png")
-        text = self.install_sh()
-        self.assertIn('WALLPAPER_NAME="new.png"', text)
-        self.assertIn('GREETER_WALLPAPER_NAME="greet.jpg"', text)
-        self.assertIn("set -euo pipefail", text)
-
-    def test_set_is_a_no_op_under_dry_run(self):
-        with mock.patch.object(console, "_TTY", False):
-            capture(self.repo.set_shell_var, self.dry, "WALLPAPER_NAME", "new.png")
-        self.assertIn('WALLPAPER_NAME="desk.png"', self.install_sh())
-
-    def test_setting_a_prefix_does_not_hit_the_longer_name(self):
-        self.repo.set_shell_var(self.no_apply, "WALLPAPER_NAME", "x.png")
-        self.assertIn('GREETER_WALLPAPER_NAME="greet.jpg"', self.install_sh())
-
-    def test_a_missing_var_is_a_sync_error(self):
-        with self.assertRaises(ZenixError) as caught:
-            self.repo.set_shell_var(self.no_apply, "GONE", "x")
-        self.assertIn("out of sync", str(caught.exception))
 
 
 class LuaField(RepoCase):

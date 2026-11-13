@@ -9,6 +9,14 @@ applied live but not written back would be lost on the next rebuild.
 
 ```
 zenix status                          # what is configured where, repo vs live
+zenix config show [--source]          # zenix.json merged with ~/.config/zenix/config.json
+zenix config get KEY                  # dotted key, e.g. display.laptop
+zenix config set KEY VALUE [--local]  # --local writes this machine's override only
+zenix config path
+zenix display list                    # outputs, laptop vs external, what refresh would do
+zenix display refresh [--auto]        # external first, laptop as fallback (Ctrl+Shift+F5)
+zenix nightlight on|off|toggle|auto   # override until the next scheduled change; auto = schedule
+zenix nightlight status               # mode, tonight's window, temperature now
 zenix theme list                      # the themes in themes/, current one tagged
 zenix theme current                   # and whether every surface agrees
 zenix theme show NAME                 # the resolved palette, role by role

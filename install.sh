@@ -26,17 +26,33 @@ FAILED=()
 AUR_EXTRA=()
 # Set by install_aur_helper: whichever of yay/paru we end up driving.
 AUR_HELPER=
-# The image hyprpaper shows on the desktop, picked by name out of
-# assets/wallpaper/; SRC/DEST are filled in by resolve_wallpaper.
-WALLPAPER_NAME="japan-artistic-5120x2880-25406.jpg"
+zenix_config() {
+  command -v python3 >/dev/null || { printf '%s' "$2"; return; }
+  python3 - "$REPO/zenix.json" "$CONFIG/zenix/config.json" "$1" "$2" <<'PY'
+import json, sys
+def load(p):
+    try:
+        with open(p) as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+def merge(a, b):
+    out = dict(a)
+    for k, v in b.items():
+        out[k] = merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+node = merge(load(sys.argv[1]), load(sys.argv[2]))
+for part in sys.argv[3].split("."):
+    node = node.get(part) if isinstance(node, dict) else None
+print(node if isinstance(node, str) and node else sys.argv[4], end="")
+PY
+}
+WALLPAPER_NAME="$(zenix_config wallpaper.desktop "japan-artistic-5120x2880-25406.jpg")"
 WALLPAPER_SRC= WALLPAPER_DEST=
-# The greeter gets its own, picked by name out of assets/wallpaper/.
-GREETER_WALLPAPER_NAME="couple-bus-sunset.jpg"
+GREETER_WALLPAPER_NAME="$(zenix_config wallpaper.greeter "couple-bus-sunset.jpg")"
 GREETER_WALLPAPER_SRC= GREETER_WALLPAPER_DEST=
-# The colour theme every surface is generated from, picked by name out of
-# themes/. Written by `zenix theme set`; install.sh only reads it, because the
-# generated files are committed rather than built here.
-THEME_NAME="catppuccin-mocha"
+THEME_NAME="$(zenix_config theme "catppuccin-mocha")"
 
 # ---------------------------------------------------------------- output ----
 
