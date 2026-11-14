@@ -170,6 +170,10 @@ terminus-font
 # --- terminal / shell / cli ---
 ghostty
 zsh
+# green-for-valid / red-for-unknown as you type, plus grey ghost-text history
+# completion. Sourced at the end of zsh/.zshrc, which is where they must load.
+zsh-syntax-highlighting
+zsh-autosuggestions
 tmux
 neovim
 fzf

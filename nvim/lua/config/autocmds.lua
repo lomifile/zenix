@@ -11,3 +11,14 @@ vim.api.nvim_create_autocmd("TermOpen", {
     end
   end,
 })
+
+-- The sidebar's panel label. This used to ride on lualine's winbar, but winbar
+-- is per-window, so the buffer chips sharing that bar were redrawn once per
+-- split. The chips moved to the tabline; the label stays per-window, because
+-- naming the panel a window holds is genuinely per-window information.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "neo-tree",
+  callback = function()
+    vim.opt_local.winbar = "%#ZenixExplorer#  EXPLORER"
+  end,
+})

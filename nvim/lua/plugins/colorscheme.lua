@@ -67,7 +67,6 @@ return {
         globalstatus = true,
         disabled_filetypes = {
           statusline = { "dashboard", "alpha", "snacks_dashboard" },
-          winbar = { "dashboard", "alpha", "snacks_dashboard", "trouble", "toggleterm", "snacks_terminal", "terminal" },
         },
       })
 
@@ -170,8 +169,9 @@ return {
         },
       }
 
-      -- Row 1: the title bar. Neovim has one tabline, so it holds the window
-      -- title and the buffer chips live in the winbar below it.
+      -- The one global bar. The chips list every loaded buffer, which is global
+      -- state, so they belong here and not in a winbar: winbar is per-window,
+      -- so Neovim drew the identical chip row once per split.
       opts.tabline = {
         lualine_a = {
           {
@@ -190,34 +190,18 @@ return {
           },
         },
         lualine_b = {},
-        lualine_c = {},
+        lualine_c = { { buffer_chips, padding = 0 } },
         lualine_x = {},
         lualine_y = {},
         lualine_z = {},
       }
 
-      -- Row 2: buffer chips, or the panel's name over a sidebar. One component
-      -- for both because the winbar is per-window and the sidebar is a window.
-      local winbar = {
-        lualine_a = {},
-        lualine_b = {},
-        lualine_c = {
-          {
-            function()
-              if vim.bo.filetype == "neo-tree" then
-                return "%#ZenixExplorer#  EXPLORER"
-              end
-              return buffer_chips()
-            end,
-            padding = 0,
-          },
-        },
-        lualine_x = {},
-        lualine_y = {},
-        lualine_z = {},
-      }
-      opts.winbar = winbar
-      opts.inactive_winbar = winbar
+      -- No winbar at all. Leaving the sections empty is what keeps lualine from
+      -- setting the option: a component returning "" still costs every window a
+      -- screen line. The sidebar's own EXPLORER label is set window-locally in
+      -- config/autocmds.lua instead, so only that window pays for it.
+      opts.winbar = {}
+      opts.inactive_winbar = {}
 
       opts.inactive_sections = {
         lualine_a = {},

@@ -2,6 +2,11 @@
 # Layout mirrors dot_config/fish: this file is the zsh equivalent of
 # fish's config.fish + functions/*.fish + conf.d/*.fish combined.
 
+# The pnpm installer replaces this symlink with a copy when it appends to
+# $ZDOTDIR/.zshrc, after which repo edits silently stop taking effect.
+[[ -L ${ZDOTDIR:-$HOME}/.zshrc ]] || print -u2 \
+  "zenix: ${ZDOTDIR:-$HOME}/.zshrc is a copy, not a symlink -- run: ln -sfn $HOME/build/zenix/zsh/.zshrc ${ZDOTDIR:-$HOME}/.zshrc"
+
 # --- distro base (was ~/.zshrc, stock Manjaro default) ---
 USE_POWERLINE="true"
 HAS_WIDECHARS="false"
@@ -49,14 +54,26 @@ case ":$PATH:" in
 esac
 
 # --- pnpm ---
+# pnpm's installer puts its shims in $PNPM_HOME/bin; older layouts put them
+# directly in $PNPM_HOME. Add whichever exist. Prepended in this order so the
+# newer bin/ layout ends up ahead of the legacy one in PATH.
 export PNPM_HOME="$HOME/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+for _pnpm_dir in "$PNPM_HOME" "$PNPM_HOME/bin"; do
+  [[ -d $_pnpm_dir ]] || continue
+  case ":$PATH:" in
+    *":$_pnpm_dir:"*) ;;
+    *) export PATH="$_pnpm_dir:$PATH" ;;
+  esac
+done
+unset _pnpm_dir
 
 # --- opencode ---
-export PATH="$HOME/.opencode/bin:$PATH"
+if [[ -d $HOME/.opencode/bin ]]; then
+  case ":$PATH:" in
+    *":$HOME/.opencode/bin:"*) ;;
+    *) export PATH="$HOME/.opencode/bin:$PATH" ;;
+  esac
+fi
 
 # --- deno (was conf.d/deno.fish) ---
 [[ -f "$HOME/.deno/env" ]] && source "$HOME/.deno/env"
@@ -116,3 +133,13 @@ export FZF_CTRL_R_OPTS="
 "
 
 source <(fzf --zsh)
+
+_zsh_plugins=/usr/share/zsh/plugins
+
+[[ -f $_zsh_plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
+  source $_zsh_plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+[[ -f $_zsh_plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] &&
+  source $_zsh_plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+unset _zsh_plugins

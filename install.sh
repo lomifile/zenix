@@ -924,7 +924,9 @@ install_webapps() {
 # pnpm and Claude Code are installed with their own installers rather than from
 # the repos or the AUR, because both self-update in place and both land in
 # ~/.local, which is where this setup already looks for them: zsh/.zshrc exports
-# PNPM_HOME=~/.local/share/pnpm and puts ~/.local/bin on PATH.
+# PNPM_HOME=~/.local/share/pnpm, adds both $PNPM_HOME/bin (where pnpm's
+# installer puts its shims) and $PNPM_HOME to PATH, and puts ~/.local/bin on
+# PATH.
 
 # Run a shell pipeline that `run` cannot express as an argv list.
 run_pipeline() {
@@ -941,10 +943,19 @@ install_pnpm() {
     return
   fi
 
+  # pnpm's installer puts its shims in $PNPM_HOME/bin. Check there too: this
+  # shell may predate the PATH entry, and relying on `command -v` alone made
+  # every re-run reinstall an already-working pnpm.
+  local pnpm_bin="$HOME/.local/share/pnpm/bin/pnpm"
+  if [[ -x $pnpm_bin ]]; then
+    skip "pnpm already installed ($("$pnpm_bin" --version 2>/dev/null)), not on PATH in this shell"
+    return
+  fi
+
   info "installing pnpm"
   # SHELL is pinned to bash so pnpm's installer appends its PATH block to
   # ~/.bashrc instead of ~/.config/zsh/.zshrc — that file is a symlink into
-  # this repo, and zsh/.zshrc already sets PNPM_HOME and the PATH entry.
+  # this repo, and zsh/.zshrc sets PNPM_HOME and covers both shim layouts.
   if run_pipeline 'curl -fsSL https://get.pnpm.io/install.sh | SHELL=/bin/bash PNPM_HOME="$HOME/.local/share/pnpm" sh -'; then
     ok "pnpm installed to ~/.local/share/pnpm"
   else
