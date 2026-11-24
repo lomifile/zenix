@@ -1,7 +1,19 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
+
+INTERNAL = re.compile(r"^(eDP|LVDS|DSI)(-|$)")
+EXTERNAL = re.compile(r"^(HDMI|DP|DVI|VGA|USB|TV|Composite|SVIDEO|Component|DIN|DPI)(-|$)")
+
+
+def is_internal(name: str, laptop: str = "eDP-1") -> bool:
+    return name == laptop or bool(INTERNAL.match(name))
+
+
+def is_external(name: str, laptop: str = "eDP-1") -> bool:
+    return not is_internal(name, laptop) and bool(EXTERNAL.match(name))
 
 
 @dataclass(frozen=True)
@@ -54,8 +66,8 @@ def _enabled_rule(monitor: Monitor, cfg: dict) -> dict:
 
 def plan_layout(monitors: list[Monitor], cfg: dict) -> list[dict]:
     laptop_name = cfg.get("laptop", "eDP-1")
-    laptops = [m for m in monitors if m.name == laptop_name]
-    externals = [m for m in monitors if m.name != laptop_name]
+    laptops = [m for m in monitors if is_internal(m.name, laptop_name)]
+    externals = [m for m in monitors if is_external(m.name, laptop_name)]
 
     enables = [_enabled_rule(m, cfg) for m in externals]
     disables = []
@@ -102,6 +114,10 @@ def to_lua(rule: dict) -> str:
     return f"hl.monitor({_lua_table(rule)})"
 
 
-def saved_lua(rules: list[dict], laptop: str) -> str:
+def saved_lua(rules: list[dict], laptop: str, *, laptop_when_docked: bool = False) -> str:
     body = "".join(f"\t\t{_lua_table(rule)},\n" for rule in rules)
-    return f"return {{\n\tlaptop = {_lua_value(laptop)},\n\trules = {{\n{body}\t}},\n}}\n"
+    return (
+        f"return {{\n\tlaptop = {_lua_value(laptop)},\n"
+        f"\tlaptop_when_docked = {_lua_value(laptop_when_docked)},\n"
+        f"\trules = {{\n{body}\t}},\n}}\n"
+    )

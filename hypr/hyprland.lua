@@ -1,42 +1,127 @@
-local display = { laptop = "eDP-1", rules = {} }
+local display = { laptop = "eDP-1", laptop_when_docked = false, rules = {} }
 local display_ok, display_saved = pcall(dofile, os.getenv("HOME") .. "/.config/zenix/display.lua")
 if display_ok and type(display_saved) == "table" then
 	display = display_saved
 end
 
-local function external_connected()
-	for _, m in ipairs(hl.get_monitors()) do
-		if m.name ~= display.laptop then
+local internal_prefixes = { "eDP", "LVDS", "DSI" }
+local external_prefixes = { "HDMI", "DP", "DVI", "VGA", "USB", "TV", "Composite", "SVIDEO", "Component", "DIN", "DPI" }
+
+local function has_prefix(name, prefixes)
+	for _, prefix in ipairs(prefixes) do
+		if name == prefix or name:sub(1, #prefix + 1) == prefix .. "-" then
 			return true
 		end
 	end
 	return false
 end
 
+local function is_internal(name)
+	return name == display.laptop or has_prefix(name, internal_prefixes)
+end
+
+local function is_external(name)
+	return not is_internal(name) and has_prefix(name, external_prefixes)
+end
+
+local function connected_outputs()
+	local found = {}
+	local pipe = io.popen("grep -H . /sys/class/drm/card*-*/status 2>/dev/null")
+	if not pipe then
+		return found
+	end
+	for line in pipe:lines() do
+		local name, status = line:match("/card%d+%-([^/]+)/status:(%a+)")
+		if name and status == "connected" then
+			found[#found + 1] = name
+		end
+	end
+	pipe:close()
+	return found
+end
+
+local function laptop_outputs(connected)
+	local names, seen = {}, {}
+	for _, name in ipairs(connected) do
+		if is_internal(name) and not seen[name] then
+			names[#names + 1], seen[name] = name, true
+		end
+	end
+	if not seen[display.laptop] then
+		names[#names + 1] = display.laptop
+	end
+	return names
+end
+
+local function is_docked(connected)
+	for _, name in ipairs(connected) do
+		if is_external(name) then
+			return true
+		end
+	end
+	for _, m in ipairs(hl.get_monitors()) do
+		if is_external(m.name) then
+			return true
+		end
+	end
+	return false
+end
+
+local function laptop_on_rule(name)
+	for _, rule in ipairs(display.rules or {}) do
+		if rule.output == name and not rule.disabled then
+			return rule
+		end
+	end
+	return { output = name, mode = "preferred", position = "auto", scale = "auto" }
+end
+
+local function enabled_outputs()
+	local enabled = {}
+	for _, m in ipairs(hl.get_monitors()) do
+		enabled[m.name] = true
+	end
+	return enabled
+end
+
+local function apply_layout(only_changes)
+	local connected = connected_outputs()
+	local want_off = is_docked(connected) and not display.laptop_when_docked
+	local enabled = only_changes and enabled_outputs() or nil
+	for _, name in ipairs(laptop_outputs(connected)) do
+		if want_off then
+			if not enabled or enabled[name] then
+				hl.monitor({ output = name, disabled = true })
+			end
+		elseif not enabled or not enabled[name] then
+			hl.monitor(laptop_on_rule(name))
+		end
+	end
+end
+
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
 
-local docked = external_connected()
-local saved_rules = display.rules or {}
-for _, rule in ipairs(saved_rules) do
-	if not (rule.disabled and not docked) then
+for _, rule in ipairs(display.rules or {}) do
+	if not is_internal(rule.output) then
 		hl.monitor(rule)
 	end
 end
-if #saved_rules == 0 and docked then
-	hl.monitor({ output = display.laptop, disabled = true })
-end
+apply_layout(false)
 
 local terminal = "ghostty"
 local fileManager = "thunar"
 local menu = "pkill -x wofi || wofi --show drun"
 
 local function refresh_displays()
+	apply_layout(true)
 	if #hl.get_monitors() == 0 then
-		hl.monitor({ output = display.laptop, mode = "preferred", position = "auto", scale = "auto" })
+		hl.monitor(laptop_on_rule(display.laptop))
 	end
 	hl.exec_cmd("zenix display refresh --auto")
 end
 
+hl.on("monitor.added", refresh_displays)
+hl.on("monitor.removed", refresh_displays)
 hl.on("monitor.layout_changed", refresh_displays)
 hl.on("config.reloaded", refresh_displays)
 

@@ -5,7 +5,7 @@ from pathlib import Path
 from zenix.config import Config
 from zenix.console import dim, header, info, ok, paint, warn
 from zenix.context import capture, live_hypr_instance, which
-from zenix.display import parse_monitors, pending, plan_layout, saved_lua, to_lua
+from zenix.display import is_external, is_internal, parse_monitors, pending, plan_layout, saved_lua, to_lua
 
 SAVED_RELPATH = Path(".config") / "zenix" / "display.lua"
 
@@ -48,7 +48,8 @@ def cmd_list(ctx, repo, args) -> None:
     header("Outputs")
     width = max((len(m.name) for m in monitors), default=0)
     for m in monitors:
-        role = "laptop" if m.name == cfg.get("laptop", "eDP-1") else "external"
+        laptop = cfg.get("laptop", "eDP-1")
+        role = "laptop" if is_internal(m.name, laptop) else "external" if is_external(m.name, laptop) else "other"
         state = paint("2", "off") if m.disabled else paint("32", "on")
         want = "off" if rules.get(m.name, {}).get("disabled") else "on"
         print(f"    {m.name:<{width}}  {role:<8}  {state}  scale {m.scale:g}  -> {want}  {paint('2', m.description)}")
@@ -73,7 +74,8 @@ def cmd_refresh(ctx, repo, args) -> None:
             ok(f"{rule['output']} {state}")
 
     path = saved_path()
-    text = saved_lua(rules, cfg.get("laptop", "eDP-1"))
+    text = saved_lua(rules, cfg.get("laptop", "eDP-1"),
+                     laptop_when_docked=cfg.get("laptop_when_docked", "off") == "on")
     if not path.is_file() or path.read_text() != text:
         ctx.write(path, text)
 

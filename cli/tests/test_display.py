@@ -9,7 +9,7 @@ from tests.support import RepoCase, capture
 
 from zenix import console
 from zenix.commands import display as display_cmd
-from zenix.display import Monitor, parse_monitors, pending, plan_layout, saved_lua, to_lua
+from zenix.display import Monitor, is_external, is_internal, parse_monitors, pending, plan_layout, saved_lua, to_lua
 
 CFG = {"laptop": "eDP-1", "laptop_when_docked": "off", "scale": "auto", "monitors": {}}
 
@@ -85,6 +85,30 @@ class PlanLayout(unittest.TestCase):
         self.assertTrue(rules[-1].get("disabled"))
 
 
+class Classify(unittest.TestCase):
+    def test_external_connector_variants(self):
+        for name in ["HDMI-A-1", "HDMI-A-2", "DP-1", "DP-10", "DVI-I-1", "DVI-D-1", "VGA-1", "USB-C-1"]:
+            self.assertTrue(is_external(name), name)
+
+    def test_internal_panels_are_never_external(self):
+        for name in ["eDP-1", "eDP-2", "LVDS-1", "DSI-1"]:
+            self.assertTrue(is_internal(name), name)
+            self.assertFalse(is_external(name), name)
+
+    def test_virtual_outputs_are_neither(self):
+        for name in ["HEADLESS-1", "FALLBACK", "Writeback-1"]:
+            self.assertFalse(is_internal(name), name)
+            self.assertFalse(is_external(name), name)
+
+    def test_second_internal_panel_is_turned_off_when_docked(self):
+        rules = plan_layout([Monitor("eDP-2"), SAMSUNG], CFG)
+        self.assertEqual(outputs(rules, disabled=True), ["eDP-2"])
+
+    def test_headless_output_does_not_count_as_docked(self):
+        rules = plan_layout([LAPTOP_OFF, Monitor("HEADLESS-1")], CFG)
+        self.assertEqual(outputs(rules, disabled=False), ["eDP-1"])
+
+
 class Pending(unittest.TestCase):
     def test_already_correct_is_empty_in_auto_mode(self):
         monitors = [LAPTOP_OFF, SAMSUNG]
@@ -127,6 +151,7 @@ class Lua(unittest.TestCase):
         text = saved_lua([{"output": "eDP-1", "disabled": True}], "eDP-1")
         self.assertTrue(text.startswith("return {"))
         self.assertIn('laptop = "eDP-1"', text)
+        self.assertIn("laptop_when_docked = false", text)
         self.assertIn('{ output = "eDP-1", disabled = true }', text)
 
 
