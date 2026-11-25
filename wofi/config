@@ -9,7 +9,7 @@ allow_images=true
 image_size=32
 
 insensitive=true
-matching=fuzzy
+matching=multi-contains
 no_actions=true
 hide_scroll=true
 
