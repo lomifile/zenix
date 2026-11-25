@@ -420,6 +420,7 @@ link_dotfiles() {
 
   # grim + satty behind the screenshot keybinds, for the same reason.
   link "$REPO/bin/zenix-screenshot" "$HOME/.local/bin/zenix-screenshot"
+  link "$REPO/bin/zenix-after-sleep" "$HOME/.local/bin/zenix-after-sleep"
 
   # zsh reads from $ZDOTDIR, set by the ~/.zshenv written below
   link "$REPO/zsh/.zshrc" "$CONFIG/zsh/.zshrc"
@@ -1144,6 +1145,18 @@ enable_services() {
   run xdg-user-dirs-update || true
 
   install_logind_conf
+  install_udev_rules
+}
+
+install_udev_rules() {
+  local f dest=/etc/udev/rules.d
+  for f in "$REPO"/systemd/udev.rules.d/*.rules; do
+    [[ -e "$f" ]] || continue
+    run sudo install -m 644 "$f" "$dest/$(basename "$f")"
+  done
+  run sudo udevadm control --reload
+  run sudo udevadm trigger --settle --action=change --subsystem-match=i2c
+  ok "touchpad can no longer wake the machine or abort hibernate"
 }
 
 install_logind_conf() {

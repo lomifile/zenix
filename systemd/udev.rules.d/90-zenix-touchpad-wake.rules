@@ -1,0 +1,1 @@
+ACTION=="add|change", SUBSYSTEM=="i2c", KERNEL=="i2c-ELAN*|i2c-SYNA*|i2c-ASUE*|i2c-MSFT*", ATTR{power/wakeup}=="enabled", ATTR{power/wakeup}="disabled"

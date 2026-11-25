@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+hyprctl dispatch 'hl.dsp.dpms({ action = "on" })' >/dev/null
+setsid -f bash -c '
+  sleep 2
+  pkill -x hypridle
+  for _ in {1..25}; do pgrep -x hypridle >/dev/null || break; sleep 0.2; done
+  hyprctl dispatch "hl.exec_cmd(\"hypridle\")" >/dev/null
+' >/dev/null 2>&1
