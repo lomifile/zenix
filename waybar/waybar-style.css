@@ -101,6 +101,7 @@ window#waybar.empty #window {
 #custom-volume,
 #custom-battery,
 #custom-agenda,
+#language,
 #network,
 #bluetooth {
     padding: 0 9px;
@@ -117,6 +118,7 @@ window#waybar.empty #window {
 #custom-volume:hover,
 #custom-battery:hover,
 #custom-agenda:hover,
+#language:hover,
 #network:hover,
 #bluetooth:hover {
     background-color: @hover;
@@ -127,6 +129,7 @@ window#waybar.empty #window {
 #custom-volume  { color: @fg; }
 #custom-battery { color: @fg; }
 #bluetooth      { color: @accent; }
+#language       { color: @fg; }
 
 #custom-agenda              { color: @fg; }
 #custom-agenda.empty        { color: @grey; }

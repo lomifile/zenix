@@ -18,6 +18,7 @@
     "bluetooth",
     "custom/volume",
     "custom/battery",
+    "hyprland/language",
     "custom/agenda"
   ],
 
@@ -72,6 +73,14 @@
     "interval": 60,
     "on-click": "xdg-open https://calendar.google.com",
     "on-click-right": "systemctl --user start zenix-agenda.service"
+  },
+
+  "hyprland/language": {
+    "format": "󰌌 {short}",
+    "format-en": "󰌌 US",
+    "format-hr": "󰌌 HR",
+    "tooltip-format": "{long}",
+    "on-click": "hyprctl switchxkblayout all next"
   },
 
   "custom/cpu": {
